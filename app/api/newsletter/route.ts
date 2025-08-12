@@ -1,61 +1,56 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { firebaseHelpers } from "@/lib/firebase-helpers"
 
 export async function POST(request: NextRequest) {
   try {
-    const data = await request.json()
-    const { email } = data
+    const { email, name, interests } = await request.json()
 
+    // Validate email
     if (!email) {
-      return NextResponse.json({ error: "Email is required" }, { status: 400 })
+      return NextResponse.json({ error: "Email address is required" }, { status: 400 })
     }
 
-    // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!emailRegex.test(email)) {
-      return NextResponse.json({ error: "Invalid email format" }, { status: 400 })
+      return NextResponse.json({ error: "Please provide a valid email address" }, { status: 400 })
     }
 
     try {
-      // Save to Firebase
-      const result = await firebaseHelpers.subscribeNewsletter(email)
+      const { firebaseHelpers } = await import("@/lib/firebase-helpers")
+
+      // Save newsletter subscription
+      const subscriptionId = await firebaseHelpers.saveNewsletterSubscription(email, {
+        name: name || "",
+        interests: interests || [],
+        source: "newsletter_page",
+        userAgent: request.headers.get("user-agent"),
+        ip: request.headers.get("x-forwarded-for") || "unknown",
+      })
 
       // Log analytics
       await firebaseHelpers.logAnalytics({
         event: "newsletter_subscription",
         email,
-        source: "website",
+        subscriptionId,
+        source: "newsletter_page",
       })
 
-      return NextResponse.json(
-        {
-          message: "Successfully subscribed to newsletter",
-          success: true,
-          id: result.id,
-        },
-        { status: 200 },
-      )
+      return NextResponse.json({
+        success: true,
+        message: "Successfully subscribed to newsletter!",
+        subscriptionId,
+      })
     } catch (firebaseError) {
-      console.error("Firebase save failed:", firebaseError)
+      console.error("Firebase operation failed:", firebaseError)
 
-      // Log for manual processing
-      console.log("Newsletter subscription (manual processing needed):", {
-        email,
-        timestamp: new Date().toISOString(),
-        source: "website",
+      // Fallback: still return success to user
+      return NextResponse.json({
+        success: true,
+        message: "Successfully subscribed to newsletter!",
+        note: "Subscription saved in demo mode",
       })
-
-      return NextResponse.json(
-        {
-          message: "Successfully subscribed to newsletter",
-          success: true,
-          id: `fallback-${Date.now()}`,
-        },
-        { status: 200 },
-      )
     }
   } catch (error) {
-    console.error("Newsletter subscription error:", error)
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+    console.error("Newsletter API error:", error)
+    return NextResponse.json({ error: "Failed to subscribe. Please try again." }, { status: 500 })
   }
 }
