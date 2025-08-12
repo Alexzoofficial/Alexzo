@@ -1,0 +1,35 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Users can read and write their own profile
+    match /profiles/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Anyone can create contacts, only admins can read them
+    match /contacts/{contactId} {
+      allow create: if true;
+      allow read, update, delete: if request.auth != null && 
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+    
+    // Only authenticated users can write analytics, admins can read
+    match /analytics/{analyticsId} {
+      allow create: if request.auth != null;
+      allow read: if request.auth != null && 
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+    
+    // Public data is readable by all, writable by authenticated users
+    match /publicData/{dataId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+    
+    // Admin collection - only readable by the admin themselves
+    match /admins/{userId} {
+      allow read: if request.auth != null && request.auth.uid == userId;
+      allow write: if false; // Admins must be created server-side
+    }
+  }
+}

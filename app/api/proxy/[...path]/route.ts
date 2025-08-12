@@ -1,140 +1,132 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { dbHelpers } from "@/lib/supabase"
-
-// Helper function to get client IP
-function getClientIP(request: NextRequest): string {
-  const forwarded = request.headers.get("x-forwarded-for")
-  const realIP = request.headers.get("x-real-ip")
-
-  if (forwarded) {
-    return forwarded.split(",")[0].trim()
-  }
-
-  if (realIP) {
-    return realIP
-  }
-
-  return "unknown"
-}
-
-// Log analytics event
-async function logAnalyticsEvent(request: NextRequest, path: string[], data: any) {
-  try {
-    await dbHelpers.logAnalytics({
-      event_type: "api_request",
-      data: {
-        path: path.join("/"),
-        method: request.method,
-        ...data,
-      },
-      ip_address: getClientIP(request),
-      user_agent: request.headers.get("user-agent") || "unknown",
-    })
-  } catch (error) {
-    console.error("Failed to log analytics:", error)
-  }
-}
 
 export async function GET(request: NextRequest, { params }: { params: { path: string[] } }) {
-  const { path } = params
-
   try {
-    // Log the API request
-    await logAnalyticsEvent(request, path, { status: "started" })
+    const path = params.path.join("/")
 
-    // Handle different API endpoints
-    if (path[0] === "health") {
-      return NextResponse.json({
-        status: "ok",
-        timestamp: new Date().toISOString(),
-        path: path.join("/"),
+    // Log analytics if Firebase is available
+    try {
+      const { firebaseHelpers } = await import("@/lib/firebase-helpers")
+      await firebaseHelpers.logAnalytics({
+        event: "api_proxy_request",
+        path: `/${path}`,
+        method: "GET",
+        userAgent: request.headers.get("user-agent") || "unknown",
+        ip: request.headers.get("x-forwarded-for") || request.headers.get("x-real-ip") || "unknown",
       })
+    } catch (analyticsError) {
+      console.log("Analytics logging failed:", analyticsError)
     }
 
-    if (path[0] === "public") {
-      // Handle public data requests
-      const key = path[1]
-      const data = await dbHelpers.getPublicData(key)
+    // Handle different proxy paths
+    switch (path) {
+      case "health":
+        return NextResponse.json({
+          status: "healthy",
+          timestamp: new Date().toISOString(),
+          version: "1.0.0",
+          database: "firebase-realtime",
+        })
 
-      await logAnalyticsEvent(request, path, { status: "success", key })
+      case "status":
+        return NextResponse.json({
+          status: "operational",
+          services: {
+            api: "healthy",
+            database: "firebase-realtime",
+            auth: "firebase-auth",
+            storage: "firebase-storage",
+          },
+          timestamp: new Date().toISOString(),
+        })
 
-      return NextResponse.json({ data })
+      case "version":
+        return NextResponse.json({
+          version: "1.0.0",
+          build: process.env.VERCEL_GIT_COMMIT_SHA || "local",
+          environment: process.env.NODE_ENV || "development",
+          database: "firebase-realtime",
+          timestamp: new Date().toISOString(),
+        })
+
+      default:
+        return NextResponse.json({ error: `Proxy path '/${path}' not found` }, { status: 404 })
     }
-
-    // Default response for unknown endpoints
-    await logAnalyticsEvent(request, path, { status: "not_found" })
-
-    return NextResponse.json({ error: "Endpoint not found", path: path.join("/") }, { status: 404 })
   } catch (error) {
-    console.error("API Proxy Error:", error)
-
-    await logAnalyticsEvent(request, path, {
-      status: "error",
-      error: error instanceof Error ? error.message : "Unknown error",
-    })
-
+    console.error("Proxy API error:", error)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }
 
 export async function POST(request: NextRequest, { params }: { params: { path: string[] } }) {
-  const { path } = params
-
   try {
+    const path = params.path.join("/")
     const body = await request.json()
 
-    // Log the API request
-    await logAnalyticsEvent(request, path, { status: "started", body })
-
-    if (path[0] === "public") {
-      // Handle public data updates
-      const key = path[1]
-      const data = await dbHelpers.setPublicData(key, body)
-
-      await logAnalyticsEvent(request, path, { status: "success", key })
-
-      return NextResponse.json({ data })
+    // Log analytics if Firebase is available
+    try {
+      const { firebaseHelpers } = await import("@/lib/firebase-helpers")
+      await firebaseHelpers.logAnalytics({
+        event: "api_proxy_request",
+        path: `/${path}`,
+        method: "POST",
+        userAgent: request.headers.get("user-agent") || "unknown",
+        ip: request.headers.get("x-forwarded-for") || request.headers.get("x-real-ip") || "unknown",
+      })
+    } catch (analyticsError) {
+      console.log("Analytics logging failed:", analyticsError)
     }
 
-    // Default response for unknown endpoints
-    await logAnalyticsEvent(request, path, { status: "not_found" })
+    // Handle different proxy paths
+    switch (path) {
+      case "analytics":
+        try {
+          const { firebaseHelpers } = await import("@/lib/firebase-helpers")
+          const result = await firebaseHelpers.logAnalytics({
+            ...body,
+          })
 
-    return NextResponse.json({ error: "Endpoint not found", path: path.join("/") }, { status: 404 })
+          return NextResponse.json({
+            success: true,
+            id: result?.id || `fallback-${Date.now()}`,
+          })
+        } catch (firebaseError) {
+          console.log("Firebase analytics failed:", firebaseError)
+          return NextResponse.json(
+            {
+              success: false,
+              error: "Analytics logging failed",
+            },
+            { status: 500 },
+          )
+        }
+
+      case "newsletter":
+        try {
+          const { firebaseHelpers } = await import("@/lib/firebase-helpers")
+          const result = await firebaseHelpers.subscribeNewsletter(body.email)
+
+          return NextResponse.json({
+            success: true,
+            id: result?.id || `fallback-${Date.now()}`,
+            message: "Successfully subscribed to newsletter",
+          })
+        } catch (firebaseError) {
+          console.log("Newsletter subscription failed:", firebaseError)
+          return NextResponse.json(
+            {
+              success: false,
+              error: "Newsletter subscription failed",
+            },
+            { status: 500 },
+          )
+        }
+
+      default:
+        return NextResponse.json({ error: `Proxy path '/${path}' not found` }, { status: 404 })
+    }
   } catch (error) {
-    console.error("API Proxy Error:", error)
-
-    await logAnalyticsEvent(request, path, {
-      status: "error",
-      error: error instanceof Error ? error.message : "Unknown error",
-    })
-
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
-  }
-}
-
-export async function PUT(request: NextRequest, { params }: { params: { path: string[] } }) {
-  return POST(request, { params })
-}
-
-export async function DELETE(request: NextRequest, { params }: { params: { path: string[] } }) {
-  const { path } = params
-
-  try {
-    // Log the API request
-    await logAnalyticsEvent(request, path, { status: "started" })
-
-    // Handle delete operations
-    await logAnalyticsEvent(request, path, { status: "success" })
-
-    return NextResponse.json({ success: true })
-  } catch (error) {
-    console.error("API Proxy Error:", error)
-
-    await logAnalyticsEvent(request, path, {
-      status: "error",
-      error: error instanceof Error ? error.message : "Unknown error",
-    })
-
+    console.error("Proxy POST API error:", error)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }

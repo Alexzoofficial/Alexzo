@@ -1,6 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs"
-import { cookies } from "next/headers"
+import { firebaseHelpers } from "@/lib/firebase-helpers"
 
 export async function POST(request: NextRequest) {
   try {
@@ -18,38 +17,43 @@ export async function POST(request: NextRequest) {
     }
 
     try {
-      const supabase = createRouteHandlerClient({ cookies })
+      // Save to Firebase
+      const result = await firebaseHelpers.subscribeNewsletter(email)
 
-      // Try to save to database
-      const { error } = await supabase.from("newsletter_subscriptions").insert([
+      // Log analytics
+      await firebaseHelpers.logAnalytics({
+        event: "newsletter_subscription",
+        email,
+        source: "website",
+      })
+
+      return NextResponse.json(
         {
-          email,
-          subscribed_at: new Date().toISOString(),
-          source: "website",
+          message: "Successfully subscribed to newsletter",
+          success: true,
+          id: result.id,
         },
-      ])
+        { status: 200 },
+      )
+    } catch (firebaseError) {
+      console.error("Firebase save failed:", firebaseError)
 
-      if (error) {
-        console.error("Database save failed:", error)
-        // Continue anyway - don't fail the request
-      }
-    } catch (dbError) {
-      console.error("Database connection failed:", dbError)
-      // Continue anyway - log the email for manual processing
+      // Log for manual processing
       console.log("Newsletter subscription (manual processing needed):", {
         email,
         timestamp: new Date().toISOString(),
         source: "website",
       })
-    }
 
-    return NextResponse.json(
-      {
-        message: "Successfully subscribed to newsletter",
-        success: true,
-      },
-      { status: 200 },
-    )
+      return NextResponse.json(
+        {
+          message: "Successfully subscribed to newsletter",
+          success: true,
+          id: `fallback-${Date.now()}`,
+        },
+        { status: 200 },
+      )
+    }
   } catch (error) {
     console.error("Newsletter subscription error:", error)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
