@@ -176,7 +176,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
                 if (!profile || !avatar) {
                   avatar = getRandomAvatar()
-                  await firebaseHelpers.saveProfile(firebaseUser.uid, {
+                  await firebaseHelpers.createProfile(firebaseUser.uid, {
                     full_name: firebaseUser.displayName || firebaseUser.email?.split("@")[0],
                     avatar_url: avatar,
                     email: firebaseUser.email,
@@ -419,7 +419,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // Create profile in Firebase Database
         try {
           const avatar = getRandomAvatar()
-          await firebaseHelpers.saveProfile(userCredential.user.uid, {
+          await firebaseHelpers.createProfile(userCredential.user.uid, {
             full_name: normalizedName,
             avatar_url: avatar,
             email: normalizedEmail,
@@ -536,7 +536,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       // Update Firebase Database profile
-      await firebaseHelpers.saveProfile(user.uid, {
+      await firebaseHelpers.updateProfile(user.uid, {
         full_name: updates.full_name,
         avatar_url: updates.avatar_url,
       })

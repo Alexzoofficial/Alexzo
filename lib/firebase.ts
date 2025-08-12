@@ -1,8 +1,7 @@
-import { initializeApp, getApps, getApp } from "firebase/app"
+import { initializeApp, getApps } from "firebase/app"
 import { getAuth } from "firebase/auth"
 import { getDatabase } from "firebase/database"
-import { getStorage } from "firebase/storage"
-import { getAnalytics, isSupported } from "firebase/analytics"
+import { getAnalytics } from "firebase/analytics"
 
 const firebaseConfig = {
   apiKey: "AIzaSyDAfy2fyJYLDA3WjK-VAo_zGgrYcxjkzws",
@@ -15,51 +14,27 @@ const firebaseConfig = {
   measurementId: "G-386HB7B9VJ",
 }
 
-// Initialize Firebase app
+// Initialize Firebase
 let app
-try {
-  app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp()
-} catch (error) {
-  console.error("Firebase initialization error:", error)
-  app = initializeApp(firebaseConfig)
-}
-
-// Initialize services with error handling
 let auth
 let database
-let storage
-let analytics = null
+let analytics
 
 try {
+  if (getApps().length === 0) {
+    app = initializeApp(firebaseConfig)
+  } else {
+    app = getApps()[0]
+  }
+
   auth = getAuth(app)
-} catch (error) {
-  console.error("Auth initialization error:", error)
-}
-
-try {
   database = getDatabase(app)
+
+  if (typeof window !== "undefined") {
+    analytics = getAnalytics(app)
+  }
 } catch (error) {
-  console.error("Database initialization error:", error)
+  console.error("Firebase initialization error:", error)
 }
 
-try {
-  storage = getStorage(app)
-} catch (error) {
-  console.error("Storage initialization error:", error)
-}
-
-// Initialize Analytics only on client side
-if (typeof window !== "undefined") {
-  isSupported().then((supported) => {
-    if (supported) {
-      try {
-        analytics = getAnalytics(app)
-      } catch (error) {
-        console.error("Analytics initialization error:", error)
-      }
-    }
-  })
-}
-
-export { auth, database, storage, analytics }
-export default app
+export { auth, database, analytics }
