@@ -4,7 +4,6 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from "
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
 import type { User } from "@supabase/supabase-js"
 import bcrypt from "bcryptjs"
-import { process } from "process"
 
 interface AuthContextType {
   user: User | null
