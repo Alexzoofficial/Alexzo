@@ -1,12 +1,12 @@
 import { type NextRequest, NextResponse } from "next/server"
 
-export async function POST(request: NextRequest, { params }: { params: Promise<{ path: string[] }> }) {
+export async function POST(request: NextRequest, context: { params: Promise<{ path: string[] }> }) {
   try {
-    const resolvedParams = await params
-    const path = resolvedParams.path.join("/")
+    const { path } = await context.params
+    const pathString = path.join("/")
 
     // Only allow generate endpoint
-    if (path !== "generate") {
+    if (pathString !== "generate") {
       return NextResponse.json({ error: "Endpoint not found" }, { status: 404 })
     }
 
