@@ -1,15 +1,14 @@
 import { NextResponse } from "next/server"
-import type { NextRequest } from "next/server"
 
 // Helper to get the catch-all path segment as a string
-function getPathString(request: NextRequest): string {
+function getPathString(request: Request): string {
   const url = new URL(request.url)
   // Remove the /api/proxy/ prefix and any trailing slashes
   const cleaned = url.pathname.replace(/^\/api\/proxy\/?/, "").replace(/\/+$/, "")
   return cleaned
 }
 
-export async function POST(request: NextRequest) {
+export async function POST(request: Request) {
   try {
     const pathString = getPathString(request)
 
@@ -19,7 +18,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json().catch(() => null)
-    const { prompt, width = 512, height = 512 } = body || {}
+    const { prompt, width = 512, height = 512 } = (body as any) || {}
 
     if (!prompt) {
       return NextResponse.json({ error: "Prompt is required" }, { status: 400 })
@@ -37,14 +36,14 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate prompt length
-    if (prompt.length > 1000) {
+    if ((prompt as string).length > 1000) {
       return NextResponse.json({ error: "Prompt must be less than 1000 characters" }, { status: 400 })
     }
 
     // Direct call to Pollinations AI - using random seed to ensure unique images
     const seed = Math.floor(Math.random() * 1_000_000)
     const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(
-      prompt,
+      prompt as string,
     )}?width=${width}&height=${height}&seed=${seed}&nologo=true&enhance=true&model=flux`
 
     // Return response in standard format
