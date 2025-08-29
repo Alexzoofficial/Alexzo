@@ -15,10 +15,26 @@ interface AuthModalProps {
   isOpen: boolean
   onClose: () => void
   initialMode?: "signin" | "signup"
+  defaultMode?: "signup" | "login" | "forgot"
 }
 
-export function AuthModal({ isOpen, onClose, initialMode = "signin" }: AuthModalProps) {
-  const [mode, setMode] = useState<"signin" | "signup" | "reset" | "success">(initialMode)
+const mapDefaultMode = (mode?: "signup" | "login" | "forgot"): "signin" | "signup" | "reset" => {
+  switch (mode) {
+    case "login":
+      return "signin"
+    case "forgot":
+      return "reset"
+    case "signup":
+      return "signup"
+    default:
+      return "signin"
+  }
+}
+
+export function AuthModal({ isOpen, onClose, initialMode = "signin", defaultMode }: AuthModalProps) {
+  const resolvedInitialMode: "signin" | "signup" | "reset" = defaultMode ? mapDefaultMode(defaultMode) : initialMode
+
+  const [mode, setMode] = useState<"signin" | "signup" | "reset" | "success">(resolvedInitialMode)
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [fullName, setFullName] = useState("")
@@ -30,12 +46,10 @@ export function AuthModal({ isOpen, onClose, initialMode = "signin" }: AuthModal
 
   const { signIn, signUp, resetPassword } = useAuth()
 
-  // Reset form when modal opens/closes or mode changes
   useEffect(() => {
     if (isOpen) {
-      setMode(initialMode)
+      setMode(resolvedInitialMode)
     } else {
-      // Reset form when modal closes
       setEmail("")
       setPassword("")
       setFullName("")
@@ -45,12 +59,11 @@ export function AuthModal({ isOpen, onClose, initialMode = "signin" }: AuthModal
       setSuccessMessage("")
       setLoading(false)
     }
-  }, [isOpen, initialMode])
+  }, [isOpen, resolvedInitialMode])
 
   const validateForm = () => {
     const errors: { [key: string]: string } = {}
 
-    // Email validation
     if (!email) {
       errors.email = "Email is required"
     } else {
@@ -60,7 +73,6 @@ export function AuthModal({ isOpen, onClose, initialMode = "signin" }: AuthModal
       }
     }
 
-    // Password validation for signin and signup
     if (mode !== "reset") {
       if (!password) {
         errors.password = "Password is required"
@@ -69,7 +81,6 @@ export function AuthModal({ isOpen, onClose, initialMode = "signin" }: AuthModal
       }
     }
 
-    // Additional validation for signup
     if (mode === "signup") {
       if (!fullName) {
         errors.fullName = "Full name is required"
@@ -145,7 +156,6 @@ export function AuthModal({ isOpen, onClose, initialMode = "signin" }: AuthModal
   }
 
   const handleInputChange = (field: string, value: string) => {
-    // Clear validation error for this field
     if (validationErrors[field]) {
       setValidationErrors((prev) => {
         const newErrors = { ...prev }
@@ -154,12 +164,10 @@ export function AuthModal({ isOpen, onClose, initialMode = "signin" }: AuthModal
       })
     }
 
-    // Clear general error
     if (error) {
       setError("")
     }
 
-    // Update field value
     switch (field) {
       case "email":
         setEmail(value)
@@ -208,7 +216,6 @@ export function AuthModal({ isOpen, onClose, initialMode = "signin" }: AuthModal
   return (
     <AnimatePresence>
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-        {/* Backdrop */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -217,14 +224,12 @@ export function AuthModal({ isOpen, onClose, initialMode = "signin" }: AuthModal
           onClick={onClose}
         />
 
-        {/* Modal */}
         <motion.div
           initial={{ opacity: 0, scale: 0.9, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.9, y: 20 }}
           className="relative w-full max-w-md bg-gray-900 rounded-2xl border border-gray-800 shadow-2xl overflow-hidden"
         >
-          {/* Header */}
           <div className="relative p-6 pb-0">
             <Button
               variant="ghost"
@@ -255,7 +260,6 @@ export function AuthModal({ isOpen, onClose, initialMode = "signin" }: AuthModal
             </div>
           </div>
 
-          {/* Content */}
           <div className="px-6 pb-6">
             {mode === "success" ? (
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center py-8">
@@ -266,7 +270,6 @@ export function AuthModal({ isOpen, onClose, initialMode = "signin" }: AuthModal
               </motion.div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-4">
-                {/* Back button for reset mode */}
                 {mode === "reset" && (
                   <Button
                     type="button"
@@ -280,7 +283,6 @@ export function AuthModal({ isOpen, onClose, initialMode = "signin" }: AuthModal
                   </Button>
                 )}
 
-                {/* Full Name - Only for signup */}
                 {mode === "signup" && (
                   <div className="space-y-2">
                     <Label htmlFor="fullName" className="text-gray-300">
@@ -305,7 +307,6 @@ export function AuthModal({ isOpen, onClose, initialMode = "signin" }: AuthModal
                   </div>
                 )}
 
-                {/* Email */}
                 <div className="space-y-2">
                   <Label htmlFor="email" className="text-gray-300">
                     Email
@@ -328,7 +329,6 @@ export function AuthModal({ isOpen, onClose, initialMode = "signin" }: AuthModal
                   {validationErrors.email && <p className="text-red-400 text-sm">{validationErrors.email}</p>}
                 </div>
 
-                {/* Password - Not for reset mode */}
                 {mode !== "reset" && (
                   <div className="space-y-2">
                     <Label htmlFor="password" className="text-gray-300">
@@ -366,7 +366,6 @@ export function AuthModal({ isOpen, onClose, initialMode = "signin" }: AuthModal
                   </div>
                 )}
 
-                {/* Error Message */}
                 {error && (
                   <motion.div
                     initial={{ opacity: 0, y: -10 }}
@@ -378,7 +377,6 @@ export function AuthModal({ isOpen, onClose, initialMode = "signin" }: AuthModal
                   </motion.div>
                 )}
 
-                {/* Submit Button */}
                 <Button
                   type="submit"
                   className="w-full bg-purple-600 hover:bg-purple-700 text-white disabled:opacity-50 disabled:cursor-not-allowed"
@@ -400,7 +398,6 @@ export function AuthModal({ isOpen, onClose, initialMode = "signin" }: AuthModal
                   )}
                 </Button>
 
-                {/* Mode Switch */}
                 <div className="text-center space-y-2">
                   {mode === "signin" && (
                     <>
