@@ -124,6 +124,31 @@ const getAuthErrorMessage = (error: any): string => {
   return "Authentication failed. Please try again."
 }
 
+function makeMockUser({
+  id,
+  email,
+  full_name,
+  created_at,
+}: {
+  id: string
+  email: string
+  full_name?: string
+  created_at?: string
+}): User {
+  const now = created_at || new Date().toISOString()
+  // Build an object that satisfies the required fields for Supabase's User type
+  return {
+    id,
+    email,
+    user_metadata: { full_name },
+    app_metadata: {}, // required by User
+    aud: "authenticated", // required by User
+    created_at: now, // required by User
+    email_confirmed_at: now, // optional but useful
+    role: "authenticated", // optional
+  } as User
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [userAvatar, setUserAvatar] = useState<string | null>(null)
@@ -370,13 +395,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return { error: "The email or password you entered is incorrect. Please check your credentials and try again." }
       }
 
-      const mockUser = {
+      const mockUser = makeMockUser({
         id: demoUser.id,
         email: normalizedEmail,
-        user_metadata: { full_name: demoUser.fullName },
+        full_name: demoUser.fullName,
         created_at: demoUser.createdAt,
-        email_confirmed_at: new Date().toISOString(),
-      } as User
+      })
 
       const avatar = demoUser.avatar || getRandomAvatar()
       setUser(mockUser)
@@ -410,14 +434,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           }
         }
 
-        // Create a session manually since we're bypassing Supabase auth
-        const mockUser = {
+        const mockUser = makeMockUser({
           id: profile.id,
           email: normalizedEmail,
-          user_metadata: { full_name: profile.full_name },
+          full_name: profile.full_name,
           created_at: new Date().toISOString(),
-          email_confirmed_at: new Date().toISOString(),
-        } as User
+        })
 
         setUser(mockUser)
         setUserAvatar(profile.avatar_url || getRandomAvatar())
@@ -511,13 +533,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         console.log("Demo user created successfully:", normalizedEmail)
 
-        const mockUser = {
+        const mockUser = makeMockUser({
           id: userId,
           email: normalizedEmail,
-          user_metadata: { full_name: normalizedName },
+          full_name: normalizedName,
           created_at: createdAt,
-          email_confirmed_at: createdAt,
-        } as User
+        })
 
         setUser(mockUser)
         setUserAvatar(avatar)
@@ -623,14 +644,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           // Don't fail the signup process if email sending fails
         }
 
-        // Sign in the user immediately
-        const mockUser = {
+        const mockUser = makeMockUser({
           id: userId,
           email: normalizedEmail,
-          user_metadata: { full_name: normalizedName },
+          full_name: normalizedName,
           created_at: now,
-          email_confirmed_at: now,
-        } as User
+        })
 
         setUser(mockUser)
         setUserAvatar(avatar)
