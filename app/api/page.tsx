@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
-import { ArrowLeft, Key, Copy, Trash2, Plus, TrendingUp, Code, Book, Check, AlertTriangle } from 'lucide-react'
+import { ArrowLeft, Key, Copy, Trash2, Plus, TrendingUp, Code, Book, Check, AlertTriangle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -10,7 +10,16 @@ import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import { useAuth } from "@/lib/auth-context"
 import { toast } from "sonner"
 import Link from "next/link"
@@ -46,29 +55,29 @@ export default function APIPage() {
     }
   }
 
-  const generateUniqueAPIKey = () => {
-    let newKey
+  const generateUniqueAPIKey = (): string => {
+    let newKey = ""
     let isUnique = false
-    
+
     while (!isUnique) {
       newKey = `alexzo_${Math.random().toString(36).substring(2, 15)}${Math.random().toString(36).substring(2, 15)}`
       // Check if key already exists for this user or any other user
-      isUnique = !apiKeys.some(key => key.key === newKey)
-      
+      isUnique = !apiKeys.some((key) => key.key === newKey)
+
       // Also check localStorage for all users (basic uniqueness check)
       const allKeys = Object.keys(localStorage)
-        .filter(key => key.startsWith('api_keys_'))
-        .flatMap(key => {
+        .filter((key) => key.startsWith("api_keys_"))
+        .flatMap((key) => {
           try {
-            return JSON.parse(localStorage.getItem(key) || '[]')
+            return JSON.parse(localStorage.getItem(key) || "[]") as APIKey[]
           } catch {
-            return []
+            return [] as APIKey[]
           }
         })
-      
+
       isUnique = isUnique && !allKeys.some((key: APIKey) => key.key === newKey)
     }
-    
+
     return newKey
   }
 
@@ -97,10 +106,10 @@ export default function APIPage() {
     toast.success("API key created successfully!")
   }
 
-  const copyAPIKey = (key: string, type: 'name' | 'key') => {
+  const copyAPIKey = (key: string, type: "name" | "key") => {
     navigator.clipboard.writeText(key)
     setCopiedKey(`${type}-${key}`)
-    toast.success(`${type === 'name' ? 'Key name' : 'API key'} copied to clipboard!`)
+    toast.success(`${type === "name" ? "Key name" : "API key"} copied to clipboard!`)
     setTimeout(() => setCopiedKey(null), 2000)
   }
 
@@ -110,7 +119,7 @@ export default function APIPage() {
 
   const deleteAPIKey = () => {
     if (!deleteKeyId) return
-    
+
     const updatedKeys = apiKeys.filter((key) => key.id !== deleteKeyId)
     if (user) {
       localStorage.setItem(`api_keys_${user.id}`, JSON.stringify(updatedKeys))
@@ -126,7 +135,7 @@ export default function APIPage() {
 const response = await fetch('https://alexzo.dev/api/generate', {
   method: 'POST',
   headers: {
-    'Authorization': 'Bearer ${apiKeys[0]?.key || 'alexzo_your_api_key_here'}',
+    'Authorization': 'Bearer ${apiKeys[0]?.key || "alexzo_your_api_key_here"}',
     'Content-Type': 'application/json'
   },
   body: JSON.stringify({
@@ -307,7 +316,7 @@ console.log(data.data[0].url);`
             }}
           />
         </div>
-        
+
         <div className="relative z-10 flex items-center justify-center min-h-screen p-4">
           <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-sm p-6 md:p-8 max-w-md w-full">
             <CardContent className="text-center">
@@ -380,16 +389,14 @@ console.log(data.data[0].url);`
             </h1>
           </div>
         </div>
-        <Badge className="bg-purple-600 text-white px-3 py-1">
-          {user.user_metadata?.full_name || user.email}
-        </Badge>
+        <Badge className="bg-purple-600 text-white px-3 py-1">{user.user_metadata?.full_name || user.email}</Badge>
       </header>
 
       <div className="relative z-10 container mx-auto px-4 md:px-6 py-8 md:py-12">
         {/* Analytics */}
-        <motion.div 
-          initial={{ opacity: 0, y: 30 }} 
-          animate={{ opacity: 1, y: 0 }} 
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           className="mb-8 md:mb-12"
         >
@@ -420,20 +427,29 @@ console.log(data.data[0].url);`
         </motion.div>
 
         {/* Main Content */}
-        <motion.div 
-          initial={{ opacity: 0, y: 30 }} 
-          animate={{ opacity: 1, y: 0 }} 
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
         >
           <Tabs defaultValue="keys" className="w-full">
             <TabsList className="grid w-full grid-cols-3 bg-gray-900/50 border-gray-800 mb-6 md:mb-8 h-12">
-              <TabsTrigger value="keys" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white text-gray-300 text-sm">
+              <TabsTrigger
+                value="keys"
+                className="data-[state=active]:bg-purple-600 data-[state=active]:text-white text-gray-300 text-sm"
+              >
                 API Keys
               </TabsTrigger>
-              <TabsTrigger value="examples" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white text-gray-300 text-sm">
+              <TabsTrigger
+                value="examples"
+                className="data-[state=active]:bg-purple-600 data-[state=active]:text-white text-gray-300 text-sm"
+              >
                 Examples
               </TabsTrigger>
-              <TabsTrigger value="docs" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white text-gray-300 text-sm">
+              <TabsTrigger
+                value="docs"
+                className="data-[state=active]:bg-purple-600 data-[state=active]:text-white text-gray-300 text-sm"
+              >
                 Docs
               </TabsTrigger>
             </TabsList>
@@ -442,7 +458,10 @@ console.log(data.data[0].url);`
             <TabsContent value="keys" className="space-y-6">
               <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
                 <h2 className="text-xl md:text-2xl font-semibold text-white">Your API Keys</h2>
-                <Button onClick={() => setShowCreateKey(true)} className="bg-purple-600 hover:bg-purple-700 w-full sm:w-auto">
+                <Button
+                  onClick={() => setShowCreateKey(true)}
+                  className="bg-purple-600 hover:bg-purple-700 w-full sm:w-auto"
+                >
                   <Plus className="h-4 w-4 mr-2" />
                   Create New Key
                 </Button>
@@ -453,8 +472,13 @@ console.log(data.data[0].url);`
                   <CardContent className="p-8 md:p-12 text-center">
                     <Key className="h-12 md:h-16 w-12 md:w-16 text-gray-600 mx-auto mb-4" />
                     <h3 className="text-lg md:text-xl font-semibold text-white mb-2">No API Keys</h3>
-                    <p className="text-gray-400 mb-6 text-sm md:text-base">Create your first API key to start using our free AI image generation</p>
-                    <Button onClick={() => setShowCreateKey(true)} className="bg-purple-600 hover:bg-purple-700 w-full sm:w-auto">
+                    <p className="text-gray-400 mb-6 text-sm md:text-base">
+                      Create your first API key to start using our free AI image generation
+                    </p>
+                    <Button
+                      onClick={() => setShowCreateKey(true)}
+                      className="bg-purple-600 hover:bg-purple-700 w-full sm:w-auto"
+                    >
                       Create API Key
                     </Button>
                   </CardContent>
@@ -462,7 +486,10 @@ console.log(data.data[0].url);`
               ) : (
                 <div className="space-y-4">
                   {apiKeys.map((key) => (
-                    <Card key={key.id} className="bg-gray-900/50 border-gray-800 backdrop-blur-sm hover:border-purple-500/50 transition-all duration-300">
+                    <Card
+                      key={key.id}
+                      className="bg-gray-900/50 border-gray-800 backdrop-blur-sm hover:border-purple-500/50 transition-all duration-300"
+                    >
                       <CardContent className="p-4 md:p-6">
                         <div className="space-y-4">
                           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -473,7 +500,7 @@ console.log(data.data[0].url);`
                                   <Button
                                     variant="ghost"
                                     size="sm"
-                                    onClick={() => copyAPIKey(key.name, 'name')}
+                                    onClick={() => copyAPIKey(key.name, "name")}
                                     className="text-gray-400 hover:text-white p-1 h-auto"
                                     title="Copy key name"
                                   >
@@ -485,14 +512,18 @@ console.log(data.data[0].url);`
                                   </Button>
                                 </div>
                               </div>
-                              <p className="text-sm text-gray-400">Created {new Date(key.created).toLocaleDateString()}</p>
-                              <p className="text-sm text-gray-400">Last used: {key.lastUsed} • {key.requests} requests</p>
+                              <p className="text-sm text-gray-400">
+                                Created {new Date(key.created).toLocaleDateString()}
+                              </p>
+                              <p className="text-sm text-gray-400">
+                                Last used: {key.lastUsed} • {key.requests} requests
+                              </p>
                             </div>
                             <div className="flex items-center gap-2">
                               <Button
                                 variant="outline"
                                 size="sm"
-                                onClick={() => copyAPIKey(key.key, 'key')}
+                                onClick={() => copyAPIKey(key.key, "key")}
                                 className="border-gray-600 text-gray-300 hover:bg-gray-800 hover:text-white"
                               >
                                 {copiedKey === `key-${key.key}` ? (
@@ -517,12 +548,10 @@ console.log(data.data[0].url);`
                               </Button>
                             </div>
                           </div>
-                          
+
                           <div className="bg-gray-800/50 rounded-lg p-3 border border-gray-700">
                             <div className="flex items-center justify-between">
-                              <code className="text-green-400 text-xs md:text-sm font-mono break-all">
-                                {key.key}
-                              </code>
+                              <code className="text-green-400 text-xs md:text-sm font-mono break-all">{key.key}</code>
                             </div>
                           </div>
                         </div>
@@ -584,11 +613,11 @@ console.log(data.data[0].url);`
                     </Button>
                     <Button
                       onClick={() => {
-                        const blob = new Blob([fullExample], { type: 'text/html' })
+                        const blob = new Blob([fullExample], { type: "text/html" })
                         const url = URL.createObjectURL(blob)
-                        const a = document.createElement('a')
+                        const a = document.createElement("a")
                         a.href = url
-                        a.download = 'ai-image-generator.html'
+                        a.download = "ai-image-generator.html"
                         a.click()
                         URL.revokeObjectURL(url)
                         toast.success("HTML file downloaded!")
@@ -612,7 +641,8 @@ console.log(data.data[0].url);`
                 </CardHeader>
                 <CardContent>
                   <p className="text-gray-300 mb-6 text-sm md:text-base leading-relaxed">
-                    Complete documentation for our AI image generation API including authentication, endpoints, and examples.
+                    Complete documentation for our AI image generation API including authentication, endpoints, and
+                    examples.
                   </p>
                   <Button asChild className="bg-purple-600 hover:bg-purple-700 w-full sm:w-auto">
                     <Link href="/docs">
@@ -661,17 +691,15 @@ console.log(data.data[0].url);`
               Delete API Key
             </AlertDialogTitle>
             <AlertDialogDescription className="text-gray-300">
-              Are you sure you want to delete this API key? This action cannot be undone and will immediately revoke access for this key.
+              Are you sure you want to delete this API key? This action cannot be undone and will immediately revoke
+              access for this key.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel className="bg-gray-800 border-gray-700 text-gray-300 hover:bg-gray-700">
               Cancel
             </AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={deleteAPIKey}
-              className="bg-red-600 hover:bg-red-700 text-white"
-            >
+            <AlertDialogAction onClick={deleteAPIKey} className="bg-red-600 hover:bg-red-700 text-white">
               Delete Key
             </AlertDialogAction>
           </AlertDialogFooter>
