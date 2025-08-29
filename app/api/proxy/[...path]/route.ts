@@ -1,17 +1,25 @@
-import { type NextRequest, NextResponse } from "next/server"
+import { NextResponse } from "next/server"
+import type { NextRequest } from "next/server"
 
-export async function POST(request: NextRequest, { params }: { params: Promise<{ path: string[] }> }) {
+// Helper to get the catch-all path segment as a string
+function getPathString(request: NextRequest): string {
+  const url = new URL(request.url)
+  // Remove the /api/proxy/ prefix and any trailing slashes
+  const cleaned = url.pathname.replace(/^\/api\/proxy\/?/, "").replace(/\/+$/, "")
+  return cleaned
+}
+
+export async function POST(request: NextRequest) {
   try {
-    const { path } = await params
-    const pathString = path.join("/")
+    const pathString = getPathString(request)
 
     // Only allow generate endpoint
     if (pathString !== "generate") {
       return NextResponse.json({ error: "Endpoint not found" }, { status: 404 })
     }
 
-    const body = await request.json()
-    const { prompt, width = 512, height = 512 } = body
+    const body = await request.json().catch(() => null)
+    const { prompt, width = 512, height = 512 } = body || {}
 
     if (!prompt) {
       return NextResponse.json({ error: "Prompt is required" }, { status: 400 })
@@ -33,10 +41,11 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       return NextResponse.json({ error: "Prompt must be less than 1000 characters" }, { status: 400 })
     }
 
-    // Direct call to Pollinations AI - no database, no IP blocking
-    // Using random seed to ensure unique images
-    const seed = Math.floor(Math.random() * 1000000)
-    const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=${width}&height=${height}&seed=${seed}&nologo=true&enhance=true&model=flux`
+    // Direct call to Pollinations AI - using random seed to ensure unique images
+    const seed = Math.floor(Math.random() * 1_000_000)
+    const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(
+      prompt,
+    )}?width=${width}&height=${height}&seed=${seed}&nologo=true&enhance=true&model=flux`
 
     // Return response in standard format
     const response = {
@@ -53,25 +62,25 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     return NextResponse.json(response, {
       headers: {
         "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "POST",
+        "Access-Control-Allow-Methods": "POST, OPTIONS",
         "Access-Control-Allow-Headers": "Content-Type, Authorization",
       },
     })
   } catch (error) {
-    console.error("API Error:", error)
+    console.error("[v0] API Error:", (error as Error)?.message || error)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }
 
-export async function GET(request: NextRequest, { params }: { params: Promise<{ path: string[] }> }) {
+export async function GET() {
   return NextResponse.json({ error: "Method not allowed. Use POST for image generation." }, { status: 405 })
 }
 
-export async function PUT(request: NextRequest, { params }: { params: Promise<{ path: string[] }> }) {
+export async function PUT() {
   return NextResponse.json({ error: "Method not allowed. Use POST for image generation." }, { status: 405 })
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: Promise<{ path: string[] }> }) {
+export async function DELETE() {
   return NextResponse.json({ error: "Method not allowed. Use POST for image generation." }, { status: 405 })
 }
 
@@ -80,7 +89,7 @@ export async function OPTIONS() {
     status: 200,
     headers: {
       "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "POST",
+      "Access-Control-Allow-Methods": "POST, OPTIONS",
       "Access-Control-Allow-Headers": "Content-Type, Authorization",
     },
   })
