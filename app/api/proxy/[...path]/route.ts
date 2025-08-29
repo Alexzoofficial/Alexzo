@@ -1,8 +1,8 @@
 import { type NextRequest, NextResponse } from "next/server"
 
-export async function POST(request: NextRequest, context: { params: Promise<{ path: string[] }> }) {
+export async function POST(request: NextRequest, { params }: { params: Promise<{ path: string[] }> }) {
   try {
-    const { path } = await context.params
+    const { path } = await params
     const pathString = path.join("/")
 
     // Only allow generate endpoint
@@ -63,15 +63,15 @@ export async function POST(request: NextRequest, context: { params: Promise<{ pa
   }
 }
 
-export async function GET() {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ path: string[] }> }) {
   return NextResponse.json({ error: "Method not allowed. Use POST for image generation." }, { status: 405 })
 }
 
-export async function PUT() {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ path: string[] }> }) {
   return NextResponse.json({ error: "Method not allowed. Use POST for image generation." }, { status: 405 })
 }
 
-export async function DELETE() {
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ path: string[] }> }) {
   return NextResponse.json({ error: "Method not allowed. Use POST for image generation." }, { status: 405 })
 }
 
