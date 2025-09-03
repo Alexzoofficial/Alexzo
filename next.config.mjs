@@ -1,5 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Allow all dev origins for Replit environment
+  allowedDevOrigins: ['*'],
   eslint: {
     ignoreDuringBuilds: false,
   },
