@@ -10,7 +10,6 @@ const nextConfig = {
   },
   images: {
     unoptimized: false,
-    domains: ['hebbkx1anhila5yf.public.blob.vercel-storage.com', 'image.pollinations.ai'],
     remotePatterns: [
       {
         protocol: 'https',
@@ -19,6 +18,10 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: '**.vercel-storage.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'hebbkx1anhila5yf.public.blob.vercel-storage.com',
       },
       {
         protocol: 'https',
