@@ -1,7 +1,13 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Allow all dev origins for Replit environment
-  allowedDevOrigins: ['*'],
+  // Allow all dev origins for Replit environment - should include the replit domain pattern
+  allowedDevOrigins: [
+    '*.replit.dev',
+    '*.replit.app', 
+    '*.replit.co',
+    'localhost',
+    '127.0.0.1'
+  ],
   eslint: {
     ignoreDuringBuilds: false,
   },

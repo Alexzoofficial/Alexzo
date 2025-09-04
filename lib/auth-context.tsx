@@ -584,7 +584,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       // Create user profile
       try {
-        const userId = "user-" + Date.now() + "-" + Math.random().toString(36).substr(2, 9)
+        // Generate a proper UUID for Supabase
+        const userId = crypto.randomUUID()
         const avatar = getRandomAvatar()
         const hashedPassword = await bcrypt.hash(cleanPassword, 12)
         const now = new Date().toISOString()
