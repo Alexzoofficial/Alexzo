@@ -15,7 +15,7 @@ export function generateSEOMetadata({
   url?: string
   type?: string
 }): Metadata {
-  const baseUrl = "https://alexzo.vercel.app"
+  const baseUrl = `https://${process.env.REPLIT_DEV_DOMAIN || 'ee5e1e02-69c2-49a7-8ca8-603791810cd6-00-2gww905z29zg0.sisko.replit.dev'}`
   const fullUrl = url ? `${baseUrl}${url}` : baseUrl
   const imageUrl = image ? `${baseUrl}${image}` : `${baseUrl}/logo.png`
 

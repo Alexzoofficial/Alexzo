@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 
 export async function GET() {
-  const baseUrl = "https://alexzo.vercel.app"
+  const baseUrl = `https://${process.env.REPLIT_DEV_DOMAIN || 'ee5e1e02-69c2-49a7-8ca8-603791810cd6-00-2gww905z29zg0.sisko.replit.dev'}`
 
   const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">

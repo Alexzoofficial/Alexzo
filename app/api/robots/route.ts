@@ -55,10 +55,10 @@ Allow: /favicon.ico
 Allow: /logo.png
 
 # Sitemap location
-Sitemap: https://alexzo.vercel.app/sitemap.xml
+Sitemap: https://${process.env.REPLIT_DEV_DOMAIN || 'ee5e1e02-69c2-49a7-8ca8-603791810cd6-00-2gww905z29zg0.sisko.replit.dev'}/sitemap.xml
 
 # Host directive
-Host: https://alexzo.vercel.app`
+Host: https://${process.env.REPLIT_DEV_DOMAIN || 'ee5e1e02-69c2-49a7-8ca8-603791810cd6-00-2gww905z29zg0.sisko.replit.dev'}`
 
   return new NextResponse(robots, {
     headers: {

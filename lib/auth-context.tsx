@@ -582,29 +582,46 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return { error: "Unable to verify account availability. Please try again." }
       }
 
-      // Create user profile
+      // Create user profile using Supabase Auth
       try {
-        // Generate a proper UUID for Supabase
-        const userId = crypto.randomUUID()
         const avatar = getRandomAvatar()
-        const hashedPassword = await bcrypt.hash(cleanPassword, 12)
-        const now = new Date().toISOString()
+        console.log("Creating user account for:", normalizedEmail)
 
-        console.log("Creating profile for user:", normalizedEmail, "with ID:", userId)
+        // Use Supabase Auth to create user (this will automatically trigger profile creation)
+        const { data: authData, error: authError } = await supabase.auth.signUp({
+          email: normalizedEmail,
+          password: cleanPassword,
+          options: {
+            data: {
+              full_name: normalizedName,
+              avatar_url: avatar,
+            }
+          }
+        })
 
-        const { data: insertedProfile, error: profileError } = await supabase
+        if (authError) {
+          console.error("Auth signup failed:", authError)
+          if (authError.message.includes("already registered")) {
+            return { error: "An account with this email already exists. Please sign in instead." }
+          }
+          return { error: "Failed to create account. Please try again." }
+        }
+
+        if (!authData.user) {
+          console.error("No user data returned from signup")
+          return { error: "Failed to create account. Please try again." }
+        }
+
+        console.log("User created successfully:", authData.user.email)
+
+        // The trigger will automatically create the profile, but let's update it with our custom data
+        const { error: profileError } = await supabase
           .from("profiles")
-          .insert({
-            id: userId,
+          .update({
             full_name: normalizedName,
             avatar_url: avatar,
-            email: normalizedEmail,
-            password_hash: hashedPassword,
-            created_at: now,
-            updated_at: now,
           })
-          .select()
-          .single()
+          .eq("id", authData.user.id)
 
         if (profileError) {
           console.error("Profile creation failed:", profileError)
@@ -646,17 +663,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
 
         const mockUser = makeMockUser({
-          id: userId,
+          id: authData.user.id,
           email: normalizedEmail,
           full_name: normalizedName,
-          created_at: now,
+          created_at: authData.user.created_at,
         })
 
-        setUser(mockUser)
+        setUser(authData.user)
         setUserAvatar(avatar)
 
         saveDemoSession({
-          ...mockUser,
+          ...authData.user,
           avatar,
         })
 
