@@ -475,6 +475,58 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  // Helper function to create demo user
+  const createDemoUser = async (email: string, password: string, fullName: string) => {
+    console.log("Creating demo user for:", email)
+
+    if (demoUsers.has(email)) {
+      return { error: "An account with this email already exists. Please sign in instead." }
+    }
+
+    try {
+      const userId = "demo-user-" + Date.now() + "-" + Math.random().toString(36).substr(2, 9)
+      const createdAt = new Date().toISOString()
+      const avatar = getRandomAvatar()
+      const hashedPassword = await bcrypt.hash(password, 12)
+
+      const newUser = {
+        email,
+        hashedPassword,
+        fullName,
+        id: userId,
+        createdAt,
+        avatar,
+        emailConfirmedAt: createdAt,
+      }
+
+      // Store user data and immediately sign them in
+      demoUsers.set(email, newUser)
+      saveDemoUsers(demoUsers)
+
+      console.log("Demo user created successfully:", email)
+
+      const mockUser = makeMockUser({
+        id: userId,
+        email,
+        full_name: fullName,
+        created_at: createdAt,
+      })
+
+      setUser(mockUser)
+      setUserAvatar(avatar)
+
+      saveDemoSession({
+        ...mockUser,
+        avatar,
+      })
+
+      return { error: null, success: true }
+    } catch (error) {
+      console.error("Demo signup error:", error)
+      return { error: "Failed to create account. Please try again." }
+    }
+  }
+
   const signUp = async (email: string, password: string, fullName: string) => {
     console.log("SignUp called with:", { email, password: "***", fullName })
 
@@ -601,6 +653,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         if (authError) {
           console.error("Auth signup failed:", authError)
+          
+          // If it's a server error, fall back to demo mode
+          if (authError.status === 500 || authError.code === "unexpected_failure") {
+            console.log("Server error detected, falling back to demo mode")
+            return await createDemoUser(normalizedEmail, cleanPassword, normalizedName)
+          }
+          
           if (authError.message.includes("already registered")) {
             return { error: "An account with this email already exists. Please sign in instead." }
           }
@@ -614,17 +673,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         console.log("User created successfully:", authData.user.email)
 
-        // The trigger will automatically create the profile, but let's update it with our custom data
+        // Wait for trigger to create profile, then update with custom data
+        await new Promise(resolve => setTimeout(resolve, 500)) // Give trigger time to execute
+        
         const { error: profileError } = await supabase
           .from("profiles")
-          .update({
+          .upsert({
+            id: authData.user.id,
+            email: normalizedEmail,
             full_name: normalizedName,
             avatar_url: avatar,
+          }, {
+            onConflict: "id"
           })
-          .eq("id", authData.user.id)
 
         if (profileError) {
           console.error("Profile creation failed:", profileError)
+          
+          // If there's a schema mismatch or database issue, fall back to demo mode
+          if (profileError.code === "42703" || profileError.code === "42P01" || profileError.message.includes("column")) {
+            console.log("Database schema issue detected, falling back to demo mode")
+            return await createDemoUser(normalizedEmail, cleanPassword, normalizedName)
+          }
 
           // Handle specific database errors
           if (profileError.code === "23505") {
