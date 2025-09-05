@@ -258,25 +258,22 @@ export default function BlogPage() {
             >
               <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-sm hover:border-purple-500/50 transition-all duration-300 h-full group overflow-hidden">
                 <div className="aspect-video relative overflow-hidden">
-                  <div className="w-full h-full bg-gradient-to-br from-purple-600/20 to-blue-600/20 flex items-center justify-center">
-                    <div className="text-center p-8">
-                      <div className="w-16 h-16 bg-purple-600/30 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <span className="text-2xl font-bold text-purple-300">
-                          {post.title.charAt(0)}
-                        </span>
-                      </div>
-                      <h3 className="text-lg font-semibold text-white mb-2">
-                        {post.category}
-                      </h3>
-                      <p className="text-sm text-gray-300">
-                        Featured Article
-                      </p>
-                    </div>
-                  </div>
+                  <Image
+                    src={post.image}
+                    alt={post.title}
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                   <div className="absolute top-4 left-4">
                     <Badge className="bg-purple-600 text-white">
                       {post.category}
                     </Badge>
+                  </div>
+                  <div className="absolute bottom-4 left-4 right-4">
+                    <p className="text-sm text-white/90 font-medium">
+                      Featured Article
+                    </p>
                   </div>
                 </div>
                 
