@@ -22,8 +22,13 @@ export default function ZyfooxPage() {
       // Using Pollinations AI for image generation without watermarks
       const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=512&height=512&seed=${Math.floor(Math.random() * 1000000)}&nologo=true`
 
-      // Simulate loading time for better UX
-      await new Promise((resolve) => setTimeout(resolve, 2000))
+      // Wait for the actual image to load before hiding the loading state
+      await new Promise((resolve, reject) => {
+        const img = new window.Image()
+        img.onload = () => resolve(undefined)
+        img.onerror = () => reject(new Error('Failed to load image'))
+        img.src = imageUrl
+      })
 
       setGeneratedImage(imageUrl)
     } catch (error) {

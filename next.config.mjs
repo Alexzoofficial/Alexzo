@@ -5,6 +5,7 @@ const nextConfig = {
     '*.replit.dev',
     '*.replit.app', 
     '*.replit.co',
+    'bfdcf152-5ab3-4560-99f6-14bbd585f76d-00-1ydugevt7ebbi.spock.replit.dev',
     'localhost',
     '127.0.0.1'
   ],
