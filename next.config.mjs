@@ -1,14 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Allow all dev origins for Replit environment - should include the replit domain pattern
-  allowedDevOrigins: [
-    '*.replit.dev',
-    '*.replit.app', 
-    '*.replit.co',
-    'bfdcf152-5ab3-4560-99f6-14bbd585f76d-00-1ydugevt7ebbi.spock.replit.dev',
-    'localhost',
-    '127.0.0.1'
-  ],
   eslint: {
     ignoreDuringBuilds: false,
   },
@@ -37,19 +28,7 @@ const nextConfig = {
     ]
   },
   env: {
-    NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL || 'https://alexzo.vercel.app',
-  },
-  async headers() {
-    return [
-      {
-        source: '/api/:path*',
-        headers: [
-          { key: 'Access-Control-Allow-Origin', value: '*' },
-          { key: 'Access-Control-Allow-Methods', value: 'GET, POST, PUT, DELETE, OPTIONS' },
-          { key: 'Access-Control-Allow-Headers', value: 'Content-Type, Authorization' },
-        ],
-      },
-    ]
+    NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:5000',
   },
 }
 
