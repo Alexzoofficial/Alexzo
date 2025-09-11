@@ -32,6 +32,8 @@ export function AuthModal({ isOpen, onClose, initialMode = "signin", defaultMode
   const [mode, setMode] = useState<"oauth" | "success">("oauth")
 
   const { signInWithGoogle, isSupabaseConfigured } = useAuth()
+  
+  console.log("AuthModal render - isSupabaseConfigured:", isSupabaseConfigured)
 
   useEffect(() => {
     if (isOpen) {

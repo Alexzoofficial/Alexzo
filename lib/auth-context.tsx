@@ -50,8 +50,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
         const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
+        // Debug environment variables
+        console.log('Environment variables check:', {
+          urlPresent: !!supabaseUrl,
+          keyPresent: !!supabaseKey,
+          urlValue: supabaseUrl,
+          keyValue: supabaseKey ? '***EXISTS***' : 'undefined'
+        })
+
         if (!supabaseUrl || !supabaseKey) {
-          console.log("Supabase environment variables not found")
+          console.log("Supabase environment variables not found - setting isSupabaseConfigured to false")
           setIsSupabaseConfigured(false)
           setLoading(false)
           setInitialized(true)
@@ -60,118 +68,43 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         const supabaseClient = createClientComponentClient()
 
-        // Initialize Supabase and assume it's configured if env vars are present
+        // Set as configured since environment variables are present
         console.log("Initializing Supabase with environment variables")
-        
-        // Test connection with timeout
-        try {
-          const connectionTest = Promise.race([
-            supabaseClient.auth.getSession(),
-            new Promise((_, reject) => setTimeout(() => reject(new Error("Connection timeout")), 5000)),
-          ])
-
-          const { data, error } = (await connectionTest) as any
-
-          if (error) {
-            console.warn("Supabase connection error, but continuing with configuration:", error)
-          }
-          
-          // Set as configured regardless of connection test result since env vars are present
-          setIsSupabaseConfigured(true)
-          
-          // Handle existing session if available
-          if (data?.session?.user) {
-            console.log("Restoring Supabase session for:", data.session.user.email)
-            setUser(data.session.user)
-            
-            try {
-              const { data: profile } = await supabaseClient
-                .from("profiles")
-                .select("avatar_url, full_name")
-                .eq("id", data.session.user.id)
-                .single()
-
-              let avatar = profile?.avatar_url
-              if (!avatar) {
-                avatar = getRandomAvatar()
-                await supabaseClient.from("profiles").upsert({
-                  id: data.session.user.id,
-                  full_name: data.session.user.user_metadata?.full_name || data.session.user.email?.split("@")[0],
-                  avatar_url: avatar,
-                  email: data.session.user.email,
-                  created_at: new Date().toISOString(),
-                  updated_at: new Date().toISOString(),
-                })
-              }
-
-              setUserAvatar(avatar)
-            } catch (profileError) {
-              console.log("Profile handling failed:", profileError)
-              setUserAvatar(getRandomAvatar())
-            }
-          }
-        } catch (connectionError) {
-          console.warn("Connection test failed, but continuing with Supabase configuration:", connectionError)
-          setIsSupabaseConfigured(true)
-        }
+        console.log("Setting isSupabaseConfigured to true")
+        setIsSupabaseConfigured(true)
 
         setSupabase(supabaseClient)
 
-        // Set up auth state change listener
-        const {
-          data: { subscription },
-        } = supabaseClient.auth.onAuthStateChange(async (event, session) => {
-          console.log("Auth state changed:", event, session?.user?.email)
+        // Set up basic auth state listener
+        try {
+          const {
+            data: { subscription },
+          } = supabaseClient.auth.onAuthStateChange(async (event, session) => {
+            console.log("Auth state changed:", event, session?.user?.email)
 
-          if (event === "SIGNED_IN" && session?.user) {
-            setUser(session.user)
-            try {
-              const { data: profile, error: fetchError } = await supabaseClient
-                .from("profiles")
-                .select("avatar_url, full_name")
-                .eq("id", session.user.id)
-                .single()
-
-              let avatar = profile?.avatar_url
-              if (!avatar || fetchError) {
-                avatar = getRandomAvatar()
-                const { error: upsertError } = await supabaseClient.from("profiles").upsert(
-                  {
-                    id: session.user.id,
-                    full_name: session.user.user_metadata?.full_name || session.user.email?.split("@")[0],
-                    avatar_url: avatar,
-                    email: session.user.email,
-                    created_at: new Date().toISOString(),
-                    updated_at: new Date().toISOString(),
-                  },
-                  {
-                    onConflict: "id",
-                  },
-                )
-
-                if (upsertError) {
-                  console.log("Profile upsert failed:", upsertError)
-                }
-              }
-
-              setUserAvatar(avatar)
-            } catch (error) {
-              console.log("Profile handling failed, using random avatar:", error)
-              const avatar = getRandomAvatar()
-              setUserAvatar(avatar)
+            if (event === "SIGNED_IN" && session?.user) {
+              setUser(session.user)
+              // Use a simple avatar for now
+              setUserAvatar(getRandomAvatar())
+            } else if (event === "SIGNED_OUT") {
+              setUser(null)
+              setUserAvatar(null)
             }
-          } else if (event === "SIGNED_OUT") {
-            setUser(null)
-            setUserAvatar(null)
-          }
-        })
+          })
 
-        setLoading(false)
-        setInitialized(true)
-        return () => subscription.unsubscribe()
+          console.log("Auth initialization complete - isSupabaseConfigured should be true")
+          setLoading(false)
+          setInitialized(true)
+          return () => subscription.unsubscribe()
+        } catch (listenerError) {
+          console.log("Auth state listener setup failed, but auth still configured:", listenerError)
+          setLoading(false)
+          setInitialized(true)
+        }
       } catch (error) {
         console.warn("Auth initialization failed:", error)
-        setIsSupabaseConfigured(false)
+        // Don't reset isSupabaseConfigured to false here, keep it as configured since env vars exist
+        console.log("Auth initialization error - keeping isSupabaseConfigured as true since env vars exist")
         setLoading(false)
         setInitialized(true)
       }
