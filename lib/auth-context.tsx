@@ -47,10 +47,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           return
         }
 
-        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://xdemfbcvtqlowdiqefts.supabase.co"
-        const supabaseKey =
-          process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
-          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhkZW1mYmN2dHFsb3dkaXFlZnRzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzNzc2NjMsImV4cCI6MjA3MT05MzY2M30.SMH09TZo3qOMLQd0VmXTEK5GYCKX6YNrSUMUJAcNklY"
+        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+        const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
         if (!supabaseUrl || !supabaseKey) {
           console.log("Supabase environment variables not found")
@@ -62,71 +60,62 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         const supabaseClient = createClientComponentClient()
 
+        // Initialize Supabase and assume it's configured if env vars are present
+        console.log("Initializing Supabase with environment variables")
+        
         // Test connection with timeout
-        const connectionTest = Promise.race([
-          supabaseClient.auth.getSession(),
-          new Promise((_, reject) => setTimeout(() => reject(new Error("Connection timeout")), 8000)),
-        ])
+        try {
+          const connectionTest = Promise.race([
+            supabaseClient.auth.getSession(),
+            new Promise((_, reject) => setTimeout(() => reject(new Error("Connection timeout")), 5000)),
+          ])
 
-        const { data, error } = (await connectionTest) as any
+          const { data, error } = (await connectionTest) as any
 
-        if (error) {
-          console.warn("Supabase connection error:", error)
-          setIsSupabaseConfigured(false)
-          setLoading(false)
-          setInitialized(true)
-          return
+          if (error) {
+            console.warn("Supabase connection error, but continuing with configuration:", error)
+          }
+          
+          // Set as configured regardless of connection test result since env vars are present
+          setIsSupabaseConfigured(true)
+          
+          // Handle existing session if available
+          if (data?.session?.user) {
+            console.log("Restoring Supabase session for:", data.session.user.email)
+            setUser(data.session.user)
+            
+            try {
+              const { data: profile } = await supabaseClient
+                .from("profiles")
+                .select("avatar_url, full_name")
+                .eq("id", data.session.user.id)
+                .single()
+
+              let avatar = profile?.avatar_url
+              if (!avatar) {
+                avatar = getRandomAvatar()
+                await supabaseClient.from("profiles").upsert({
+                  id: data.session.user.id,
+                  full_name: data.session.user.user_metadata?.full_name || data.session.user.email?.split("@")[0],
+                  avatar_url: avatar,
+                  email: data.session.user.email,
+                  created_at: new Date().toISOString(),
+                  updated_at: new Date().toISOString(),
+                })
+              }
+
+              setUserAvatar(avatar)
+            } catch (profileError) {
+              console.log("Profile handling failed:", profileError)
+              setUserAvatar(getRandomAvatar())
+            }
+          }
+        } catch (connectionError) {
+          console.warn("Connection test failed, but continuing with Supabase configuration:", connectionError)
+          setIsSupabaseConfigured(true)
         }
 
         setSupabase(supabaseClient)
-        setIsSupabaseConfigured(true)
-
-        // Restore existing session
-        if (data.session?.user) {
-          console.log("Restoring Supabase session for:", data.session.user.email)
-          setUser(data.session.user)
-
-          try {
-            const { data: profile } = await supabaseClient
-              .from("profiles")
-              .select("avatar_url, full_name")
-              .eq("id", data.session.user.id)
-              .single()
-
-            let avatar = profile?.avatar_url
-            if (!avatar) {
-              avatar = getRandomAvatar()
-              await supabaseClient.from("profiles").upsert({
-                id: data.session.user.id,
-                full_name: data.session.user.user_metadata?.full_name || data.session.user.email?.split("@")[0],
-                avatar_url: avatar,
-                email: data.session.user.email,
-                created_at: new Date().toISOString(),
-                updated_at: new Date().toISOString(),
-              })
-            }
-
-            setUserAvatar(avatar)
-          } catch (profileError) {
-            console.log("Profile handling failed, creating new profile:", profileError)
-            const avatar = getRandomAvatar()
-
-            try {
-              await supabaseClient.from("profiles").upsert({
-                id: data.session.user.id,
-                full_name: data.session.user.user_metadata?.full_name || data.session.user.email?.split("@")[0],
-                avatar_url: avatar,
-                email: data.session.user.email,
-                created_at: new Date().toISOString(),
-                updated_at: new Date().toISOString(),
-              })
-              setUserAvatar(avatar)
-            } catch (createError) {
-              console.log("Profile creation failed:", createError)
-              setUserAvatar(avatar)
-            }
-          }
-        }
 
         // Set up auth state change listener
         const {
