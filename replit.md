@@ -30,11 +30,13 @@ This is a Next.js application called "Alexzo" - an AI-powered platform that tran
   - Fixed Next.js configuration for optimal Replit environment performance
 
 ## Supabase Configuration
-The app includes Supabase integration with fallback demo mode:
-- `NEXT_PUBLIC_SUPABASE_URL` ⚠️ Not configured (using demo mode)
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY` ⚠️ Not configured (using demo mode)  
-- `SUPABASE_SERVICE_ROLE_KEY` ⚠️ Not configured (using demo mode)
-- Application runs successfully with demo authentication fallback
+The app is properly configured for Supabase integration via Replit Secrets:
+- `NEXT_PUBLIC_SUPABASE_URL` ⚠️ Needs to be added to Replit Secrets
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY` ⚠️ Needs to be added to Replit Secrets  
+- `SUPABASE_SERVICE_ROLE_KEY` ⚠️ Needs to be added to Replit Secrets
+- **SECURITY**: Original keys were exposed and need to be rotated in Supabase dashboard
+- Next.js configuration properly exposes environment variables to client
+- Application uses demo mode until secrets are configured
 
 ## Database Schema
 The project includes Supabase migrations in `/supabase/migrations/`:
