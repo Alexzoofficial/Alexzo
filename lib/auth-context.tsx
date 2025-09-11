@@ -11,13 +11,12 @@ interface AuthContextType {
   userAvatar: string | null
   signIn: (email: string, password: string) => Promise<{ error: string | null; success?: boolean }>
   signUp: (email: string, password: string, fullName: string) => Promise<{ error: string | null; success?: boolean }>
+  signInWithGoogle: () => Promise<{ error: string | null; success?: boolean }>
   signOut: () => Promise<void>
-  resetPassword: (email: string) => Promise<{ error: string | null; success?: boolean }>
   updateProfile: (updates: { full_name?: string; avatar_url?: string }) => Promise<{
     error: string | null
     success?: boolean
   }>
-  resendVerification: (email: string) => Promise<{ error: string | null; success?: boolean }>
   isSupabaseConfigured: boolean
 }
 
@@ -712,25 +711,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         console.log("Profile created successfully for:", normalizedEmail)
 
-        // Send verification email (optional, non-blocking)
-        try {
-          const response = await fetch("/api/auth/send-verification", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ email: normalizedEmail, type: "signup" }),
-          })
-
-          if (!response.ok) {
-            console.warn("Failed to send verification email, but account was created")
-          } else {
-            console.log("Verification email sent successfully")
-          }
-        } catch (emailError) {
-          console.warn("Failed to send verification email:", emailError)
-          // Don't fail the signup process if email sending fails
-        }
+        // Email verification is no longer used - users are automatically verified
 
         const mockUser = makeMockUser({
           id: authData.user.id,
@@ -759,78 +740,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  const resetPassword = async (email: string) => {
-    const normalizedEmail = email.trim().toLowerCase()
-
-    if (!normalizedEmail) {
-      return { error: "Please enter your email address." }
-    }
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if (!emailRegex.test(normalizedEmail)) {
-      return { error: "Please enter a valid email address." }
-    }
-
+  const signInWithGoogle = async () => {
     if (!supabase || !isSupabaseConfigured) {
-      // Check if user exists in demo mode
-      const demoUser = demoUsers.get(normalizedEmail)
-      if (!demoUser) {
-        return {
-          error:
-            "No account found with this email address. Please check the email you entered or create a new account.",
-        }
-      }
-
-      // For demo mode, simulate sending reset code
-      console.log("Demo mode: Password reset code would be sent to:", normalizedEmail)
-      return {
-        error: null,
-        success: true,
-      }
+      return { error: "Google sign-in is not available in demo mode. Please use regular sign-in." }
     }
 
     try {
-      // Check if user exists
-      const { data: profile } = await supabase.from("profiles").select("email").eq("email", normalizedEmail).single()
-
-      if (!profile) {
-        return {
-          error:
-            "No account found with this email address. Please check the email you entered or create a new account.",
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`
         }
-      }
-
-      // Send reset code via API
-      const response = await fetch("/api/auth/send-reset-code", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email: normalizedEmail }),
       })
 
-      const result = await response.json()
-
-      if (!response.ok) {
-        return { error: result.error || "Failed to send reset code" }
+      if (error) {
+        console.error("Google sign-in error:", error)
+        return { error: getAuthErrorMessage(error) }
       }
 
-      return {
-        error: null,
-        success: true,
-      }
+      // OAuth will redirect, so we don't get immediate user data
+      return { error: null, success: true }
     } catch (error) {
-      console.error("Password reset exception:", error)
-      return {
-        error: "No account found with this email address. Please check the email you entered or create a new account.",
-      }
+      console.error("Google sign-in exception:", error)
+      return { error: "Failed to sign in with Google. Please try again." }
     }
   }
 
-  const resendVerification = async (email: string) => {
-    // Since we're not using email verification, this is not needed
-    return { error: "Email verification is not required for this application." }
-  }
 
   const updateProfile = async (updates: { full_name?: string; avatar_url?: string }) => {
     if (!user) {
@@ -929,10 +864,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         userAvatar,
         signIn,
         signUp,
+        signInWithGoogle,
         signOut,
-        resetPassword,
         updateProfile,
-        resendVerification,
         isSupabaseConfigured,
       }}
     >

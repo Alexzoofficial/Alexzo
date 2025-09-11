@@ -4,7 +4,7 @@ import type React from "react"
 
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { X, Mail, Lock, User, Eye, EyeOff, CheckCircle, AlertCircle, ArrowLeft } from "lucide-react"
+import { X, CheckCircle, AlertCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -18,23 +18,18 @@ interface AuthModalProps {
   defaultMode?: "signup" | "login" | "forgot"
 }
 
-const mapDefaultMode = (mode?: "signup" | "login" | "forgot"): "signin" | "signup" | "reset" => {
-  switch (mode) {
-    case "login":
-      return "signin"
-    case "forgot":
-      return "reset"
-    case "signup":
-      return "signup"
-    default:
-      return "signin"
-  }
-}
+// Google OAuth icon component
+const GoogleIcon = () => (
+  <svg className="w-5 h-5" viewBox="0 0 24 24">
+    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+  </svg>
+)
 
 export function AuthModal({ isOpen, onClose, initialMode = "signin", defaultMode }: AuthModalProps) {
-  const resolvedInitialMode: "signin" | "signup" | "reset" = defaultMode ? mapDefaultMode(defaultMode) : initialMode
-
-  const [mode, setMode] = useState<"signin" | "signup" | "reset" | "success">(resolvedInitialMode)
+  const [mode, setMode] = useState<"oauth" | "demo" | "signup" | "success">("oauth")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [fullName, setFullName] = useState("")
@@ -44,11 +39,11 @@ export function AuthModal({ isOpen, onClose, initialMode = "signin", defaultMode
   const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({})
   const [successMessage, setSuccessMessage] = useState("")
 
-  const { signIn, signUp, resetPassword } = useAuth()
+  const { signIn, signUp, signInWithGoogle, isSupabaseConfigured } = useAuth()
 
   useEffect(() => {
     if (isOpen) {
-      setMode(resolvedInitialMode)
+      setMode(isSupabaseConfigured ? "oauth" : "demo")
     } else {
       setEmail("")
       setPassword("")
@@ -59,7 +54,7 @@ export function AuthModal({ isOpen, onClose, initialMode = "signin", defaultMode
       setSuccessMessage("")
       setLoading(false)
     }
-  }, [isOpen, resolvedInitialMode])
+  }, [isOpen, isSupabaseConfigured])
 
   const validateForm = () => {
     const errors: { [key: string]: string } = {}
@@ -73,7 +68,7 @@ export function AuthModal({ isOpen, onClose, initialMode = "signin", defaultMode
       }
     }
 
-    if (mode !== "reset") {
+    if (mode === "demo" || mode === "signup") {
       if (!password) {
         errors.password = "Password is required"
       } else if (password.length < 6) {
@@ -93,7 +88,28 @@ export function AuthModal({ isOpen, onClose, initialMode = "signin", defaultMode
     return Object.keys(errors).length === 0
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleGoogleSignIn = async () => {
+    setLoading(true)
+    setError("")
+
+    try {
+      const result = await signInWithGoogle()
+      if (result.error) {
+        setError(result.error)
+      } else {
+        setSuccessMessage("Redirecting to Google for authentication...")
+        setMode("success")
+        // Google OAuth will redirect, so we don't need to close manually
+      }
+    } catch (error) {
+      console.error("Google sign-in error:", error)
+      setError("Failed to sign in with Google. Please try again.")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleDemoSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setError("")
@@ -104,14 +120,11 @@ export function AuthModal({ isOpen, onClose, initialMode = "signin", defaultMode
     }
 
     try {
-      if (mode === "signin") {
-        console.log("Attempting sign in...")
+      if (mode === "demo") {
         const result = await signIn(email, password)
         if (result.error) {
-          console.error("Sign in error:", result.error)
           setError(result.error)
         } else {
-          console.log("Sign in successful")
           setSuccessMessage("Welcome back! You have been signed in successfully.")
           setMode("success")
           setTimeout(() => {
@@ -119,32 +132,15 @@ export function AuthModal({ isOpen, onClose, initialMode = "signin", defaultMode
           }, 2000)
         }
       } else if (mode === "signup") {
-        console.log("Attempting sign up...")
         const result = await signUp(email, password, fullName)
         if (result.error) {
-          console.error("Sign up error:", result.error)
           setError(result.error)
         } else {
-          console.log("Sign up successful")
           setSuccessMessage("Account created successfully! You have been signed in and can start using the platform.")
           setMode("success")
           setTimeout(() => {
             onClose()
           }, 2000)
-        }
-      } else if (mode === "reset") {
-        console.log("Attempting password reset...")
-        const result = await resetPassword(email)
-        if (result.error) {
-          console.error("Password reset error:", result.error)
-          setError(result.error)
-        } else {
-          console.log("Password reset successful")
-          setSuccessMessage("Password reset instructions have been sent to your email address.")
-          setMode("success")
-          setTimeout(() => {
-            setMode("signin")
-          }, 3000)
         }
       }
     } catch (error) {
@@ -183,12 +179,12 @@ export function AuthModal({ isOpen, onClose, initialMode = "signin", defaultMode
 
   const getTitle = () => {
     switch (mode) {
-      case "signin":
-        return "Welcome Back"
+      case "oauth":
+        return "Welcome to Alexzo"
+      case "demo":
+        return "Demo Mode"
       case "signup":
-        return "Create Account"
-      case "reset":
-        return "Reset Password"
+        return "Create Demo Account"
       case "success":
         return "Success!"
       default:
@@ -198,12 +194,12 @@ export function AuthModal({ isOpen, onClose, initialMode = "signin", defaultMode
 
   const getSubtitle = () => {
     switch (mode) {
-      case "signin":
-        return "Sign in to your account to continue"
+      case "oauth":
+        return "Sign in with your Google account to continue"
+      case "demo":
+        return "Demo mode - sign in with email and password"
       case "signup":
-        return "Create a new account to get started"
-      case "reset":
-        return "Enter your email to reset your password"
+        return "Create a demo account to get started"
       case "success":
         return successMessage
       default:
@@ -268,41 +264,80 @@ export function AuthModal({ isOpen, onClose, initialMode = "signin", defaultMode
                 </div>
                 <p className="text-gray-300">{successMessage}</p>
               </motion.div>
-            ) : (
-              <form onSubmit={handleSubmit} className="space-y-4">
-                {mode === "reset" && (
+            ) : mode === "oauth" ? (
+              <div className="space-y-4">
+                {error && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="flex items-center gap-2 text-red-400 text-sm bg-red-400/10 border border-red-400/20 rounded-lg p-3"
+                  >
+                    <AlertCircle className="h-4 w-4 flex-shrink-0" />
+                    <span>{error}</span>
+                  </motion.div>
+                )}
+
+                <Button
+                  onClick={handleGoogleSignIn}
+                  className="w-full bg-white hover:bg-gray-100 text-gray-900 border border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 py-3"
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 border-2 border-gray-400/30 border-t-gray-600 rounded-full animate-spin" />
+                      Connecting to Google...
+                    </div>
+                  ) : (
+                    <>
+                      <GoogleIcon />
+                      Continue with Google
+                    </>
+                  )}
+                </Button>
+
+                <div className="text-center">
+                  <p className="text-gray-400 text-sm mb-2">Or try demo mode</p>
                   <Button
                     type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setMode("signin")}
-                    className="text-gray-400 hover:text-white mb-4 p-0"
+                    variant="link"
+                    onClick={() => setMode("demo")}
+                    className="text-purple-400 hover:text-purple-300 p-0"
+                    disabled={loading}
                   >
-                    <ArrowLeft className="h-4 w-4 mr-2" />
-                    Back to Sign In
+                    Use demo login
                   </Button>
-                )}
+                </div>
+              </div>
+            ) : (
+              <form onSubmit={handleDemoSubmit} className="space-y-4">
+                <div className="text-center mb-4">
+                  <Button
+                    type="button"
+                    variant="link"
+                    onClick={() => setMode("oauth")}
+                    className="text-purple-400 hover:text-purple-300 p-0 text-sm"
+                    disabled={loading}
+                  >
+                    ← Back to Google sign-in
+                  </Button>
+                </div>
 
                 {mode === "signup" && (
                   <div className="space-y-2">
                     <Label htmlFor="fullName" className="text-gray-300">
                       Full Name
                     </Label>
-                    <div className="relative">
-                      <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                      <Input
-                        id="fullName"
-                        type="text"
-                        value={fullName}
-                        onChange={(e) => handleInputChange("fullName", e.target.value)}
-                        className={`pl-10 bg-gray-800 border-gray-700 text-white placeholder-gray-400 focus:border-purple-500 ${
-                          validationErrors.fullName ? "border-red-500" : ""
-                        }`}
-                        placeholder="Enter your full name"
-                        disabled={loading}
-                        autoComplete="name"
-                      />
-                    </div>
+                    <Input
+                      id="fullName"
+                      type="text"
+                      value={fullName}
+                      onChange={(e) => handleInputChange("fullName", e.target.value)}
+                      className={`bg-gray-800 border-gray-700 text-white placeholder-gray-400 focus:border-purple-500 ${
+                        validationErrors.fullName ? "border-red-500" : ""
+                      }`}
+                      placeholder="Enter your full name"
+                      disabled={loading}
+                    />
                     {validationErrors.fullName && <p className="text-red-400 text-sm">{validationErrors.fullName}</p>}
                   </div>
                 )}
@@ -311,60 +346,40 @@ export function AuthModal({ isOpen, onClose, initialMode = "signin", defaultMode
                   <Label htmlFor="email" className="text-gray-300">
                     Email
                   </Label>
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                    <Input
-                      id="email"
-                      type="email"
-                      value={email}
-                      onChange={(e) => handleInputChange("email", e.target.value)}
-                      className={`pl-10 bg-gray-800 border-gray-700 text-white placeholder-gray-400 focus:border-purple-500 ${
-                        validationErrors.email ? "border-red-500" : ""
-                      }`}
-                      placeholder="Enter your email"
-                      disabled={loading}
-                      autoComplete="email"
-                    />
-                  </div>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => handleInputChange("email", e.target.value)}
+                    className={`bg-gray-800 border-gray-700 text-white placeholder-gray-400 focus:border-purple-500 ${
+                      validationErrors.email ? "border-red-500" : ""
+                    }`}
+                    placeholder="Enter your email"
+                    disabled={loading}
+                  />
                   {validationErrors.email && <p className="text-red-400 text-sm">{validationErrors.email}</p>}
                 </div>
 
-                {mode !== "reset" && (
-                  <div className="space-y-2">
-                    <Label htmlFor="password" className="text-gray-300">
-                      Password
-                    </Label>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                      <Input
-                        id="password"
-                        type={showPassword ? "text" : "password"}
-                        value={password}
-                        onChange={(e) => handleInputChange("password", e.target.value)}
-                        className={`pl-10 pr-10 bg-gray-800 border-gray-700 text-white placeholder-gray-400 focus:border-purple-500 ${
-                          validationErrors.password ? "border-red-500" : ""
-                        }`}
-                        placeholder="Enter your password"
-                        disabled={loading}
-                        autoComplete={mode === "signup" ? "new-password" : "current-password"}
-                      />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white"
-                        onClick={() => setShowPassword(!showPassword)}
-                        disabled={loading}
-                      >
-                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                      </Button>
-                    </div>
-                    {validationErrors.password && <p className="text-red-400 text-sm">{validationErrors.password}</p>}
-                    {!validationErrors.password && mode === "signup" && (
-                      <p className="text-xs text-gray-400">Password must be at least 6 characters long</p>
-                    )}
-                  </div>
-                )}
+                <div className="space-y-2">
+                  <Label htmlFor="password" className="text-gray-300">
+                    Password
+                  </Label>
+                  <Input
+                    id="password"
+                    type="password"
+                    value={password}
+                    onChange={(e) => handleInputChange("password", e.target.value)}
+                    className={`bg-gray-800 border-gray-700 text-white placeholder-gray-400 focus:border-purple-500 ${
+                      validationErrors.password ? "border-red-500" : ""
+                    }`}
+                    placeholder="Enter your password"
+                    disabled={loading}
+                  />
+                  {validationErrors.password && <p className="text-red-400 text-sm">{validationErrors.password}</p>}
+                  {!validationErrors.password && mode === "signup" && (
+                    <p className="text-xs text-gray-400">Password must be at least 6 characters long</p>
+                  )}
+                </div>
 
                 {error && (
                   <motion.div
@@ -385,55 +400,38 @@ export function AuthModal({ isOpen, onClose, initialMode = "signin", defaultMode
                   {loading ? (
                     <div className="flex items-center gap-2">
                       <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                      {mode === "signin" && "Signing In..."}
-                      {mode === "signup" && "Creating Account..."}
-                      {mode === "reset" && "Sending Reset..."}
+                      {mode === "demo" ? "Signing In..." : "Creating Account..."}
                     </div>
                   ) : (
                     <>
-                      {mode === "signin" && "Sign In"}
-                      {mode === "signup" && "Create Account"}
-                      {mode === "reset" && "Send Reset Instructions"}
+                      {mode === "demo" ? "Sign In (Demo)" : "Create Demo Account"}
                     </>
                   )}
                 </Button>
 
-                <div className="text-center space-y-2">
-                  {mode === "signin" && (
-                    <>
-                      <p className="text-gray-400 text-sm">
-                        {"Don't have an account? "}
-                        <Button
-                          type="button"
-                          variant="link"
-                          onClick={() => setMode("signup")}
-                          className="text-purple-400 hover:text-purple-300 p-0"
-                          disabled={loading}
-                        >
-                          Sign up
-                        </Button>
-                      </p>
-                      <p className="text-gray-400 text-sm">
-                        <Button
-                          type="button"
-                          variant="link"
-                          onClick={() => setMode("reset")}
-                          className="text-purple-400 hover:text-purple-300 p-0"
-                          disabled={loading}
-                        >
-                          Forgot your password?
-                        </Button>
-                      </p>
-                    </>
+                <div className="text-center">
+                  {mode === "demo" && (
+                    <p className="text-gray-400 text-sm">
+                      {"Don't have a demo account? "}
+                      <Button
+                        type="button"
+                        variant="link"
+                        onClick={() => setMode("signup")}
+                        className="text-purple-400 hover:text-purple-300 p-0"
+                        disabled={loading}
+                      >
+                        Create one
+                      </Button>
+                    </p>
                   )}
 
                   {mode === "signup" && (
                     <p className="text-gray-400 text-sm">
-                      Already have an account?{" "}
+                      Already have a demo account?{" "}
                       <Button
                         type="button"
                         variant="link"
-                        onClick={() => setMode("signin")}
+                        onClick={() => setMode("demo")}
                         className="text-purple-400 hover:text-purple-300 p-0"
                         disabled={loading}
                       >
