@@ -31,9 +31,9 @@ This is a Next.js application called "Alexzo" - an AI-powered platform that tran
 
 ## Supabase Configuration
 The app includes Supabase integration with properly configured environment variables:
-- `NEXT_PUBLIC_SUPABASE_URL` ✅ Configured (https://xdemfbcvtqlowdiqefts.supabase.co)
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY` ✅ Configured and active
-- `SUPABASE_SERVICE_ROLE_KEY` ✅ Configured and active
+- `NEXT_PUBLIC_SUPABASE_URL` ✅ Configured
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY` ✅ Configured
+- `SUPABASE_SERVICE_ROLE_KEY` ✅ Configured
 
 ## Database Schema
 The project includes Supabase migrations in `/supabase/migrations/`:
