@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react"
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
 import type { User } from "@supabase/supabase-js"
+import { SUPABASE_URL, SUPABASE_ANON_KEY, isSupabaseConfigured as supabaseConfigured } from "@/lib/public-env"
 
 interface AuthContextType {
   user: User | null
@@ -47,18 +48,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           return
         }
 
-        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-        const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-
         // Debug environment variables
         console.log('Environment variables check:', {
-          urlPresent: !!supabaseUrl,
-          keyPresent: !!supabaseKey,
-          urlValue: supabaseUrl,
-          keyValue: supabaseKey ? '***EXISTS***' : 'undefined'
+          urlPresent: !!SUPABASE_URL,
+          keyPresent: !!SUPABASE_ANON_KEY,
+          urlValue: SUPABASE_URL,
+          keyValue: SUPABASE_ANON_KEY ? '***EXISTS***' : 'undefined',
+          isConfigured: supabaseConfigured
         })
 
-        if (!supabaseUrl || !supabaseKey) {
+        if (!supabaseConfigured) {
           console.log("Supabase environment variables not found - setting isSupabaseConfigured to false")
           setIsSupabaseConfigured(false)
           setLoading(false)
@@ -66,7 +65,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           return
         }
 
-        const supabaseClient = createClientComponentClient()
+        const supabaseClient = createClientComponentClient({
+          supabaseUrl: SUPABASE_URL,
+          supabaseKey: SUPABASE_ANON_KEY
+        })
 
         // Set as configured since environment variables are present
         console.log("Initializing Supabase with environment variables")
