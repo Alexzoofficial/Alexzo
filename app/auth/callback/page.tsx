@@ -5,21 +5,44 @@ import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
 import { CheckCircle, AlertCircle, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { useAuth } from "@/lib/auth-context"
 
 export default function AuthCallbackPage() {
   const [status, setStatus] = useState<"loading" | "success" | "error">("loading")
   const [message, setMessage] = useState("")
   const router = useRouter()
+  const { user, loading: authLoading } = useAuth()
 
   useEffect(() => {
-    // Since we're not using email verification, redirect immediately
-    setStatus("success")
-    setMessage("Authentication successful! Redirecting to homepage...")
+    const handleAuthCallback = async () => {
+      try {
+        // Wait for auth context to finish loading
+        if (authLoading) {
+          return
+        }
 
-    setTimeout(() => {
-      router.push("/")
-    }, 2000)
-  }, [router])
+        // Check if user is authenticated
+        if (user) {
+          setStatus("success")
+          setMessage("Account successfully created! Welcome to Alexzo!")
+          
+          setTimeout(() => {
+            router.push("/")
+          }, 2000)
+        } else {
+          // If no user after auth loading completes, there was an error
+          setStatus("error")
+          setMessage("Authentication failed. Please try again.")
+        }
+      } catch (error) {
+        console.error("Auth callback error:", error)
+        setStatus("error")
+        setMessage("Authentication failed. Please try again.")
+      }
+    }
+
+    handleAuthCallback()
+  }, [user, authLoading, router])
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-violet-900 flex items-center justify-center p-4">

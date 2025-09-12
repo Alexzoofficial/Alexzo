@@ -52,15 +52,15 @@ export function AuthModal({ isOpen, onClose, initialMode = "signin", defaultMode
       const result = await signInWithGoogle()
       if (result.error) {
         setError(result.error)
+        setLoading(false)
       } else {
-        setSuccessMessage("Redirecting to Google for authentication...")
-        setMode("success")
-        // Google OAuth will redirect, so we don't need to close manually
+        // Don't show success message here - OAuth will redirect to Google
+        // The callback page will handle showing success after actual authentication
+        // Keep loading state active until redirect happens
       }
     } catch (error) {
       console.error("Google sign-in error:", error)
       setError("Failed to sign in with Google. Please try again.")
-    } finally {
       setLoading(false)
     }
   }
