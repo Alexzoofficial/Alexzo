@@ -7,7 +7,7 @@ const nextConfig = {
     ignoreBuildErrors: false,
   },
   experimental: {
-    allowedDevOrigins: ['127.0.0.1', 'localhost', '17225a88-edd7-409c-9061-d713ac929ef4-00-10gp21h6pqisr.spock.replit.dev', '*.replit.dev', '127.0.0.1:5000'],
+    allowedDevOrigins: ['127.0.0.1', 'localhost', '17225a88-edd7-409c-9061-d713ac929ef4-00-10gp21h6pqisr.spock.replit.dev', '*.replit.dev', '127.0.0.1:5000', 'localhost:5000'],
   },
   images: {
     unoptimized: false,

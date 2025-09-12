@@ -24,10 +24,10 @@ export default function AuthCallbackPage() {
         // Check if user is authenticated
         if (user) {
           setStatus("success")
-          setMessage("You're signed in! Welcome to Alexzo!")
+          setMessage("Authentication successful! Taking you to your dashboard...")
           
           setTimeout(() => {
-            router.push("/")
+            router.push("/dashboard")
           }, 2000)
         } else {
           // If no user after auth loading completes, there was an error
@@ -73,7 +73,7 @@ export default function AuthCallbackPage() {
             </motion.div>
             <h1 className="text-2xl font-bold text-white mb-4">Success!</h1>
             <p className="text-gray-400 mb-6">{message}</p>
-            <p className="text-sm text-gray-500">Redirecting you to the homepage...</p>
+            <p className="text-sm text-gray-500">Redirecting you to your dashboard...</p>
           </>
         )}
 
