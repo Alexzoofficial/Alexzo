@@ -37,7 +37,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [userAvatar, setUserAvatar] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [supabase, setSupabase] = useState<any>(null)
-  const [isSupabaseConfigured, setIsSupabaseConfigured] = useState(false)
+  // Use the imported constant directly instead of local state
+  const isSupabaseConfigured = supabaseConfigured
   const [initialized, setInitialized] = useState(false)
 
   useEffect(() => {
@@ -58,8 +59,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         })
 
         if (!supabaseConfigured) {
-          console.log("Supabase environment variables not found - setting isSupabaseConfigured to false")
-          setIsSupabaseConfigured(false)
+          console.log("Supabase environment variables not found - authentication unavailable")
           setLoading(false)
           setInitialized(true)
           return
@@ -70,10 +70,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           supabaseKey: SUPABASE_ANON_KEY
         })
 
-        // Set as configured since environment variables are present
+        // Environment variables are present, initializing Supabase
         console.log("Initializing Supabase with environment variables")
-        console.log("Setting isSupabaseConfigured to true")
-        setIsSupabaseConfigured(true)
+        console.log("isSupabaseConfigured is:", isSupabaseConfigured)
 
         setSupabase(supabaseClient)
 
