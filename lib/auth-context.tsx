@@ -81,15 +81,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           const {
             data: { subscription },
           } = supabaseClient.auth.onAuthStateChange(async (event, session) => {
-            console.log("Auth state changed:", event, session?.user?.email)
+            console.log("Auth state changed:", event, session?.user?.email || 'no user')
 
-            if (event === "SIGNED_IN" && session?.user) {
+            // Handle both SIGNED_IN and INITIAL_SESSION events for user login
+            if ((event === "SIGNED_IN" || event === "INITIAL_SESSION") && session?.user) {
+              console.log("Setting user data:", session.user.email)
               setUser(session.user)
               // Use a simple avatar for now
               setUserAvatar(getRandomAvatar())
             } else if (event === "SIGNED_OUT") {
+              console.log("User signed out, clearing data")
               setUser(null)
               setUserAvatar(null)
+            } else if (event === "INITIAL_SESSION" && !session) {
+              console.log("Initial session with no user - user not authenticated")
             }
           })
 
