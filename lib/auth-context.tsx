@@ -76,7 +76,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         setSupabase(supabaseClient)
 
-        // Set up basic auth state listener
+        // Set up basic auth state listener  
         try {
           const {
             data: { subscription },
@@ -96,11 +96,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             } else if (event === "INITIAL_SESSION" && !session) {
               console.log("Initial session with no user - user not authenticated")
             }
+            
+            // Set loading to false after first auth state event
+            if (!initialized) {
+              setLoading(false)
+              setInitialized(true)
+            }
           })
 
-          console.log("Auth initialization complete - isSupabaseConfigured should be true")
-          setLoading(false)
-          setInitialized(true)
+          console.log("Auth state listener set up successfully")
+          
+          // Store subscription for proper cleanup
           return () => subscription.unsubscribe()
         } catch (listenerError) {
           console.log("Auth state listener setup failed, but auth still configured:", listenerError)

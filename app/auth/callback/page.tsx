@@ -24,7 +24,7 @@ export default function AuthCallbackPage() {
         // Check if user is authenticated
         if (user) {
           setStatus("success")
-          setMessage("Account successfully created! Welcome to Alexzo!")
+          setMessage("You're signed in! Welcome to Alexzo!")
           
           setTimeout(() => {
             router.push("/")
