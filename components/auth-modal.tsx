@@ -29,7 +29,7 @@ export function AuthModal({ isOpen, onClose, initialMode = "signin", defaultMode
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const [successMessage, setSuccessMessage] = useState("")
-  const [mode, setMode] = useState<"oauth" | "success">("oauth")
+  const [mode, setMode] = useState<"oauth">("oauth")
 
   const { signInWithGoogle, isSupabaseConfigured } = useAuth()
   
@@ -66,25 +66,11 @@ export function AuthModal({ isOpen, onClose, initialMode = "signin", defaultMode
   }
 
   const getTitle = () => {
-    switch (mode) {
-      case "oauth":
-        return "Welcome to Alexzo"
-      case "success":
-        return "Success!"
-      default:
-        return "Authentication"
-    }
+    return "Welcome to Alexzo"
   }
 
   const getSubtitle = () => {
-    switch (mode) {
-      case "oauth":
-        return "Sign in with your Google account to continue"
-      case "success":
-        return successMessage
-      default:
-        return ""
-    }
+    return "Sign in with your Google account to continue"
   }
 
   if (!isOpen) return null
@@ -137,19 +123,7 @@ export function AuthModal({ isOpen, onClose, initialMode = "signin", defaultMode
           </div>
 
           <div className="px-6 pb-6">
-            {mode === "success" ? (
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }} 
-                animate={{ opacity: 1, y: 0 }} 
-                className="text-center py-8"
-              >
-                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-green-500/20 flex items-center justify-center">
-                  <CheckCircle className="w-8 h-8 text-green-400" />
-                </div>
-                <p className="text-gray-300">{successMessage}</p>
-              </motion.div>
-            ) : (
-              <div className="space-y-4">
+            <div className="space-y-4">
                 {error && (
                   <motion.div
                     initial={{ opacity: 0, y: -10 }}
@@ -203,7 +177,6 @@ export function AuthModal({ isOpen, onClose, initialMode = "signin", defaultMode
                   </p>
                 </div>
               </div>
-            )}
           </div>
         </motion.div>
       </div>
