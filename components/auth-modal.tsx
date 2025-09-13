@@ -59,11 +59,9 @@ export function AuthModal({ isOpen, onClose, initialMode = "signin", defaultMode
         setLoading(false)
       } else {
         console.log("Google OAuth initiated successfully, redirecting...")
-        // Show success message before redirect
-        setSuccessMessage("Redirecting to Google for authentication...")
+        // Don't show success message here - will show on callback
         setLoading(false)
         
-        // Keep modal open to show success state
         // OAuth redirect will happen automatically
       }
     } catch (error) {

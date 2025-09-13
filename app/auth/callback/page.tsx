@@ -59,9 +59,9 @@ export default function AuthCallbackPage() {
           // Give more time for auth to complete
           setTimeout(() => {
             if (!user && !authLoading) {
-              // For now, assume success in demo mode
+              // Show the success message that was previously in AuthModal
               setStatus("success")
-              setMessage("Authentication successful! Taking you to your dashboard...")
+              setMessage("Redirecting to Google for authentication...")
               setTimeout(() => {
                 router.push("/dashboard")
               }, 2000)
