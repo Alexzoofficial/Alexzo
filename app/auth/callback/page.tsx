@@ -34,7 +34,7 @@ export default function AuthCallbackPage() {
             setMessage("Demo authentication successful! Taking you to your dashboard...")
             
             setTimeout(() => {
-              router.push("/dashboard")
+              router.push("/")
             }, 2000)
             return
           }
@@ -45,7 +45,7 @@ export default function AuthCallbackPage() {
             setMessage("Authentication successful! Taking you to your dashboard...")
             
             setTimeout(() => {
-              router.push("/dashboard")
+              router.push("/")
             }, 2000)
             return
           }
@@ -57,7 +57,7 @@ export default function AuthCallbackPage() {
           setMessage("Authentication successful! Taking you to your dashboard...")
           
           setTimeout(() => {
-            router.push("/dashboard")
+            router.push("/")
           }, 2000)
         } else {
           // Give more time for auth to complete
@@ -67,7 +67,7 @@ export default function AuthCallbackPage() {
               setStatus("success")
               setMessage("Redirecting to Google for authentication...")
               setTimeout(() => {
-                router.push("/dashboard")
+                router.push("/")
               }, 2000)
             }
           }, 3000)
@@ -78,7 +78,7 @@ export default function AuthCallbackPage() {
         setMessage("Authentication successful! Taking you to your dashboard...")
         
         setTimeout(() => {
-          router.push("/dashboard")
+          router.push("/")
         }, 2000)
       }
     }
