@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
-import { CheckCircle, AlertCircle, Loader2 } from "lucide-react"
+import { CheckCircle, AlertCircle, Loader2, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useAuth } from "@/lib/auth-context"
 
@@ -21,16 +21,18 @@ export default function AuthCallbackPage() {
           return
         }
 
-        // Check URL for error parameters
-        const urlParams = new URLSearchParams(window.location.search)
-        const error = urlParams.get('error')
-        const errorDescription = urlParams.get('error_description')
-        
-        if (error) {
-          console.error("OAuth Error:", error, errorDescription)
-          setStatus("error")
-          setMessage("Authentication failed. Please ensure Google OAuth is enabled in your Supabase project.")
-          return
+        // Check URL for error parameters (only on client side)
+        if (typeof window !== 'undefined') {
+          const urlParams = new URLSearchParams(window.location.search)
+          const error = urlParams.get('error')
+          const errorDescription = urlParams.get('error_description')
+          
+          if (error) {
+            console.error("OAuth Error:", error, errorDescription)
+            setStatus("error")
+            setMessage("Authentication failed. Please ensure Google OAuth is enabled in your Supabase project settings.")
+            return
+          }
         }
 
         // Check if user is authenticated
@@ -46,7 +48,7 @@ export default function AuthCallbackPage() {
           setTimeout(() => {
             if (!user && !authLoading) {
               setStatus("error")
-              setMessage("Authentication failed. Please ensure Google OAuth is enabled in your Supabase project.")
+              setMessage("Authentication failed. Please check your Supabase Google OAuth configuration.")
             }
           }, 3000)
         }
@@ -79,6 +81,16 @@ export default function AuthCallbackPage() {
 
         {status === "success" && (
           <>
+            <div className="flex items-center space-x-3 mb-6">
+              <div className="w-10 h-10 flex items-center justify-center">
+                <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-purple-600 font-bold text-lg">
+                  ●●●●
+                </div>
+              </div>
+              <span className="text-lg font-bold text-white">Alexzo</span>
+            </div>
+            <h1 className="text-2xl font-bold text-white mb-4">Success!</h1>
+            <p className="text-gray-400 mb-6">{message}</p>
             <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
@@ -87,19 +99,31 @@ export default function AuthCallbackPage() {
             >
               <CheckCircle className="w-8 h-8 text-green-400" />
             </motion.div>
-            <h1 className="text-2xl font-bold text-white mb-4">Success!</h1>
-            <p className="text-gray-400 mb-6">{message}</p>
-            <p className="text-sm text-gray-500">Redirecting you to your dashboard...</p>
+            <p className="text-gray-400">Redirecting you to your dashboard...</p>
           </>
         )}
 
         {status === "error" && (
           <>
-            <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-red-500/20 flex items-center justify-center">
-              <AlertCircle className="w-8 h-8 text-red-400" />
+            <div className="flex items-center space-x-3 mb-6">
+              <div className="w-10 h-10 flex items-center justify-center">
+                <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-purple-600 font-bold text-lg">
+                  ●●●●
+                </div>
+              </div>
+              <span className="text-lg font-bold text-white">Alexzo</span>
+              <button 
+                onClick={() => router.push("/")} 
+                className="ml-auto text-gray-400 hover:text-white"
+              >
+                <X className="h-5 w-5" />
+              </button>
             </div>
             <h1 className="text-2xl font-bold text-white mb-4">Error</h1>
             <p className="text-gray-400 mb-6">{message}</p>
+            <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-red-500/20 flex items-center justify-center">
+              <AlertCircle className="w-8 h-8 text-red-400" />
+            </div>
             <Button onClick={() => router.push("/")} className="w-full bg-purple-600 hover:bg-purple-700 text-white">
               Return to Homepage
             </Button>
