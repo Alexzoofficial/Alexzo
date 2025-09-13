@@ -31,7 +31,7 @@ export default function AuthCallbackPage() {
           if (isDemoMode) {
             console.log("Demo mode detected - showing success")
             setStatus("success")
-            setMessage("Demo authentication successful! Taking you to your dashboard...")
+            setMessage("Demo authentication successful! Taking you to your home screen...")
             
             setTimeout(() => {
               router.push("/")
@@ -42,7 +42,7 @@ export default function AuthCallbackPage() {
           if (error) {
             console.error("OAuth Error:", error, errorDescription)
             setStatus("success")
-            setMessage("Authentication successful! Taking you to your dashboard...")
+            setMessage("Authentication successful! Taking you to your home screen...")
             
             setTimeout(() => {
               router.push("/")
@@ -54,7 +54,7 @@ export default function AuthCallbackPage() {
         // Check if user is authenticated
         if (user) {
           setStatus("success")
-          setMessage("Authentication successful! Taking you to your dashboard...")
+          setMessage("Authentication successful! Taking you to your home screen...")
           
           setTimeout(() => {
             router.push("/")
@@ -75,7 +75,7 @@ export default function AuthCallbackPage() {
       } catch (error) {
         console.error("Auth callback error:", error)
         setStatus("success")
-        setMessage("Authentication successful! Taking you to your dashboard...")
+        setMessage("Authentication successful! Taking you to your home screen...")
         
         setTimeout(() => {
           router.push("/")
