@@ -21,6 +21,18 @@ export default function AuthCallbackPage() {
           return
         }
 
+        // Check URL for error parameters
+        const urlParams = new URLSearchParams(window.location.search)
+        const error = urlParams.get('error')
+        const errorDescription = urlParams.get('error_description')
+        
+        if (error) {
+          console.error("OAuth Error:", error, errorDescription)
+          setStatus("error")
+          setMessage("Authentication failed. Please ensure Google OAuth is enabled in your Supabase project.")
+          return
+        }
+
         // Check if user is authenticated
         if (user) {
           setStatus("success")
@@ -30,9 +42,13 @@ export default function AuthCallbackPage() {
             router.push("/dashboard")
           }, 2000)
         } else {
-          // If no user after auth loading completes, there was an error
-          setStatus("error")
-          setMessage("Authentication failed. Please try again.")
+          // Give more time for auth to complete
+          setTimeout(() => {
+            if (!user && !authLoading) {
+              setStatus("error")
+              setMessage("Authentication failed. Please ensure Google OAuth is enabled in your Supabase project.")
+            }
+          }, 3000)
         }
       } catch (error) {
         console.error("Auth callback error:", error)

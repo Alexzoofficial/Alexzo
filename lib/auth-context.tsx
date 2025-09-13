@@ -95,6 +95,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               setUserAvatar(null)
             } else if (event === "INITIAL_SESSION" && !session) {
               console.log("Initial session with no user - user not authenticated")
+            } else if (event === "TOKEN_REFRESHED" && session?.user) {
+              console.log("Token refreshed, updating user:", session.user.email)
+              setUser(session.user)
             }
             
             // Set loading to false after first auth state event

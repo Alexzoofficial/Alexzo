@@ -49,18 +49,23 @@ export function AuthModal({ isOpen, onClose, initialMode = "signin", defaultMode
     setError("")
 
     try {
+      console.log("Starting Google OAuth flow...")
       const result = await signInWithGoogle()
+      console.log("Google OAuth result:", result)
+      
       if (result.error) {
+        console.error("Google OAuth error:", result.error)
         setError(result.error)
         setLoading(false)
       } else {
+        console.log("Google OAuth initiated successfully, redirecting...")
         // Don't show success message here - OAuth will redirect to Google
         // The callback page will handle showing success after actual authentication
         // Keep loading state active until redirect happens
       }
     } catch (error) {
       console.error("Google sign-in error:", error)
-      setError("Failed to sign in with Google. Please try again.")
+      setError("Failed to sign in with Google. Please ensure Google OAuth is enabled in Supabase.")
       setLoading(false)
     }
   }
