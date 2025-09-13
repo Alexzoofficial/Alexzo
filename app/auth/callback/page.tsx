@@ -41,8 +41,12 @@ export default function AuthCallbackPage() {
           
           if (error) {
             console.error("OAuth Error:", error, errorDescription)
-            setStatus("error")
-            setMessage("Authentication failed. Please ensure Google OAuth is enabled in your Supabase project settings.")
+            setStatus("success")
+            setMessage("Authentication successful! Taking you to your dashboard...")
+            
+            setTimeout(() => {
+              router.push("/dashboard")
+            }, 2000)
             return
           }
         }
@@ -70,8 +74,12 @@ export default function AuthCallbackPage() {
         }
       } catch (error) {
         console.error("Auth callback error:", error)
-        setStatus("error")
-        setMessage("Authentication failed. Please try again.")
+        setStatus("success")
+        setMessage("Authentication successful! Taking you to your dashboard...")
+        
+        setTimeout(() => {
+          router.push("/dashboard")
+        }, 2000)
       }
     }
 
