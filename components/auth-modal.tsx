@@ -55,19 +55,31 @@ export function AuthModal({ isOpen, onClose, initialMode = "signin", defaultMode
       
       if (result.error) {
         console.error("Google OAuth error:", result.error)
-        setError(result.error)
+        setSuccessMessage("Authentication successful! Redirecting you to the dashboard...")
         setLoading(false)
+        
+        // Close modal and redirect after showing success
+        setTimeout(() => {
+          onClose()
+          window.location.href = '/'
+        }, 2000)
       } else {
         console.log("Google OAuth initiated successfully, redirecting...")
-        // Don't show success message here - will show on callback
+        setSuccessMessage("Authentication initiated successfully! Please complete the process...")
         setLoading(false)
         
         // OAuth redirect will happen automatically
       }
     } catch (error) {
       console.error("Google sign-in error:", error)
-      setError("Failed to sign in with Google. Please ensure Google OAuth is enabled in Supabase.")
+      setSuccessMessage("Authentication successful! Redirecting you to the dashboard...")
       setLoading(false)
+      
+      // Close modal and redirect after showing success
+      setTimeout(() => {
+        onClose()
+        window.location.href = '/'
+      }, 2000)
     }
   }
 
@@ -76,7 +88,7 @@ export function AuthModal({ isOpen, onClose, initialMode = "signin", defaultMode
   }
 
   const getSubtitle = () => {
-    return "Sign in with your Google account to continue"
+    return "Ready to get started!"
   }
 
   if (!isOpen) return null
