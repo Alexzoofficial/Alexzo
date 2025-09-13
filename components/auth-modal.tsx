@@ -59,9 +59,12 @@ export function AuthModal({ isOpen, onClose, initialMode = "signin", defaultMode
         setLoading(false)
       } else {
         console.log("Google OAuth initiated successfully, redirecting...")
-        // Don't show success message here - OAuth will redirect to Google
-        // The callback page will handle showing success after actual authentication
-        // Keep loading state active until redirect happens
+        // Show success message before redirect
+        setSuccessMessage("Redirecting to Google for authentication...")
+        setLoading(false)
+        
+        // Keep modal open to show success state
+        // OAuth redirect will happen automatically
       }
     } catch (error) {
       console.error("Google sign-in error:", error)
@@ -140,7 +143,23 @@ export function AuthModal({ isOpen, onClose, initialMode = "signin", defaultMode
                   </motion.div>
                 )}
 
-                {!isSupabaseConfigured && (
+                {successMessage && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="text-center space-y-4"
+                  >
+                    <div className="w-16 h-16 mx-auto rounded-full bg-green-500/20 flex items-center justify-center">
+                      <CheckCircle className="w-8 h-8 text-green-400" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold text-white mb-2">Success!</h3>
+                      <p className="text-gray-400">{successMessage}</p>
+                    </div>
+                  </motion.div>
+                )}
+
+                {!isSupabaseConfigured && !successMessage && (
                   <motion.div
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -151,23 +170,25 @@ export function AuthModal({ isOpen, onClose, initialMode = "signin", defaultMode
                   </motion.div>
                 )}
 
-                <Button
-                  onClick={handleGoogleSignIn}
-                  className="w-full bg-white hover:bg-gray-100 text-gray-900 border border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 py-3"
-                  disabled={loading || !isSupabaseConfigured}
-                >
-                  {loading ? (
-                    <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 border-2 border-gray-400/30 border-t-gray-600 rounded-full animate-spin" />
-                      Connecting to Google...
-                    </div>
-                  ) : (
-                    <>
-                      <GoogleIcon />
-                      Continue with Google
-                    </>
-                  )}
-                </Button>
+                {!successMessage && (
+                  <Button
+                    onClick={handleGoogleSignIn}
+                    className="w-full bg-white hover:bg-gray-100 text-gray-900 border border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 py-3"
+                    disabled={loading || !isSupabaseConfigured}
+                  >
+                    {loading ? (
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 border-2 border-gray-400/30 border-t-gray-600 rounded-full animate-spin" />
+                        Connecting to Google...
+                      </div>
+                    ) : (
+                      <>
+                        <GoogleIcon />
+                        Continue with Google
+                      </>
+                    )}
+                  </Button>
+                )}
 
                 <div className="text-center">
                   <p className="text-gray-400 text-xs">
