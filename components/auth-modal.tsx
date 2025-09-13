@@ -169,22 +169,12 @@ export function AuthModal({ isOpen, onClose, initialMode = "signin", defaultMode
                   </motion.div>
                 )}
 
-                {!isSupabaseConfigured && !successMessage && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="flex items-center gap-2 text-yellow-400 text-sm bg-yellow-400/10 border border-yellow-400/20 rounded-lg p-3"
-                  >
-                    <AlertCircle className="h-4 w-4 flex-shrink-0" />
-                    <span>Authentication service is currently unavailable. Please try again later.</span>
-                  </motion.div>
-                )}
 
                 {!successMessage && (
                   <Button
                     onClick={handleGoogleSignIn}
                     className="w-full bg-white hover:bg-gray-100 text-gray-900 border border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 py-3"
-                    disabled={loading || !isSupabaseConfigured}
+                    disabled={loading}
                   >
                     {loading ? (
                       <div className="flex items-center gap-2">
