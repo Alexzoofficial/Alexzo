@@ -4,6 +4,8 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from "
 import { 
   onAuthStateChanged, 
   signInWithPopup, 
+  signInWithRedirect,
+  getRedirectResult,
   signOut as firebaseSignOut, 
   User as FirebaseUser 
 } from "firebase/auth"
@@ -14,7 +16,7 @@ interface AuthContextType {
   user: FirebaseUser | null
   loading: boolean
   userAvatar: string | null
-  signInWithGoogle: () => Promise<{ error: string | null; success?: boolean }>
+  signInWithGoogle: (useRedirect?: boolean) => Promise<{ error: string | null; success?: boolean }>
   signOut: () => Promise<void>
   updateProfile: (updates: { full_name?: string; avatar_url?: string }) => Promise<{
     error: string | null
@@ -63,6 +65,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           return
         }
 
+        // Check for redirect result first (for users returning from redirect)
+        const checkRedirectResult = async () => {
+          try {
+            const result = await getRedirectResult(auth)
+            if (result) {
+              console.log("Redirect sign-in successful:", result.user.email)
+              // The auth state listener will handle the user data
+            }
+          } catch (error: any) {
+            console.error("Redirect sign-in error:", error)
+            // Store error for UI to display
+            if (typeof window !== 'undefined') {
+              sessionStorage.setItem('auth_redirect_error', error.message || 'Redirect authentication failed')
+            }
+          }
+        }
+
         // Set up Firebase auth state listener
         const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
           console.log("Firebase auth state changed:", firebaseUser?.email || 'no user')
@@ -70,6 +89,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           if (firebaseUser) {
             console.log("Setting user data:", firebaseUser.email)
             setUser(firebaseUser)
+
+            // Clear any stored redirect errors
+            if (typeof window !== 'undefined') {
+              sessionStorage.removeItem('auth_redirect_error')
+            }
 
             // Load or create user profile
             await loadUserProfile(firebaseUser)
@@ -85,6 +109,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             setInitialized(true)
           }
         })
+
+        // Check for redirect result on initialization
+        checkRedirectResult()
 
         console.log("Firebase auth state listener set up successfully")
         
@@ -131,22 +158,53 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  const signInWithGoogle = async () => {
+  const signInWithGoogle = async (useRedirect = false) => {
     if (!isFirebaseConfigured) {
       return { error: "Google sign-in is not available. Please check your connection." }
     }
 
+    // Check for any stored redirect errors first
+    if (typeof window !== 'undefined') {
+      const redirectError = sessionStorage.getItem('auth_redirect_error')
+      if (redirectError) {
+        sessionStorage.removeItem('auth_redirect_error')
+        return { error: redirectError }
+      }
+    }
+
+    // Use redirect method if explicitly requested
+    if (useRedirect) {
+      try {
+        console.log("Starting Google redirect flow...")
+        await signInWithRedirect(auth, googleProvider)
+        // Redirect flow doesn't return immediately, user will be redirected
+        return { error: null, success: true }
+      } catch (error: any) {
+        console.error("Google redirect error:", error)
+        return { error: "Unable to redirect to Google authentication. Please try again." }
+      }
+    }
+
+    // Try popup method first
     try {
+      console.log("Starting Google popup flow...")
       const result = await signInWithPopup(auth, googleProvider)
       console.log("Google sign-in successful:", result.user.email)
       return { error: null, success: true }
     } catch (error: any) {
-      console.error("Google sign-in error:", error)
+      console.error("Google popup sign-in error:", error)
       
       if (error.code === 'auth/popup-closed-by-user') {
         return { error: "Sign-in was cancelled. Please try again." }
       } else if (error.code === 'auth/popup-blocked') {
-        return { error: "Pop-up was blocked by your browser. Please allow pop-ups and try again." }
+        // Offer redirect as alternative
+        console.log("Popup blocked, offering redirect alternative")
+        return { 
+          error: "Pop-up was blocked. Would you like to try an alternative sign-in method?",
+          popupBlocked: true 
+        }
+      } else if (error.code === 'auth/unauthorized-domain') {
+        return { error: "This domain is not authorized for Google sign-in. Please contact support." }
       } else {
         return { error: "Unable to connect to Google authentication. Please check your internet connection and try again." }
       }

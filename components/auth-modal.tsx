@@ -30,6 +30,7 @@ export function AuthModal({ isOpen, onClose, initialMode = "signin", defaultMode
   const [error, setError] = useState("")
   const [successMessage, setSuccessMessage] = useState("")
   const [mode, setMode] = useState<"oauth">("oauth")
+  const [showRedirectOption, setShowRedirectOption] = useState(false)
 
   const { signInWithGoogle, isFirebaseConfigured } = useAuth()
   
@@ -41,32 +42,47 @@ export function AuthModal({ isOpen, onClose, initialMode = "signin", defaultMode
       setError("")
       setSuccessMessage("")
       setLoading(false)
+      setShowRedirectOption(false)
     }
   }, [isOpen])
 
-  const handleGoogleSignIn = async () => {
+  const handleGoogleSignIn = async (useRedirect = false) => {
     setLoading(true)
     setError("")
+    setShowRedirectOption(false)
 
     try {
-      console.log("Starting Google OAuth flow...")
-      const result = await signInWithGoogle()
+      console.log("Starting Google OAuth flow...", useRedirect ? 'with redirect' : 'with popup')
+      const result = await signInWithGoogle(useRedirect)
       console.log("Google OAuth result:", result)
       
       if (result.error) {
         console.error("Google OAuth error:", result.error)
-        setError(result.error)
+        
+        // Check if popup was blocked
+        if ((result as any).popupBlocked) {
+          setError(result.error)
+          setShowRedirectOption(true)
+        } else {
+          setError(result.error)
+        }
         setLoading(false)
       } else if (result.success) {
         console.log("Google OAuth successful!")
-        setLoading(false)
-        setSuccessMessage("Welcome! You've been successfully signed in.")
         
-        // Close modal and redirect to home after showing success message
-        setTimeout(() => {
-          onClose()
-          window.location.href = "/"
-        }, 1500)
+        if (useRedirect) {
+          // For redirect, the page will reload automatically
+          setSuccessMessage("Redirecting to Google...")
+        } else {
+          setLoading(false)
+          setSuccessMessage("Welcome! You've been successfully signed in.")
+          
+          // Close modal and redirect to home after showing success message
+          setTimeout(() => {
+            onClose()
+            window.location.href = "/"
+          }, 1500)
+        }
       }
     } catch (error) {
       console.error("Google sign-in error:", error)
@@ -163,23 +179,48 @@ export function AuthModal({ isOpen, onClose, initialMode = "signin", defaultMode
 
 
                 {!successMessage && (
-                  <Button
-                    onClick={handleGoogleSignIn}
-                    className="w-full bg-white hover:bg-gray-100 text-gray-900 border border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 py-3"
-                    disabled={loading}
-                  >
-                    {loading ? (
-                      <div className="flex items-center gap-2">
-                        <div className="w-4 h-4 border-2 border-gray-400/30 border-t-gray-600 rounded-full animate-spin" />
-                        Connecting to Google...
-                      </div>
-                    ) : (
-                      <>
-                        <GoogleIcon />
-                        Continue with Google
-                      </>
+                  <div className="space-y-3">
+                    <Button
+                      onClick={() => handleGoogleSignIn(false)}
+                      className="w-full bg-white hover:bg-gray-100 text-gray-900 border border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 py-3"
+                      disabled={loading}
+                    >
+                      {loading ? (
+                        <div className="flex items-center gap-2">
+                          <div className="w-4 h-4 border-2 border-gray-400/30 border-t-gray-600 rounded-full animate-spin" />
+                          Connecting to Google...
+                        </div>
+                      ) : (
+                        <>
+                          <GoogleIcon />
+                          Continue with Google
+                        </>
+                      )}
+                    </Button>
+
+                    {showRedirectOption && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="space-y-3"
+                      >
+                        <div className="text-center">
+                          <p className="text-gray-400 text-sm mb-2">
+                            Pop-up blocked? Try this alternative:
+                          </p>
+                          <Button
+                            onClick={() => handleGoogleSignIn(true)}
+                            variant="outline"
+                            className="w-full bg-gray-800 hover:bg-gray-700 text-white border-gray-600 flex items-center justify-center gap-3 py-3"
+                            disabled={loading}
+                          >
+                            <GoogleIcon />
+                            Sign in with redirect
+                          </Button>
+                        </div>
+                      </motion.div>
                     )}
-                  </Button>
+                  </div>
                 )}
 
                 <div className="text-center">
