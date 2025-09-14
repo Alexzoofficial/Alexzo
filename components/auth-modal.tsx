@@ -58,26 +58,10 @@ export function AuthModal({ isOpen, onClose, initialMode = "signin", defaultMode
         setError(result.error)
         setLoading(false)
       } else if (result.success) {
-        // Check if we're on callback page (demo mode) or will redirect (real OAuth)
-        const urlParams = new URLSearchParams(window.location.search)
-        const isDemo = urlParams.get('demo') === 'true' || window.location.pathname.includes('callback')
-        
-        if (isDemo) {
-          console.log("Demo mode login successful")
-          setSuccessMessage("Welcome! You're now logged in as a demo user.")
-          setLoading(false)
-          
-          // Close modal and redirect after showing success  
-          setTimeout(() => {
-            onClose()
-            window.location.href = '/'
-          }, 2000)
-        } else {
-          console.log("Google OAuth initiated successfully, redirecting to Google...")
-          // For real OAuth, redirect happens automatically - just show loading
-          setLoading(false)
-          // Don't show success message yet - user will be redirected to Google
-        }
+        console.log("Google OAuth initiated successfully, redirecting to Google...")
+        // For real OAuth, redirect happens automatically - keep loading state
+        // The browser will redirect to Google OAuth, so modal stays in loading state
+        // Success will be handled on the /auth/callback page
       }
     } catch (error) {
       console.error("Google sign-in error:", error)
