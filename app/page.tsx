@@ -58,13 +58,16 @@ export default function HomePage() {
 
   const handleGetStarted = () => {
     console.log("Get Started clicked! User state:", user)
+    console.log("Current showAuthModal state:", showAuthModal)
+    
     if (user) {
       console.log("User exists, scrolling to products")
       scrollToProducts()
     } else {
-      console.log("No user, showing auth modal")
-      setAuthModalMode("signup")
+      console.log("No user, opening auth modal")
+      setAuthModalMode("login")
       setShowAuthModal(true)
+      console.log("Auth modal should now be visible")
     }
   }
 

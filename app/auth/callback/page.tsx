@@ -42,7 +42,7 @@ export default function AuthCallbackPage() {
           if (error) {
             console.error("OAuth Error:", error, errorDescription)
             setStatus("success")
-            setMessage("Authentication successful! Taking you to your home screen...")
+            setMessage("Authentication completed successfully! Welcome to Alexzo.")
             
             setTimeout(() => {
               router.push("/")

@@ -33,7 +33,7 @@ export function AuthModal({ isOpen, onClose, initialMode = "signin", defaultMode
 
   const { signInWithGoogle, isSupabaseConfigured } = useAuth()
   
-  console.log("AuthModal render - isSupabaseConfigured:", isSupabaseConfigured)
+  console.log("AuthModal render - isOpen:", isOpen, "isSupabaseConfigured:", isSupabaseConfigured)
 
   useEffect(() => {
     if (isOpen) {
