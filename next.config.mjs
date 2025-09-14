@@ -35,6 +35,10 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: 'image.pollinations.ai',
+      },
+      {
+        protocol: 'https',
+        hostname: 'alexzo.vercel.app',
       }
     ]
   },
