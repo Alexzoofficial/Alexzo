@@ -55,31 +55,34 @@ export function AuthModal({ isOpen, onClose, initialMode = "signin", defaultMode
       
       if (result.error) {
         console.error("Google OAuth error:", result.error)
-        setSuccessMessage("Authentication successful! Redirecting you to the dashboard...")
+        setError(result.error)
         setLoading(false)
+      } else if (result.success) {
+        // Check if we're on callback page (demo mode) or will redirect (real OAuth)
+        const urlParams = new URLSearchParams(window.location.search)
+        const isDemo = urlParams.get('demo') === 'true' || window.location.pathname.includes('callback')
         
-        // Close modal and redirect after showing success
-        setTimeout(() => {
-          onClose()
-          window.location.href = '/'
-        }, 2000)
-      } else {
-        console.log("Google OAuth initiated successfully, redirecting...")
-        setSuccessMessage("Authentication initiated successfully! Please complete the process...")
-        setLoading(false)
-        
-        // OAuth redirect will happen automatically
+        if (isDemo) {
+          console.log("Demo mode login successful")
+          setSuccessMessage("Welcome! You're now logged in as a demo user.")
+          setLoading(false)
+          
+          // Close modal and redirect after showing success  
+          setTimeout(() => {
+            onClose()
+            window.location.href = '/'
+          }, 2000)
+        } else {
+          console.log("Google OAuth initiated successfully, redirecting to Google...")
+          // For real OAuth, redirect happens automatically - just show loading
+          setLoading(false)
+          // Don't show success message yet - user will be redirected to Google
+        }
       }
     } catch (error) {
       console.error("Google sign-in error:", error)
-      setSuccessMessage("Authentication successful! Redirecting you to the dashboard...")
+      setError("Authentication failed. Please try again.")
       setLoading(false)
-      
-      // Close modal and redirect after showing success
-      setTimeout(() => {
-        onClose()
-        window.location.href = '/'
-      }, 2000)
     }
   }
 
