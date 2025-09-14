@@ -1,12 +1,17 @@
 "use client"
 
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react"
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
-import type { User } from "@supabase/supabase-js"
-import { SUPABASE_URL, SUPABASE_ANON_KEY, isSupabaseConfigured as supabaseConfigured } from "@/lib/public-env"
+import { 
+  onAuthStateChanged, 
+  signInWithPopup, 
+  signOut as firebaseSignOut, 
+  User as FirebaseUser 
+} from "firebase/auth"
+import { doc, setDoc, updateDoc, getDoc } from "firebase/firestore"
+import { auth, db, googleProvider, isFirebaseConfigured } from "@/lib/firebase/client"
 
 interface AuthContextType {
-  user: User | null
+  user: FirebaseUser | null
   loading: boolean
   userAvatar: string | null
   signInWithGoogle: () => Promise<{ error: string | null; success?: boolean }>
@@ -15,7 +20,7 @@ interface AuthContextType {
     error: string | null
     success?: boolean
   }>
-  isSupabaseConfigured: boolean
+  isFirebaseConfigured: boolean
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -33,147 +38,135 @@ const getRandomAvatar = () => {
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null)
+  const [user, setUser] = useState<FirebaseUser | null>(null)
   const [userAvatar, setUserAvatar] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
-  const [supabase, setSupabase] = useState<any>(null)
-  // Use the imported constant directly instead of local state
-  const isSupabaseConfigured = supabaseConfigured
   const [initialized, setInitialized] = useState(false)
 
   useEffect(() => {
-    const initializeAuth = async () => {
+    const initializeAuth = () => {
       try {
         if (typeof window === "undefined") {
           setLoading(false)
           return
         }
 
-        // Debug environment variables
-        console.log('Environment variables check:', {
-          urlPresent: !!SUPABASE_URL,
-          keyPresent: !!SUPABASE_ANON_KEY,
-          urlValue: SUPABASE_URL,
-          keyValue: SUPABASE_ANON_KEY ? '***EXISTS***' : 'undefined',
-          isConfigured: supabaseConfigured
+        console.log('Firebase configuration check:', {
+          isConfigured: isFirebaseConfigured,
+          hasAuth: !!auth
         })
 
-        if (!supabaseConfigured) {
-          console.log("Supabase environment variables not found - authentication unavailable")
+        if (!isFirebaseConfigured) {
+          console.log("Firebase not configured - authentication unavailable")
           setLoading(false)
           setInitialized(true)
           return
         }
 
-        const supabaseClient = createClientComponentClient({
-          supabaseUrl: SUPABASE_URL,
-          supabaseKey: SUPABASE_ANON_KEY
+        // Set up Firebase auth state listener
+        const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+          console.log("Firebase auth state changed:", firebaseUser?.email || 'no user')
+
+          if (firebaseUser) {
+            console.log("Setting user data:", firebaseUser.email)
+            setUser(firebaseUser)
+
+            // Load or create user profile
+            await loadUserProfile(firebaseUser)
+          } else {
+            console.log("User signed out, clearing data")
+            setUser(null)
+            setUserAvatar(null)
+          }
+
+          // Set loading to false after first auth state event
+          if (!initialized) {
+            setLoading(false)
+            setInitialized(true)
+          }
         })
 
-        // Environment variables are present, initializing Supabase
-        console.log("Initializing Supabase with environment variables")
-        console.log("isSupabaseConfigured is:", isSupabaseConfigured)
-
-        setSupabase(supabaseClient)
-
-        // Set up basic auth state listener  
-        try {
-          const {
-            data: { subscription },
-          } = supabaseClient.auth.onAuthStateChange(async (event, session) => {
-            console.log("Auth state changed:", event, session?.user?.email || 'no user')
-
-            // Handle both SIGNED_IN and INITIAL_SESSION events for user login
-            if ((event === "SIGNED_IN" || event === "INITIAL_SESSION") && session?.user) {
-              console.log("Setting user data:", session.user.email)
-              setUser(session.user)
-              // Use a simple avatar for now
-              setUserAvatar(getRandomAvatar())
-            } else if (event === "SIGNED_OUT") {
-              console.log("User signed out, clearing data")
-              setUser(null)
-              setUserAvatar(null)
-            } else if (event === "INITIAL_SESSION" && !session) {
-              console.log("Initial session with no user - user not authenticated")
-            } else if (event === "TOKEN_REFRESHED" && session?.user) {
-              console.log("Token refreshed, updating user:", session.user.email)
-              setUser(session.user)
-            }
-            
-            // Set loading to false after first auth state event
-            if (!initialized) {
-              setLoading(false)
-              setInitialized(true)
-            }
-          })
-
-          console.log("Auth state listener set up successfully")
-          
-          // Store subscription for proper cleanup
-          return () => subscription.unsubscribe()
-        } catch (listenerError) {
-          console.log("Auth state listener setup failed, but auth still configured:", listenerError)
-          setLoading(false)
-          setInitialized(true)
-        }
+        console.log("Firebase auth state listener set up successfully")
+        
+        // Return cleanup function
+        return unsubscribe
       } catch (error) {
-        console.warn("Auth initialization failed:", error)
-        // Don't reset isSupabaseConfigured to false here, keep it as configured since env vars exist
-        console.log("Auth initialization error - keeping isSupabaseConfigured as true since env vars exist")
+        console.warn("Firebase auth initialization failed:", error)
         setLoading(false)
         setInitialized(true)
       }
     }
 
     if (!initialized) {
-      initializeAuth()
+      const cleanup = initializeAuth()
+      return cleanup
     }
   }, [initialized])
 
+  const loadUserProfile = async (firebaseUser: FirebaseUser) => {
+    try {
+      const userDoc = await getDoc(doc(db, "profiles", firebaseUser.uid))
+      
+      if (userDoc.exists()) {
+        const profileData = userDoc.data()
+        setUserAvatar(profileData.avatar_url || getRandomAvatar())
+      } else {
+        // Create new profile for first-time user
+        const randomAvatar = getRandomAvatar()
+        const profileData = {
+          id: firebaseUser.uid,
+          email: firebaseUser.email,
+          full_name: firebaseUser.displayName || '',
+          avatar_url: randomAvatar,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        }
+        
+        await setDoc(doc(db, "profiles", firebaseUser.uid), profileData)
+        setUserAvatar(randomAvatar)
+      }
+    } catch (error) {
+      console.error("Failed to load user profile:", error)
+      setUserAvatar(getRandomAvatar())
+    }
+  }
+
   const signInWithGoogle = async () => {
-    if (!supabase || !isSupabaseConfigured) {
+    if (!isFirebaseConfigured) {
       return { error: "Google sign-in is not available. Please check your connection." }
     }
 
     try {
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback`
-        }
-      })
-
-      if (error) {
-        console.error("Google sign-in error:", error)
+      const result = await signInWithPopup(auth, googleProvider)
+      console.log("Google sign-in successful:", result.user.email)
+      return { error: null, success: true }
+    } catch (error: any) {
+      console.error("Google sign-in error:", error)
+      
+      if (error.code === 'auth/popup-closed-by-user') {
+        return { error: "Sign-in was cancelled. Please try again." }
+      } else if (error.code === 'auth/popup-blocked') {
+        return { error: "Pop-up was blocked by your browser. Please allow pop-ups and try again." }
+      } else {
         return { error: "Unable to connect to Google authentication. Please check your internet connection and try again." }
       }
-
-      // OAuth will redirect, so we don't get immediate user data
-      return { error: null, success: true }
-    } catch (error) {
-      console.error("Google sign-in exception:", error)
-      return { error: "Authentication service is temporarily unavailable. Please try again later." }
     }
   }
 
   const signOut = async () => {
-    if (!supabase || !isSupabaseConfigured) {
-      console.log("Signing out without Supabase")
+    if (!isFirebaseConfigured) {
+      console.log("Signing out without Firebase")
       setUser(null)
       setUserAvatar(null)
       return
     }
 
     try {
-      const { error } = await supabase.auth.signOut()
-      if (error) {
-        console.error("Sign out error:", error)
-      }
-      
+      await firebaseSignOut(auth)
       setUser(null)
       setUserAvatar(null)
     } catch (error) {
-      console.error("Sign out exception:", error)
+      console.error("Sign out error:", error)
       // Still clear local state even if sign out fails
       setUser(null)
       setUserAvatar(null)
@@ -185,23 +178,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return { error: "You must be logged in to update your profile." }
     }
 
-    if (!supabase || !isSupabaseConfigured) {
+    if (!isFirebaseConfigured) {
       return { error: "Profile updates are not available. Please check your connection." }
     }
 
     try {
-      const { error } = await supabase
-        .from("profiles")
-        .update({
-          ...updates,
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", user.id)
-
-      if (error) {
-        console.error("Profile update failed:", error)
-        return { error: "Failed to update profile. Please try again." }
+      const updateData = {
+        ...updates,
+        updated_at: new Date().toISOString(),
       }
+
+      await updateDoc(doc(db, "profiles", user.uid), updateData)
 
       if (updates.avatar_url) {
         setUserAvatar(updates.avatar_url)
@@ -221,7 +208,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     signInWithGoogle,
     signOut,
     updateProfile,
-    isSupabaseConfigured,
+    isFirebaseConfigured,
   }
 
   return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>

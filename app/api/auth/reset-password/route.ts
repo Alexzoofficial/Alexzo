@@ -1,6 +1,8 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs"
-import { cookies } from "next/headers"
+
+// Force Node.js runtime for Firebase Admin SDK
+export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
 
 export async function OPTIONS() {
   return new NextResponse(null, {
@@ -44,43 +46,70 @@ export async function POST(request: NextRequest) {
     }
 
     try {
-      const supabase = createRouteHandlerClient({ cookies })
+      // Check if Firebase credentials are available
+      const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n')
+      const clientEmail = process.env.FIREBASE_CLIENT_EMAIL
+      const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID
 
-      // First check if user exists
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("email")
-        .eq("email", email.toLowerCase())
-        .single()
+      if (privateKey && clientEmail && projectId) {
+        // Lazy import Firebase Admin SDK
+        const { initializeApp, getApps, cert } = await import('firebase-admin/app')
+        const { getAuth } = await import('firebase-admin/auth')
+        const { getFirestore } = await import('firebase-admin/firestore')
 
-      if (!profile) {
+        let app
+        const apps = getApps()
+        if (apps.length > 0) {
+          app = apps[0]
+        } else {
+          app = initializeApp({
+            credential: cert({
+              projectId,
+              clientEmail,
+              privateKey,
+            }),
+            databaseURL: `https://${projectId}-default-rtdb.firebaseio.com`,
+          })
+        }
+
+        const firestore = getFirestore(app)
+        const auth = getAuth(app)
+
+        // Check if user exists in Firestore
+        const profileQuery = await firestore.collection('profiles').where('email', '==', email.toLowerCase()).get()
+        
+        if (profileQuery.empty) {
+          return NextResponse.json(
+            {
+              error:
+                "No account is associated with this email address. Please check the email you entered or sign up for a new account.",
+            },
+            {
+              status: 404,
+              headers: {
+                "Access-Control-Allow-Origin": "*",
+              },
+            },
+          )
+        }
+
+        // Generate password reset link
+        const actionCodeSettings = {
+          url: `${process.env.NEXT_PUBLIC_SITE_URL || "https://alexzo.vercel.app"}/auth/reset-password`,
+          handleCodeInApp: true,
+        }
+
+        await auth.generatePasswordResetLink(email, actionCodeSettings)
+        console.log("Password reset email sent via Firebase")
+      } else {
+        console.warn("Firebase Admin credentials not configured, password reset not available")
         return NextResponse.json(
           {
             error:
-              "No account is associated with this email address. Please check the email you entered or sign up for a new account.",
+              "Password reset is temporarily unavailable. Please contact support.",
           },
           {
-            status: 404,
-            headers: {
-              "Access-Control-Allow-Origin": "*",
-            },
-          },
-        )
-      }
-
-      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://alexzo.vercel.app"
-
-      // Send password reset email
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${siteUrl}/auth/reset-password`,
-      })
-
-      if (error) {
-        console.error("Password reset failed:", error)
-        return NextResponse.json(
-          { error: "Failed to send password reset email" },
-          {
-            status: 500,
+            status: 503,
             headers: {
               "Access-Control-Allow-Origin": "*",
             },

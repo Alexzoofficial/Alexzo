@@ -1,6 +1,8 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs"
-import { cookies } from "next/headers"
+
+// Force Node.js runtime for Firebase Admin SDK
+export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
 
 export async function POST(request: NextRequest) {
   try {
@@ -20,11 +22,33 @@ export async function POST(request: NextRequest) {
     }
 
     try {
-      const supabase = createRouteHandlerClient({ cookies })
+      // Check if Firebase credentials are available
+      const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n')
+      const clientEmail = process.env.FIREBASE_CLIENT_EMAIL
+      const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || "alexzo"
 
-      // Try to save to database
-      const { error } = await supabase.from("contact_submissions").insert([
-        {
+      if (privateKey && clientEmail) {
+        // Lazy import Firebase Admin SDK to avoid cold compile issues
+        const { initializeApp, getApps, cert } = await import('firebase-admin/app')
+        const { getFirestore } = await import('firebase-admin/firestore')
+
+        let app
+        const apps = getApps()
+        if (apps.length > 0) {
+          app = apps[0]
+        } else {
+          app = initializeApp({
+            credential: cert({
+              projectId,
+              clientEmail,
+              privateKey,
+            }),
+            databaseURL: `https://${projectId}-default-rtdb.firebaseio.com`,
+          })
+        }
+
+        const firestore = getFirestore(app)
+        await firestore.collection("contact_submissions").add({
           name,
           email,
           company: data.company || null,
@@ -33,15 +57,23 @@ export async function POST(request: NextRequest) {
           message,
           submitted_at: new Date().toISOString(),
           source: "website",
-        },
-      ])
-
-      if (error) {
-        console.error("Database save failed:", error)
-        // Continue anyway - don't fail the request
+        })
+        console.log("Contact submission saved to Firestore")
+      } else {
+        console.warn("Firebase Admin credentials not configured, logging submission for manual processing")
+        console.log("Contact submission (manual processing needed):", {
+          name,
+          email,
+          company: data.company || "",
+          subject,
+          category,
+          message,
+          timestamp: new Date().toISOString(),
+          source: "website",
+        })
       }
     } catch (dbError) {
-      console.error("Database connection failed:", dbError)
+      console.error("Firestore save failed:", dbError)
       // Continue anyway - log the submission for manual processing
       console.log("Contact submission (manual processing needed):", {
         name,
