@@ -58,10 +58,15 @@ export function AuthModal({ isOpen, onClose, initialMode = "signin", defaultMode
         setError(result.error)
         setLoading(false)
       } else if (result.success) {
-        console.log("Google OAuth initiated successfully, redirecting to Google...")
-        // For real OAuth, redirect happens automatically - keep loading state
-        // The browser will redirect to Google OAuth, so modal stays in loading state
-        // Success will be handled on the /auth/callback page
+        console.log("Google OAuth successful!")
+        setLoading(false)
+        setSuccessMessage("Welcome! You've been successfully signed in.")
+        
+        // Close modal and redirect to home after showing success message
+        setTimeout(() => {
+          onClose()
+          window.location.href = "/"
+        }, 1500)
       }
     } catch (error) {
       console.error("Google sign-in error:", error)
