@@ -41,12 +41,8 @@ export default function AuthCallbackPage() {
           
           if (error) {
             console.error("OAuth Error:", error, errorDescription)
-            setStatus("success")
-            setMessage("Authentication completed successfully! Welcome to Alexzo.")
-            
-            setTimeout(() => {
-              router.push("/")
-            }, 2000)
+            setStatus("error")
+            setMessage(errorDescription || "Authentication failed. Please try again.")
             return
           }
         }
@@ -63,23 +59,16 @@ export default function AuthCallbackPage() {
           // Give more time for auth to complete
           setTimeout(() => {
             if (!user && !authLoading) {
-              // Show the success message that was previously in AuthModal
-              setStatus("success")
-              setMessage("Redirecting to Google for authentication...")
-              setTimeout(() => {
-                router.push("/")
-              }, 2000)
+              console.log("Authentication timeout - no user found")
+              setStatus("error")
+              setMessage("Authentication failed or was cancelled. Please try signing in again.")
             }
           }, 3000)
         }
       } catch (error) {
         console.error("Auth callback error:", error)
-        setStatus("success")
-        setMessage("Authentication successful! Taking you to your home screen...")
-        
-        setTimeout(() => {
-          router.push("/")
-        }, 2000)
+        setStatus("error")
+        setMessage("An unexpected error occurred during authentication. Please try again.")
       }
     }
 
