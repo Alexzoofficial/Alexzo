@@ -1,12 +1,13 @@
 # Alexzo - AI-Powered Platform
 
 ## Overview
-This is a Next.js application called "Alexzo" - an AI-powered platform that transforms ideas with cutting-edge AI technology. The project has been successfully set up to run in the Replit environment.
+This is a Next.js application called "Alexzo" - an AI-powered platform that transforms ideas with cutting-edge AI technology. The project has been successfully migrated from Supabase to Firebase and set up to run in the Replit environment.
 
 ## Project Architecture
 - **Framework**: Next.js 15.2.4 with TypeScript
 - **UI Library**: Radix UI components with Tailwind CSS
-- **Authentication**: Supabase (with demo mode fallback)
+- **Authentication**: Firebase Auth with Google OAuth (migrated from Supabase)
+- **Database**: Firestore (migrated from Supabase)
 - **Styling**: Tailwind CSS with custom theming
 - **Analytics**: Google Analytics integration
 - **Development Server**: Running on port 5000 with 0.0.0.0 binding
@@ -17,30 +18,33 @@ This is a Next.js application called "Alexzo" - an AI-powered platform that tran
 - ✅ Frontend workflow running on port 5000
 - ✅ Application compiling and serving successfully
 - ✅ Deployment configuration set up for autoscale production deployment
-- ✅ Supabase environment variables configured and working
+- ✅ **Firebase integration successfully implemented** (migrated from Supabase)
 - ✅ Security vulnerabilities resolved (hardcoded credentials removed)
 - ✅ TypeScript configuration properly set up with Node.js types
 - ✅ GitHub import successfully completed and ready for use
 
 ## Recent Changes
-- **2025-09-14**: Fresh GitHub import setup completed for Replit environment
+- **2025-09-14**: Fresh GitHub import and complete Firebase migration
   - Installed Node.js dependencies with legacy peer deps flag to resolve React version conflicts
-  - Configured Supabase environment variables (NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY)
+  - **Successfully migrated from Supabase to Firebase** as requested
+  - Replaced authentication system with Firebase Auth and Google OAuth
+  - Migrated database operations from Supabase to Firestore
+  - Updated all API routes (contact, newsletter, waitlist, reset-password) to use Firebase Admin SDK
   - Verified Next.js development server runs properly on port 5000 with 0.0.0.0 binding
   - Confirmed application compiles successfully and serves pages (GET / 200)
-  - Validated Supabase integration is working (isSupabaseConfigured: true)
   - Set up deployment configuration for autoscale production deployment
-  - Successfully completed GitHub import and project is ready for development
+  - Successfully completed GitHub import and Firebase migration
 
-## Supabase Configuration
-✅ **Supabase integration fully working and configured!**
-- `NEXT_PUBLIC_SUPABASE_URL` ✅ Configured and working
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY` ✅ Configured and working  
-- `SUPABASE_SERVICE_ROLE_KEY` ✅ Configured for server-side operations
-- Environment constants properly loaded via `lib/public-env.ts` module
-- Client-side and server-side integration confirmed working
-- Authentication context successfully initializing with Supabase client
-- Google OAuth, user profiles, and database operations ready
+## Firebase Configuration  
+✅ **Firebase integration successfully implemented!**
+- Authentication: Firebase Auth with Google OAuth provider
+- Database: Firestore for data storage and user profiles
+- Environment variables: `NEXT_PUBLIC_FIREBASE_*` for client, `FIREBASE_PRIVATE_KEY`/`FIREBASE_CLIENT_EMAIL` for admin
+- Client-side Firebase configuration in `lib/firebase/client.ts`
+- Server-side Firebase Admin setup with lazy imports in API routes
+- Authentication context migrated to Firebase (`lib/auth-context.tsx`)
+- All API routes updated to use Firestore instead of Supabase
+- Security: Hardcoded defaults removed, fails closed when credentials missing
 
 ## Database Schema
 The project includes Supabase migrations in `/supabase/migrations/`:
