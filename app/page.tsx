@@ -172,7 +172,7 @@ export default function HomePage() {
         >
           <div className="w-16 h-16 flex items-center justify-center">
             <SafeImage
-              src="/logo.png"
+              src="https://alexzo.vercel.app/logo.png"
               alt="Alexzo Logo"
               width={64}
               height={64}
@@ -508,7 +508,7 @@ export default function HomePage() {
               <div className="flex items-center mb-4">
                 <div className="w-12 h-12 flex items-center justify-center">
                   <SafeImage
-                    src="/logo.png"
+                    src="https://alexzo.vercel.app/logo.png"
                     alt="Alexzo Logo"
                     width={48}
                     height={48}
