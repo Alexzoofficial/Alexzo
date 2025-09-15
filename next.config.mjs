@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 const replitDomain = process.env.REPLIT_DEV_DOMAIN;
+const vercelDomain = process.env.VERCEL_URL;
 const nextConfig = {
   eslint: {
     ignoreDuringBuilds: false,
@@ -12,9 +13,12 @@ const nextConfig = {
       '127.0.0.1', 
       'localhost', 
       '*.replit.dev',
+      '*.vercel.app',
+      'alexzo.vercel.app',
       '127.0.0.1:5000', 
       'localhost:5000',
-      ...(replitDomain ? [replitDomain, `${replitDomain}:5000`] : [])
+      ...(replitDomain ? [replitDomain, `${replitDomain}:5000`] : []),
+      ...(vercelDomain ? [vercelDomain, `https://${vercelDomain}`] : [])
     ],
   },
   images: {

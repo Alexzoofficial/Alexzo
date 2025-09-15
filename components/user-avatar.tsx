@@ -37,11 +37,11 @@ export function UserAvatar() {
   const [showCreateKey, setShowCreateKey] = useState(false)
   const [keyName, setKeyName] = useState("")
   const [apiKeys, setApiKeys] = useState<APIKey[]>([])
-  const [fullName, setFullName] = useState(user?.user_metadata?.full_name || "")
+  const [fullName, setFullName] = useState(user?.displayName || "")
 
   const loadAPIKeys = () => {
     if (user) {
-      const savedKeys = localStorage.getItem(`api_keys_${user.id}`)
+      const savedKeys = localStorage.getItem(`api_keys_${user.uid}`)
       if (savedKeys) {
         setApiKeys(JSON.parse(savedKeys))
       }
@@ -69,7 +69,7 @@ export function UserAvatar() {
 
     const updatedKeys = [...apiKeys, newKey]
     if (user) {
-      localStorage.setItem(`api_keys_${user.id}`, JSON.stringify(updatedKeys))
+      localStorage.setItem(`api_keys_${user.uid}`, JSON.stringify(updatedKeys))
     }
     setApiKeys(updatedKeys)
     setKeyName("")
@@ -85,7 +85,7 @@ export function UserAvatar() {
   const deleteAPIKey = (id: string) => {
     const updatedKeys = apiKeys.filter((key) => key.id !== id)
     if (user) {
-      localStorage.setItem(`api_keys_${user.id}`, JSON.stringify(updatedKeys))
+      localStorage.setItem(`api_keys_${user.uid}`, JSON.stringify(updatedKeys))
     }
     setApiKeys(updatedKeys)
     toast.success("API key deleted successfully!")
@@ -122,9 +122,9 @@ export function UserAvatar() {
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="relative h-8 w-8 rounded-full">
             <Avatar className="h-8 w-8">
-              <AvatarImage src={userAvatar || ""} alt={user.user_metadata?.full_name || user.email || ""} />
+              <AvatarImage src={userAvatar || ""} alt={user.displayName || user.email || ""} />
               <AvatarFallback>
-                {(user.user_metadata?.full_name || user.email || "U").charAt(0).toUpperCase()}
+                {(user.displayName || user.email || "U").charAt(0).toUpperCase()}
               </AvatarFallback>
             </Avatar>
           </Button>
@@ -132,7 +132,7 @@ export function UserAvatar() {
         <DropdownMenuContent className="w-56 bg-gray-900 border-gray-800" align="end" forceMount>
           <DropdownMenuLabel className="font-normal">
             <div className="flex flex-col space-y-1">
-              <p className="text-sm font-medium leading-none text-white">{user.user_metadata?.full_name || "User"}</p>
+              <p className="text-sm font-medium leading-none text-white">{user.displayName || "User"}</p>
               <p className="text-xs leading-none text-gray-400">{user.email}</p>
             </div>
           </DropdownMenuLabel>
@@ -140,7 +140,7 @@ export function UserAvatar() {
           <DropdownMenuItem
             onClick={() => {
               setShowSettings(true)
-              setFullName(user.user_metadata?.full_name || "")
+              setFullName(user.displayName || "")
             }}
             className="text-gray-300 hover:text-white hover:bg-gray-800"
           >

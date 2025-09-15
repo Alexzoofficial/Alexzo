@@ -246,7 +246,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         updated_at: new Date().toISOString(),
       }
 
+      // Update Firestore profile
       await updateDoc(doc(db, "profiles", user.uid), updateData)
+
+      // Also update Firebase Auth displayName if full_name is provided
+      if (updates.full_name && auth.currentUser) {
+        const { updateProfile: updateAuthProfile } = await import("firebase/auth")
+        await updateAuthProfile(auth.currentUser, {
+          displayName: updates.full_name
+        })
+        // Refresh the auth state to reflect the displayName change
+        await auth.currentUser.reload()
+      }
 
       if (updates.avatar_url) {
         setUserAvatar(updates.avatar_url)

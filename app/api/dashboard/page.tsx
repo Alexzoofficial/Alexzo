@@ -34,7 +34,7 @@ export default function APIDashboard() {
 
   const loadAPIKeys = () => {
     if (user) {
-      const savedKeys = localStorage.getItem(`api_keys_${user.id}`)
+      const savedKeys = localStorage.getItem(`api_keys_${user.uid}`)
       if (savedKeys) {
         setApiKeys(JSON.parse(savedKeys))
       }
@@ -62,7 +62,7 @@ export default function APIDashboard() {
 
     const updatedKeys = [...apiKeys, newKey]
     if (user) {
-      localStorage.setItem(`api_keys_${user.id}`, JSON.stringify(updatedKeys))
+      localStorage.setItem(`api_keys_${user.uid}`, JSON.stringify(updatedKeys))
     }
     setApiKeys(updatedKeys)
     setKeyName("")
@@ -78,7 +78,7 @@ export default function APIDashboard() {
   const deleteAPIKey = (id: string) => {
     const updatedKeys = apiKeys.filter((key) => key.id !== id)
     if (user) {
-      localStorage.setItem(`api_keys_${user.id}`, JSON.stringify(updatedKeys))
+      localStorage.setItem(`api_keys_${user.uid}`, JSON.stringify(updatedKeys))
     }
     setApiKeys(updatedKeys)
     toast.success("API key deleted successfully!")
