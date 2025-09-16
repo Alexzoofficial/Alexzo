@@ -176,7 +176,7 @@ If you're still experiencing issues after following this guide, the problem may 
 
 **Still Having Issues?**
 
-1. **Double-check storage bucket**: Ensure it's `alexzo.appspot.com` (not .firebasestorage.app)
+1. **Double-check storage bucket**: Ensure it's `[your-project-id].appspot.com` (not .firebasestorage.app)
 2. **Verify exact domain spelling**: Copy domains directly from Vercel dashboard
 3. **Wait for propagation**: Firebase changes can take 5-10 minutes to take effect
 4. **Check browser console**: Look for specific Firebase error messages
