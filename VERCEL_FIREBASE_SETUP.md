@@ -16,7 +16,7 @@ Firebase social login works on Replit but fails on Vercel deployment. This guide
 Add each of the following environment variables **exactly as shown**:
 
 **Variable Name:** `NEXT_PUBLIC_FIREBASE_API_KEY`
-**Value:** `AIzaSyDAfy2fyJYLDA3WjK-VAo_zGgrYcxjkzws`
+**Value:** `[Your Firebase API Key from Firebase Console]`
 **Environment:** Production, Preview, Development (check all three)
 
 **Variable Name:** `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN`
@@ -156,7 +156,7 @@ If authentication still doesn't work, verify:
 
 **Environment Variable Format:**
 ```
-NEXT_PUBLIC_FIREBASE_API_KEY=AIzaSyDAfy2fyJYLDA3WjK-VAo_zGgrYcxjkzws
+NEXT_PUBLIC_FIREBASE_API_KEY=[Your Firebase API Key]
 NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=alexzo.firebaseapp.com
 NEXT_PUBLIC_FIREBASE_PROJECT_ID=alexzo
 # etc...
