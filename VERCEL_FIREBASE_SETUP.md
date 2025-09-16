@@ -20,31 +20,31 @@ Add each of the following environment variables **exactly as shown**:
 **Environment:** Production, Preview, Development (check all three)
 
 **Variable Name:** `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN`
-**Value:** `alexzo.firebaseapp.com`
+**Value:** `[your-project-id].firebaseapp.com`
 **Environment:** Production, Preview, Development (check all three)
 
 **Variable Name:** `NEXT_PUBLIC_FIREBASE_DATABASE_URL`
-**Value:** `https://alexzo-default-rtdb.firebaseio.com`
+**Value:** `https://[your-project-id]-default-rtdb.firebaseio.com`
 **Environment:** Production, Preview, Development (check all three)
 
 **Variable Name:** `NEXT_PUBLIC_FIREBASE_PROJECT_ID`
-**Value:** `alexzo`
+**Value:** `[your-project-id]`
 **Environment:** Production, Preview, Development (check all three)
 
 **Variable Name:** `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET`
-**Value:** `alexzo.appspot.com`
+**Value:** `[your-project-id].appspot.com`
 **Environment:** Production, Preview, Development (check all three)
 
 **Variable Name:** `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID`
-**Value:** `685761333626`
+**Value:** `[your-messaging-sender-id]`
 **Environment:** Production, Preview, Development (check all three)
 
 **Variable Name:** `NEXT_PUBLIC_FIREBASE_APP_ID`
-**Value:** `1:685761333626:web:e23150066930f804cd6ec3`
+**Value:** `[your-app-id]`
 **Environment:** Production, Preview, Development (check all three)
 
 **Variable Name:** `NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID`
-**Value:** `G-386HB7B9VJ`
+**Value:** `[your-measurement-id]`
 **Environment:** Production, Preview, Development (check all three)
 
 ### Step 3: Save and Redeploy
@@ -57,7 +57,7 @@ Add each of the following environment variables **exactly as shown**:
 
 ### Step 1: Access Firebase Console
 1. Go to [console.firebase.google.com](https://console.firebase.google.com)
-2. Select your **alexzo** project
+2. Select your Firebase project
 
 ### Step 2: Add Authorized Domains
 1. In the left sidebar, click **Authentication**
@@ -126,7 +126,7 @@ Add these domains one by one (replace `your-project-name` with your actual Verce
 2. Open browser developer tools (F12)
 3. Go to Console tab
 4. Type: `console.log(process.env.NEXT_PUBLIC_FIREBASE_API_KEY)`
-5. Should show: `AIzaSyDAfy2fyJYLDA3WjK-VAo_zGgrYcxjkzws` (not undefined)
+5. Should show your Firebase API key (not undefined)
 6. If undefined, environment variables weren't set correctly - revisit Part 1
 
 ### Step 2: Test Authentication
@@ -157,8 +157,8 @@ If authentication still doesn't work, verify:
 **Environment Variable Format:**
 ```
 NEXT_PUBLIC_FIREBASE_API_KEY=[Your Firebase API Key]
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=alexzo.firebaseapp.com
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=alexzo
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=[your-project-id].firebaseapp.com
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=[your-project-id]
 # etc...
 ```
 
