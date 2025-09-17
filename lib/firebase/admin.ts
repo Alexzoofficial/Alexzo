@@ -19,10 +19,10 @@ export function getFirebaseAdmin() {
 
   try {
     const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n')
-    const clientEmail = process.env.FIREBASE_CLIENT_EMAIL || ""
-    const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || "alexzo"
+    const clientEmail = process.env.FIREBASE_CLIENT_EMAIL
+    const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID
 
-    if (!privateKey || !clientEmail) {
+    if (!privateKey || !clientEmail || !projectId) {
       console.warn('Firebase admin credentials not configured, server-side operations may be limited')
       return null
     }
