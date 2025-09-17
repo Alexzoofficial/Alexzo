@@ -58,7 +58,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           hasAuth: !!auth
         })
 
-        if (!isFirebaseConfigured) {
+        if (!isFirebaseConfigured || !auth) {
           console.log("Firebase not configured - authentication unavailable")
           setLoading(false)
           setInitialized(true)
@@ -68,6 +68,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // Check for redirect result first (for users returning from redirect)
         const checkRedirectResult = async () => {
           try {
+            if (!auth) return
             const result = await getRedirectResult(auth)
             if (result) {
               console.log("Redirect sign-in successful:", result.user.email)
@@ -83,6 +84,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
 
         // Set up Firebase auth state listener
+        if (!auth) {
+          setLoading(false)
+          setInitialized(true)
+          return
+        }
         const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
           console.log("Firebase auth state changed:", firebaseUser?.email || 'no user')
 
@@ -132,6 +138,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const loadUserProfile = async (firebaseUser: FirebaseUser) => {
     try {
+      if (!db) {
+        console.warn("Firestore not available, using default avatar")
+        setUserAvatar(getRandomAvatar())
+        return
+      }
       const userDoc = await getDoc(doc(db, "profiles", firebaseUser.uid))
       
       if (userDoc.exists()) {
@@ -149,7 +160,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           updated_at: new Date().toISOString()
         }
         
-        await setDoc(doc(db, "profiles", firebaseUser.uid), profileData)
+        if (db) {
+          await setDoc(doc(db, "profiles", firebaseUser.uid), profileData)
+        }
         setUserAvatar(randomAvatar)
       }
     } catch (error) {
@@ -181,6 +194,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Use redirect method if explicitly requested
     if (useRedirect) {
       try {
+        if (!auth || !googleProvider) {
+          return { error: "Authentication service is not properly configured." }
+        }
         console.log("Starting Google redirect flow...")
         await signInWithRedirect(auth, googleProvider)
         // Redirect flow doesn't return immediately, user will be redirected
@@ -193,6 +209,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     // Try popup method first
     try {
+      if (!auth || !googleProvider) {
+        return { error: "Authentication service is not properly configured." }
+      }
       console.log("Starting Google popup flow...")
       const result = await signInWithPopup(auth, googleProvider)
       console.log("Google sign-in successful:", result.user.email)
@@ -227,6 +246,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     try {
+      if (!auth) {
+        console.log("Firebase auth not available for sign out")
+        setUser(null)
+        setUserAvatar(null)
+        return
+      }
       await firebaseSignOut(auth)
       setUser(null)
       setUserAvatar(null)
@@ -254,16 +279,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       // Update Firestore profile
+      if (!db) {
+        return { error: "Profile updates are not available - database not configured." }
+      }
       await updateDoc(doc(db, "profiles", user.uid), updateData)
 
       // Also update Firebase Auth displayName if full_name is provided
-      if (updates.full_name && auth.currentUser) {
+      if (updates.full_name && auth && auth.currentUser) {
         const { updateProfile: updateAuthProfile } = await import("firebase/auth")
         await updateAuthProfile(auth.currentUser, {
           displayName: updates.full_name
         })
         // Refresh the auth state to reflect the displayName change
-        await auth.currentUser.reload()
+        if (auth.currentUser) {
+          await auth.currentUser.reload()
+        }
       }
 
       if (updates.avatar_url) {
