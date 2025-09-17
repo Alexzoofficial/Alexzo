@@ -160,7 +160,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signInWithGoogle = async (useRedirect = false) => {
     if (!isFirebaseConfigured) {
-      return { error: "Google sign-in is not available. Please check your connection." }
+      const missingVars = []
+      if (!process.env.NEXT_PUBLIC_FIREBASE_API_KEY) missingVars.push('API_KEY')
+      if (!process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID) missingVars.push('PROJECT_ID')
+      if (!process.env.NEXT_PUBLIC_FIREBASE_APP_ID) missingVars.push('APP_ID')
+      
+      console.error("Firebase not configured. Missing:", missingVars.join(', '))
+      return { error: "Authentication service is currently unavailable. Please try again later or contact support if the issue persists." }
     }
 
     // Check for any stored redirect errors first
@@ -204,7 +210,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           popupBlocked: true 
         }
       } else if (error.code === 'auth/unauthorized-domain') {
-        return { error: "This domain is not authorized for Google sign-in. Please contact support." }
+        console.error("Unauthorized domain error - likely Vercel domain not added to Firebase authorized domains")
+        return { error: "This website domain is not authorized for sign-in. This is a configuration issue - please try again in a few minutes or contact support." }
       } else {
         return { error: "Unable to connect to Google authentication. Please check your internet connection and try again." }
       }

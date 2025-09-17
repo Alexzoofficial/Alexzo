@@ -22,11 +22,19 @@ export const auth = getAuth(app)
 export const db = getFirestore(app)
 export const googleProvider = new GoogleAuthProvider()
 
+// Configure Google OAuth provider for better Vercel compatibility
+googleProvider.setCustomParameters({
+  'prompt': 'select_account'
+})
+
 // Check if Firebase is properly configured
 export const isFirebaseConfigured = Boolean(
   firebaseConfig.apiKey && 
   firebaseConfig.projectId && 
-  firebaseConfig.appId
+  firebaseConfig.appId &&
+  firebaseConfig.apiKey !== 'undefined' &&
+  firebaseConfig.projectId !== 'undefined' &&
+  firebaseConfig.appId !== 'undefined'
 )
 
 export default app
