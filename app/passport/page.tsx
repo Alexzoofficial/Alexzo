@@ -68,7 +68,7 @@ export default function PassportPage() {
   }, [user])
 
   const loadAPIKeys = () => {
-    const savedKeys = localStorage.getItem(`passport_keys_${user?.id}`)
+    const savedKeys = localStorage.getItem(`passport_keys_${user?.uid}`)
     if (savedKeys) {
       setApiKeys(JSON.parse(savedKeys))
     }
@@ -94,7 +94,7 @@ export default function PassportPage() {
     }
 
     const updatedKeys = [...apiKeys, newKey]
-    localStorage.setItem(`passport_keys_${user?.id}`, JSON.stringify(updatedKeys))
+    localStorage.setItem(`passport_keys_${user?.uid}`, JSON.stringify(updatedKeys))
     setApiKeys(updatedKeys)
     setKeyName("")
     setShowCreateKey(false)

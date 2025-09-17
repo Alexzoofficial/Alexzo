@@ -48,7 +48,7 @@ export default function PlaygroundPage() {
 
     try {
       // Get API key from localStorage
-      const apiKeys = JSON.parse(localStorage.getItem(`passport_keys_${user.id}`) || "[]")
+      const apiKeys = JSON.parse(localStorage.getItem(`passport_keys_${user.uid}`) || "[]")
       if (apiKeys.length === 0) {
         toast.error("Please create an API key in your Passport dashboard first")
         setLoading(false)

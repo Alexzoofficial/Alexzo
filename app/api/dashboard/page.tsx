@@ -148,7 +148,7 @@ console.log(data.data[0].url);`
           <h1 className="text-2xl font-bold text-white">Zyfoox API Dashboard</h1>
         </div>
         <Badge className="bg-purple-600 text-white px-3 py-1">
-          {user.user_metadata?.full_name || user.email}
+          {user.displayName || user.email}
         </Badge>
       </header>
 

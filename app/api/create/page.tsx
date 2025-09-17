@@ -70,7 +70,7 @@ export default function APICreatePage() {
 
   const loadUserAPIs = () => {
     // Load APIs from localStorage for demo
-    const savedAPIs = localStorage.getItem(`apis_${user?.id}`)
+    const savedAPIs = localStorage.getItem(`apis_${user?.uid}`)
     if (savedAPIs) {
       setApis(JSON.parse(savedAPIs))
     }
@@ -78,7 +78,7 @@ export default function APICreatePage() {
 
   const loadGeneratedImages = () => {
     // Load generated images from localStorage
-    const savedImages = localStorage.getItem(`dog_images_${user?.id}`)
+    const savedImages = localStorage.getItem(`dog_images_${user?.uid}`)
     if (savedImages) {
       setGeneratedDogImages(JSON.parse(savedImages))
     }
@@ -86,14 +86,14 @@ export default function APICreatePage() {
 
   const saveAPIs = (newAPIs: API[]) => {
     if (user) {
-      localStorage.setItem(`apis_${user.id}`, JSON.stringify(newAPIs))
+      localStorage.setItem(`apis_${user.uid}`, JSON.stringify(newAPIs))
       setApis(newAPIs)
     }
   }
 
   const saveGeneratedImages = (images: GeneratedImage[]) => {
     if (user) {
-      localStorage.setItem(`dog_images_${user.id}`, JSON.stringify(images))
+      localStorage.setItem(`dog_images_${user.uid}`, JSON.stringify(images))
       setGeneratedDogImages(images)
     }
   }

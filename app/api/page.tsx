@@ -389,7 +389,7 @@ console.log(data.data[0].url);`
             </h1>
           </div>
         </div>
-        <Badge className="bg-purple-600 text-white px-3 py-1">{user.user_metadata?.full_name || user.email}</Badge>
+        <Badge className="bg-purple-600 text-white px-3 py-1">{user.displayName || user.email}</Badge>
       </header>
 
       <div className="relative z-10 container mx-auto px-4 md:px-6 py-8 md:py-12">
