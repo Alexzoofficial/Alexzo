@@ -75,7 +75,7 @@ export default function LearnFlowPage() {
     author: {
       "@type": "Organization",
       name: "Alexzo",
-      url: "https://alexzo.dev"
+      url: "https://alexzo.vercel.app"
     }
   }
 
@@ -122,7 +122,7 @@ export default function LearnFlowPage() {
           <div className="flex items-center space-x-4">
             <div className="w-16 h-16 flex items-center justify-center">
               <Image
-                src="/logo.png"
+                src="https://alexzo.vercel.app/logo.png"
                 alt="Alexzo Logo"
                 width={64}
                 height={64}

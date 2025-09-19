@@ -39,7 +39,7 @@ export default function PressPage() {
       <header className="text-center mb-8">
         {/* Update header logo: */}
         <div className="w-16 h-16 flex items-center justify-center mx-auto">
-          <Image src="/logo.png" alt="Alexzo Logo" width={64} height={64} className="w-full h-full object-contain" />
+          <Image src="https://alexzo.vercel.app/logo.png" alt="Alexzo Logo" width={64} height={64} className="w-full h-full object-contain" />
         </div>
         <h1 className="text-3xl font-bold">Press Releases</h1>
       </header>

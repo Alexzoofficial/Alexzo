@@ -47,7 +47,7 @@ export default function NotFound() {
         >
           <div className="w-24 h-24 mx-auto mb-6">
             <SafeImage
-              src="/logo.png"
+              src="https://alexzo.vercel.app/logo.png"
               alt="Alexzo Logo"
               width={96}
               height={96}

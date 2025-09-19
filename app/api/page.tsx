@@ -132,7 +132,7 @@ export default function APIPage() {
   const totalRequests = apiKeys.reduce((sum, key) => sum + key.requests, 0)
 
   const codeExample = `// AI Image Generation - Free Use
-const response = await fetch('https://alexzo.dev/api/generate', {
+const response = await fetch('https://alexzo.vercel.app/api/generate', {
   method: 'POST',
   headers: {
     'Authorization': 'Bearer ${apiKeys[0]?.key || "alexzo_your_api_key_here"}',
@@ -254,7 +254,7 @@ console.log(data.data[0].url);`
             resultDiv.innerHTML = '<p class="loading">🎨 Creating your image...</p>';
             
             try {
-                const response = await fetch('https://alexzo.dev/api/generate', {
+                const response = await fetch('https://alexzo.vercel.app/api/generate', {
                     method: 'POST',
                     headers: {
                         'Authorization': \`Bearer \${apiKey}\`,
@@ -377,7 +377,7 @@ console.log(data.data[0].url);`
           <div className="flex items-center">
             <div className="w-8 h-8 flex items-center justify-center mr-3">
               <Image
-                src="/logo.png"
+                src="https://alexzo.vercel.app/logo.png"
                 alt="Alexzo Logo"
                 width={32}
                 height={32}

@@ -175,7 +175,7 @@ export default function BlogPage() {
           <div className="flex items-center">
             <div className="w-8 h-8 flex items-center justify-center mr-3">
               <Image
-                src="/logo.png"
+                src="https://alexzo.vercel.app/logo.png"
                 alt="Alexzo Logo"
                 width={32}
                 height={32}

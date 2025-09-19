@@ -17,7 +17,7 @@ export function generateSEOMetadata({
 }): Metadata {
   const baseUrl = "https://alexzo.vercel.app"
   const fullUrl = url ? `${baseUrl}${url}` : baseUrl
-  const imageUrl = image ? `${baseUrl}${image}` : `${baseUrl}/logo.png`
+  const imageUrl = image ? `${baseUrl}${image}` : `https://alexzo.vercel.app/logo.png`
 
   return {
     title,
