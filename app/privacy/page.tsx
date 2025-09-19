@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import Image from "next/image"
 import Link from "next/link"
+import { ArrowLeft } from "lucide-react"
 
 export const metadata: Metadata = {
   title: "Privacy Policy | Alexzo - Protecting Your Data & Privacy Rights",
@@ -59,24 +60,22 @@ export default function PrivacyPolicyPage() {
 
         <div className="relative z-10">
           {/* Header */}
-          <header className="container mx-auto py-8 px-6">
-            <div className="flex items-center justify-between">
-              <Link href="/" className="flex items-center space-x-3">
-                <Image src="/logo.png" alt="Alexzo Logo" width={40} height={40} className="w-10 h-10" />
-                <span className="text-2xl font-bold text-white">Alexzo</span>
-              </Link>
-              <nav className="hidden md:flex space-x-6">
-                <Link href="/" className="text-gray-300 hover:text-white transition-colors">
-                  Home
-                </Link>
-                <Link href="/about" className="text-gray-300 hover:text-white transition-colors">
-                  About
-                </Link>
-                <Link href="/contact" className="text-gray-300 hover:text-white transition-colors">
-                  Contact
-                </Link>
-              </nav>
-            </div>
+          <header className="relative z-50 p-6 flex justify-between items-center">
+            <Link href="/" className="flex items-center space-x-4">
+              <ArrowLeft className="h-6 w-6" />
+              <div className="flex items-center space-x-4">
+                <div className="w-16 h-16 flex items-center justify-center">
+                  <Image
+                    src="/logo.png"
+                    alt="Alexzo Logo"
+                    width={64}
+                    height={64}
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+                <span className="text-xl font-bold">Alexzo</span>
+              </div>
+            </Link>
           </header>
 
           {/* Main Content */}

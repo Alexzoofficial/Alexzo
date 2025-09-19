@@ -1,4 +1,7 @@
 import type { Metadata } from "next"
+import Image from "next/image"
+import Link from "next/link"
+import { ArrowLeft } from "lucide-react"
 
 export const metadata: Metadata = {
   title: "LearnFlow Privacy Policy",
@@ -8,8 +11,33 @@ export const metadata: Metadata = {
 
 export default function LearnFlowPrivacyPolicyPage() {
   return (
-    <div className="min-h-screen bg-black text-white py-16 px-6">
-      <div className="max-w-4xl mx-auto">
+    <div className="min-h-screen bg-black text-white">
+      {/* Background */}
+      <div className="fixed inset-0 z-0">
+        <div className="absolute inset-0 bg-gradient-to-br from-black via-gray-900 to-black" />
+      </div>
+
+      {/* Header */}
+      <header className="relative z-50 p-6 flex justify-between items-center">
+        <Link href="/" className="flex items-center space-x-4">
+          <ArrowLeft className="h-6 w-6" />
+          <div className="flex items-center space-x-4">
+            <div className="w-16 h-16 flex items-center justify-center">
+              <Image
+                src="/logo.png"
+                alt="Alexzo Logo"
+                width={64}
+                height={64}
+                className="w-full h-full object-contain"
+              />
+            </div>
+            <span className="text-xl font-bold">Alexzo</span>
+          </div>
+        </Link>
+      </header>
+
+      <div className="relative z-10 py-16 px-6">
+        <div className="max-w-4xl mx-auto">
         <div className="mb-8">
           <h1 className="text-4xl font-bold mb-4">LearnFlow Privacy Policy</h1>
           <p className="text-gray-400">Last Updated: January 2025</p>
@@ -122,10 +150,11 @@ export default function LearnFlowPrivacyPolicyPage() {
           </section>
         </div>
 
-        <div className="mt-12 pt-8 border-t border-gray-800">
-          <p className="text-gray-400 text-center">
-            This privacy policy is effective as of January 2025 and applies to all users of the LearnFlow application.
-          </p>
+          <div className="mt-12 pt-8 border-t border-gray-800">
+            <p className="text-gray-400 text-center">
+              This privacy policy is effective as of January 2025 and applies to all users of the LearnFlow application.
+            </p>
+          </div>
         </div>
       </div>
     </div>

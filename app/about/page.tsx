@@ -1,4 +1,6 @@
 import Image from "next/image"
+import Link from "next/link"
+import { ArrowLeft } from "lucide-react"
 
 const teamMembers = [
   {
@@ -16,16 +18,32 @@ export default function AboutPage() {
         <div className="absolute inset-0 bg-gradient-to-br from-black via-gray-900 to-black" />
       </div>
 
-      <div className="relative z-10 container mx-auto py-10 px-6">
-        <header className="text-center mb-12">
-          <div className="w-16 h-16 flex items-center justify-center mx-auto mb-6">
-            <Image src="/logo.png" alt="Alexzo Logo" width={64} height={64} className="w-full h-full object-contain" />
+      {/* Header */}
+      <header className="relative z-50 p-6 flex justify-between items-center">
+        <Link href="/" className="flex items-center space-x-4">
+          <ArrowLeft className="h-6 w-6" />
+          <div className="flex items-center space-x-4">
+            <div className="w-16 h-16 flex items-center justify-center">
+              <Image
+                src="/logo.png"
+                alt="Alexzo Logo"
+                width={64}
+                height={64}
+                className="w-full h-full object-contain"
+              />
+            </div>
+            <span className="text-xl font-bold">Alexzo</span>
           </div>
+        </Link>
+      </header>
+
+      <div className="relative z-10 container mx-auto py-10 px-6">
+        <section className="text-center mb-12">
           <h1 className="text-4xl font-bold text-white mb-4">About Alexzo</h1>
           <p className="text-gray-300 mt-2 max-w-2xl mx-auto">
             Our mission is to enhance human potential through revolutionary AI technology.
           </p>
-        </header>
+        </section>
 
         <section className="mb-12 max-w-4xl mx-auto">
           <h2 className="text-2xl font-semibold text-purple-300 mb-6">Our Story</h2>
