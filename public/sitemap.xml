@@ -19,25 +19,13 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://alexzo.vercel.app/blog/1</loc>
+    <loc>https://alexzo.vercel.app/blog/ai-image-generation</loc>
     <lastmod>2025-09-22T07:00:00.000Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://alexzo.vercel.app/blog/2</loc>
-    <lastmod>2025-09-22T07:00:00.000Z</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://alexzo.vercel.app/blog/3</loc>
-    <lastmod>2025-09-22T07:00:00.000Z</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://alexzo.vercel.app/blog/4</loc>
+    <loc>https://alexzo.vercel.app/blog/learnflow-2.0</loc>
     <lastmod>2025-09-22T07:00:00.000Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
