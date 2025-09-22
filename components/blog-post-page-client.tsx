@@ -231,14 +231,21 @@ export default function BlogPostPageClient({ id }: { id: string }) {
             </div>
           </div>
 
-          {/* Featured Image (placeholder block preserved) */}
-          <div className="aspect-video relative overflow-hidden rounded-xl mb-8 bg-gradient-to-br from-purple-600/20 to-blue-600/20 flex items-center justify-center">
-            <div className="text-center p-8">
-              <div className="w-24 h-24 bg-purple-600/30 rounded-full flex items-center justify-center mx-auto mb-6">
-                <span className="text-4xl font-bold text-purple-300">{post.title.charAt(0)}</span>
-              </div>
-              <h3 className="text-2xl font-semibold text-white mb-4">{post.category}</h3>
-              <p className="text-gray-300">Featured Article Image</p>
+          {/* Featured Image */}
+          <div className="aspect-video relative overflow-hidden rounded-xl mb-8">
+            <img
+              src={post.image}
+              alt={post.title}
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+            <div className="absolute bottom-4 left-4 right-4">
+              <Badge className="bg-purple-600 text-white mb-2">
+                {post.category}
+              </Badge>
+              <p className="text-sm text-white/90 font-medium">
+                Featured Article
+              </p>
             </div>
           </div>
 
