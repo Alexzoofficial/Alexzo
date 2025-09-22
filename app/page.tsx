@@ -86,7 +86,7 @@ export default function HomePage() {
           height: 512,
         },
         description:
-          "Revolutionary AI-powered human enhancement platform featuring cognitive enhancement and advanced AI tools.",
+          "Alexzo – Unlock creativity, master learning, and enhance cognition with AI tools like Zyfoox and LearnFlow.",
         foundingDate: "2025",
         founders: [
           {
@@ -105,7 +105,7 @@ export default function HomePage() {
         "@id": "https://alexzo.vercel.app/#website",
         url: "https://alexzo.vercel.app",
         name: "Alexzo - AI-Powered Human Enhancement Platform",
-        description: "Revolutionary AI platform with advanced cognitive enhancement tools and AI-powered solutions",
+        description: "Alexzo – Unlock creativity, master learning, and enhance cognition with AI tools like Zyfoox and LearnFlow.",
         publisher: {
           "@id": "https://alexzo.vercel.app/#organization",
         },
