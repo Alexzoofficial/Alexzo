@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server"
 
-export async function GET() {
-  const baseUrl = "https://alexzo.vercel.app"
+export async function GET(request: Request) {
+  // Dynamic base URL based on environment
+  const { origin } = new URL(request.url)
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : origin
 
   const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -93,7 +95,9 @@ export async function GET() {
 
   return new NextResponse(sitemap, {
     headers: {
-      "Content-Type": "application/xml",
+      "Content-Type": "application/xml; charset=utf-8",
+      "Cache-Control": "s-maxage=86400, stale-while-revalidate=43200",
+      "X-Robots-Tag": "noindex",
     },
   })
 }
