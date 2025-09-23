@@ -154,19 +154,19 @@ export default function LearnFlowPage() {
               <div className="flex flex-col sm:flex-row gap-4 mb-8">
                 <Button
                   size="lg"
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 text-lg"
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 sm:px-8 py-3 sm:py-4 text-base sm:text-lg w-full sm:w-auto"
                   onClick={handleDownload}
                 >
-                  <Download className="mr-2 h-5 w-5" />
-                  Download LearnFlow 2.0
+                  <Download className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
+                  <span className="truncate">Download LearnFlow 2.0</span>
                 </Button>
                 <Button
                   size="lg"
                   variant="outline"
-                  className="border-gray-600 text-gray-300 hover:bg-gray-800 px-8 py-4 text-lg"
+                  className="border-gray-600 text-gray-300 hover:bg-gray-800 px-4 sm:px-8 py-3 sm:py-4 text-base sm:text-lg w-full sm:w-auto"
                   onClick={() => document.getElementById("features")?.scrollIntoView({ behavior: "smooth" })}
                 >
-                  Explore Features
+                  <span className="truncate">Explore Features</span>
                 </Button>
               </div>
 
@@ -335,25 +335,25 @@ export default function LearnFlowPage() {
 
                 <Button
                   size="lg"
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-12 py-6 text-xl"
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 sm:px-12 py-4 sm:py-6 text-lg sm:text-xl w-full sm:w-auto max-w-full"
                   onClick={handleDownload}
                 >
-                  <Download className="mr-3 h-6 w-6" />
-                  Download LearnFlow 2.0 Now
+                  <Download className="mr-2 sm:mr-3 h-5 w-5 sm:h-6 sm:w-6 flex-shrink-0" />
+                  <span className="truncate">Download LearnFlow 2.0 Now</span>
                 </Button>
 
-                <div className="flex items-center justify-center mt-6 space-x-6 text-sm text-gray-400">
+                <div className="flex flex-wrap items-center justify-center mt-6 gap-x-6 gap-y-2 text-sm text-gray-400">
                   <div className="flex items-center">
-                    <Shield className="h-4 w-4 mr-2" />
-                    Secure Download
+                    <Shield className="h-4 w-4 mr-2 flex-shrink-0" />
+                    <span className="whitespace-nowrap">Secure Download</span>
                   </div>
                   <div className="flex items-center">
-                    <Star className="h-4 w-4 mr-2" />
-                    4.9/5 Rating
+                    <Star className="h-4 w-4 mr-2 flex-shrink-0" />
+                    <span className="whitespace-nowrap">4.9/5 Rating</span>
                   </div>
                   <div className="flex items-center">
-                    <Users className="h-4 w-4 mr-2" />
-                    75K+ Users
+                    <Users className="h-4 w-4 mr-2 flex-shrink-0" />
+                    <span className="whitespace-nowrap">75K+ Users</span>
                   </div>
                 </div>
               </CardContent>

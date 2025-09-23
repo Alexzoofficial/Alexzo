@@ -99,6 +99,19 @@ export default function HomePage() {
           email: "alexzomail@proton.me",
           contactType: "customer service",
         },
+        sameAs: [
+          "https://alexzo.vercel.app",
+        ],
+        aggregateRating: {
+          "@type": "AggregateRating",
+          ratingValue: "4.9",
+          reviewCount: "15000",
+          bestRating: "5",
+          worstRating: "1"
+        },
+        knowsAbout: ["Artificial Intelligence", "Machine Learning", "Educational Technology", "Image Generation", "Cognitive Enhancement"],
+        areaServed: "Worldwide",
+        numberOfEmployees: "1-10"
       },
       {
         "@type": "WebSite",
@@ -119,7 +132,61 @@ export default function HomePage() {
             "query-input": "required name=search_term_string",
           },
         ],
+        inLanguage: "en-US",
+        copyrightYear: "2025",
+        copyrightHolder: {
+          "@id": "https://alexzo.vercel.app/#organization"
+        }
       },
+      {
+        "@type": "SoftwareApplication",
+        "@id": "https://alexzo.vercel.app/#zyfoox",
+        name: "Zyfoox AI Image Generator",
+        description: "Revolutionary AI-powered image generation tool that transforms creative ideas into stunning visuals instantly.",
+        applicationCategory: "MultimediaApplication",
+        operatingSystem: "Web Browser",
+        offers: {
+          "@type": "Offer",
+          price: "0",
+          priceCurrency: "USD",
+          availability: "https://schema.org/InStock"
+        },
+        publisher: {
+          "@id": "https://alexzo.vercel.app/#organization"
+        },
+        url: "https://alexzo.vercel.app/try/zyfoox",
+        aggregateRating: {
+          "@type": "AggregateRating",
+          ratingValue: "4.8",
+          reviewCount: "5000",
+          bestRating: "5"
+        }
+      },
+      {
+        "@type": "MobileApplication",
+        "@id": "https://alexzo.vercel.app/#learnflow",
+        name: "LearnFlow 2.0",
+        description: "Revolutionary AI-powered educational app that transforms learning through personalized content and adaptive lessons.",
+        applicationCategory: "EducationalApplication",
+        operatingSystem: ["Android", "iOS", "Windows", "macOS"],
+        offers: {
+          "@type": "Offer",
+          price: "0",
+          priceCurrency: "USD",
+          availability: "https://schema.org/InStock"
+        },
+        publisher: {
+          "@id": "https://alexzo.vercel.app/#organization"
+        },
+        url: "https://alexzo.vercel.app/LearnFlow",
+        aggregateRating: {
+          "@type": "AggregateRating",
+          ratingValue: "4.9",
+          reviewCount: "15000",
+          bestRating: "5"
+        },
+        downloadUrl: "https://rb.gy/sap9gf"
+      }
     ],
   }
 

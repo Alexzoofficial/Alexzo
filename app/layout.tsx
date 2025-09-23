@@ -12,10 +12,13 @@ import { Suspense } from "react"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Alexzo - AI-Powered Platform",
+  title: {
+    default: "Alexzo - AI-Powered Human Enhancement Platform | Zyfoox & LearnFlow",
+    template: "%s | Alexzo - AI-Powered Platform"
+  },
   description:
-    "Transform your ideas with cutting-edge AI technology. Create, innovate, and scale with Alexzo's comprehensive AI platform.",
-  keywords: "AI, artificial intelligence, machine learning, automation, technology, innovation",
+    "Transform your ideas with cutting-edge AI technology. Create stunning images with Zyfoox AI Generator & master learning with LearnFlow 2.0. Join 75K+ users experiencing the future of AI-powered human enhancement.",
+  keywords: "AI platform, artificial intelligence, machine learning, AI image generation, Zyfoox, LearnFlow, AI education, cognitive enhancement, AI tools, automation, technology innovation, neural enhancement, AI learning platform, personalized education, adaptive learning",
   authors: [{ name: "Alexzo Team" }],
   creator: "Alexzo",
   publisher: "Alexzo",
@@ -38,26 +41,27 @@ export const metadata: Metadata = {
   },
   manifest: "/manifest.json",
   openGraph: {
-    title: "Alexzo - AI-Powered Platform",
-    description: "Transform your ideas with cutting-edge AI technology",
+    title: "Alexzo - AI-Powered Human Enhancement Platform | Zyfoox & LearnFlow",
+    description: "Transform your ideas with cutting-edge AI technology. Create stunning images with Zyfoox AI Generator & master learning with LearnFlow 2.0. Join 75K+ users experiencing the future of AI.",
     url: "https://alexzo.vercel.app",
     siteName: "Alexzo",
     images: [
       {
-        url: "/og-image.png",
+        url: "https://alexzo.vercel.app/logo.png",
         width: 1200,
         height: 630,
-        alt: "Alexzo - AI-Powered Platform",
+        alt: "Alexzo - AI-Powered Human Enhancement Platform",
       },
     ],
     locale: "en_US",
     type: "website",
+    countryName: "United States",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Alexzo - AI-Powered Platform",
-    description: "Transform your ideas with cutting-edge AI technology",
-    images: ["/og-image.png"],
+    title: "Alexzo - AI-Powered Human Enhancement Platform | Zyfoox & LearnFlow",
+    description: "Transform your ideas with cutting-edge AI technology. Create stunning images with Zyfoox AI Generator & master learning with LearnFlow 2.0. Join 75K+ users experiencing the future of AI.",
+    images: ["https://alexzo.vercel.app/logo.png"],
     creator: "@alexzo",
   },
   robots: {
@@ -72,9 +76,25 @@ export const metadata: Metadata = {
     },
   },
   verification: {
-    google: "your-google-verification-code",
+    google: "google7cb025440a4403af",
   },
+  referrer: "origin-when-cross-origin",
+  category: "Technology",
     generator: 'v0.dev'
+}
+
+export function generateViewport() {
+  return {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 5,
+    userScalable: true,
+    themeColor: [
+      { media: '(prefers-color-scheme: light)', color: 'white' },
+      { media: '(prefers-color-scheme: dark)', color: 'black' },
+    ],
+    colorScheme: 'dark light',
+  }
 }
 
 export default function RootLayout({
