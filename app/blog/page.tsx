@@ -6,6 +6,7 @@ import { ArrowLeft, Calendar, Clock, User, Tag, ArrowRight } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { SafeImage } from "@/components/safe-image"
 import Link from "next/link"
 import Image from "next/image"
 import { blogPosts } from "@/lib/blog-data"
@@ -148,11 +149,13 @@ export default function BlogPage() {
             >
               <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-sm hover:border-purple-500/50 transition-all duration-300 h-full group overflow-hidden">
                 <div className="aspect-video relative overflow-hidden">
-                  <Image
+                  <SafeImage
                     src={post.image}
                     alt={post.title}
                     fill
                     className="object-cover group-hover:scale-105 transition-transform duration-300"
+                    fallbackSrc="/placeholder.svg?height=400&width=800&text=Blog+Image"
+                    fallbackText="Blog Image"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                   <div className="absolute top-4 left-4">
@@ -208,7 +211,7 @@ export default function BlogPage() {
                       </div>
                       
                       <Button asChild className="bg-purple-600 hover:bg-purple-700">
-                        <Link href={`/blog/${post.id}`}>
+                        <Link href={`/blog/${post.id}`} prefetch={false}>
                           Read Article
                           <ArrowRight className="ml-2 h-4 w-4" />
                         </Link>

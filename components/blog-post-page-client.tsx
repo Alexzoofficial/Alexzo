@@ -8,6 +8,7 @@ import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { SafeImage } from "@/components/safe-image"
 import { blogPosts } from "@/lib/blog-data"
 
 // Using centralized blog data from lib/blog-data.ts
@@ -76,7 +77,7 @@ export default function BlogPostPageClient({ id }: { id: string }) {
       {/* Header */}
       <header className="relative z-50 p-4 md:p-6 flex justify-between items-center border-b border-gray-800/50">
         <Button variant="ghost" asChild className="text-white hover:bg-gray-800">
-          <Link href="/blog">
+          <Link href="/blog" prefetch={false}>
             <ArrowLeft className="h-5 w-5 mr-2" />
             Back to Blog
           </Link>
@@ -121,10 +122,13 @@ export default function BlogPostPageClient({ id }: { id: string }) {
 
           {/* Featured Image */}
           <div className="aspect-video relative overflow-hidden rounded-xl mb-8">
-            <img
+            <SafeImage
               src={post.image}
               alt={post.title}
-              className="w-full h-full object-cover"
+              fill
+              className="object-cover"
+              fallbackSrc="/placeholder.svg?height=400&width=800&text=Blog+Image"
+              fallbackText="Blog Image"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
             <div className="absolute bottom-4 left-4 right-4">
@@ -262,12 +266,20 @@ export default function BlogPostPageClient({ id }: { id: string }) {
           >
             <h3 className="text-2xl md:text-3xl font-bold text-white mb-8">More Articles</h3>
             <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-sm hover:border-purple-500/50 transition-all duration-300 group">
-              <div className="aspect-video relative overflow-hidden rounded-t-lg bg-gradient-to-br from-purple-600/20 to-blue-600/20 flex items-center justify-center">
-                <div className="text-center p-6">
-                  <div className="w-16 h-16 bg-purple-600/30 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <span className="text-2xl font-bold text-purple-300">{relatedPost.title.charAt(0)}</span>
-                  </div>
-                  <h4 className="text-lg font-semibold text-white">{relatedPost.category}</h4>
+              <div className="aspect-video relative overflow-hidden rounded-t-lg">
+                <SafeImage
+                  src={relatedPost.image}
+                  alt={relatedPost.title}
+                  fill
+                  className="object-cover group-hover:scale-105 transition-transform duration-300"
+                  fallbackSrc="/placeholder.svg?height=300&width=600&text=Related+Post"
+                  fallbackText="Related Post Image"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                <div className="absolute top-4 left-4">
+                  <Badge className="bg-purple-600 text-white">
+                    {relatedPost.category}
+                  </Badge>
                 </div>
               </div>
               <CardContent className="p-6">
@@ -282,7 +294,7 @@ export default function BlogPostPageClient({ id }: { id: string }) {
                     {new Date(relatedPost.publishedAt).toLocaleDateString()}
                   </div>
                   <Button asChild size="sm" className="bg-purple-600 hover:bg-purple-700">
-                    <Link href={`/blog/${relatedPost.id}`}>
+                    <Link href={`/blog/${relatedPost.id}`} prefetch={false}>
                       Read More
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Link>
