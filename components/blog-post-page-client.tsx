@@ -16,14 +16,16 @@ import { blogPosts } from "@/lib/blog-data"
 export default function BlogPostPageClient({ id }: { id: string }) {
   const [post, setPost] = useState<any>(null)
   const [relatedPost, setRelatedPost] = useState<any>(null)
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     const foundPost = blogPosts.find((p) => p.id === id)
+    setPost(foundPost || null)
     if (foundPost) {
-      setPost(foundPost)
       const related = blogPosts.find((p) => p.id !== id)
       setRelatedPost(related)
     }
+    setIsLoading(false)
   }, [id])
 
   const sharePost = () => {
@@ -39,13 +41,22 @@ export default function BlogPostPageClient({ id }: { id: string }) {
     }
   }
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-black text-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500 mx-auto mb-4"></div>
+          <p className="text-gray-300">Loading...</p>
+        </div>
+      </div>
+    )
+  }
+
   if (!post) {
     return (
       <div className="min-h-screen bg-black text-white flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-4">Post not found</h1>
-          {/*
-           */}
           <Button asChild className="bg-purple-600 hover:bg-purple-700">
             <Link href="/blog">Back to Blog</Link>
           </Button>
