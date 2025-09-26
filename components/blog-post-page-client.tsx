@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import React from "react"
 import { motion } from "framer-motion"
 import { ArrowLeft, Calendar, Clock, User, Tag, Share2, ArrowRight } from "lucide-react"
 import Link from "next/link"
@@ -14,19 +14,8 @@ import { blogPosts } from "@/lib/blog-data"
 // Using centralized blog data from lib/blog-data.ts
 
 export default function BlogPostPageClient({ id }: { id: string }) {
-  const [post, setPost] = useState<any>(null)
-  const [relatedPost, setRelatedPost] = useState<any>(null)
-  const [isLoading, setIsLoading] = useState(true)
-
-  useEffect(() => {
-    const foundPost = blogPosts.find((p) => p.id === id)
-    setPost(foundPost || null)
-    if (foundPost) {
-      const related = blogPosts.find((p) => p.id !== id)
-      setRelatedPost(related)
-    }
-    setIsLoading(false)
-  }, [id])
+  const post = blogPosts.find((p) => p.id === id)
+  const relatedPost = post ? blogPosts.find((p) => p.id !== id) : null
 
   const sharePost = () => {
     if (navigator.share && post) {
@@ -39,17 +28,6 @@ export default function BlogPostPageClient({ id }: { id: string }) {
       navigator.clipboard.writeText(window.location.href)
       toast.success("Link copied to clipboard!")
     }
-  }
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-black text-white flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500 mx-auto mb-4"></div>
-          <p className="text-gray-300">Loading...</p>
-        </div>
-      </div>
-    )
   }
 
   if (!post) {
