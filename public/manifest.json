@@ -36,13 +36,6 @@
   ],
   "shortcuts": [
     {
-      "name": "Alexis AI",
-      "short_name": "Alexis AI",
-      "description": "Access Alexis AI directly",
-      "url": "https://alexisai.netlify.app/",
-      "icons": [{ "src": "/favicon.png", "sizes": "96x96" }]
-    },
-    {
       "name": "AI Tools",
       "short_name": "AI Tools",
       "description": "Explore AI generators",

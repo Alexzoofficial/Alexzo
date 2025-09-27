@@ -105,13 +105,6 @@ The platform doesn't just deliver content – it understands how each individual
 
 **The Science Behind LearnFlow**: Our learning intelligence is built on cognitive science research about how humans acquire and retain new information. We've integrated spaced repetition algorithms, difficulty progression models, and engagement optimization into a seamless learning experience that feels more like an engaging conversation than traditional education.
 
-### Alexis AI: The Future of Cognitive Enhancement
-
-Alexis AI represents our vision for the future of human-AI collaboration. Rather than replacing human intelligence, Alexis enhances it – helping users think more clearly, solve problems more creatively, and accomplish goals more efficiently.
-
-Alexis provides real-time cognitive assistance across a wide range of tasks: writing and communication, creative problem-solving, research and analysis, and strategic planning and decision-making.
-
-The key insight behind Alexis is that the most valuable AI isn't one that works independently, but one that seamlessly integrates with human thought processes. Alexis doesn't give you answers – it helps you find better questions and think through complex problems more systematically.
 
 ## The Technology Stack: Building Intelligence at Scale
 
@@ -144,7 +137,7 @@ This approach has led to some incredible integrations. We have developers using 
 
 Behind every technical breakthrough are real people whose lives have been improved by our technology. Let me share a few stories that capture what Alexzo intelligence means in practice.
 
-**Maria's Marketing Revolution**: Maria runs a boutique marketing agency in Barcelona. Before Alexzo, she spent 60% of her time on routine creative tasks – generating social media graphics, writing ad copy, and creating client presentations. Now, she uses Zyfoox for visuals and Alexis AI for strategic thinking support. She's increased her client capacity by 40% while improving the quality of her work. "Alexzo didn't replace my creativity," she says, "it amplified it. Now I spend my time on strategy and client relationships – the parts of my job I love most."
+**Maria's Marketing Revolution**: Maria runs a boutique marketing agency in Barcelona. Before Alexzo, she spent 60% of her time on routine creative tasks – generating social media graphics, writing ad copy, and creating client presentations. Now, she uses Zyfoox for visuals and our AI platform for strategic thinking support. She's increased her client capacity by 40% while improving the quality of her work. "Alexzo didn't replace my creativity," she says, "it amplified it. Now I spend my time on strategy and client relationships – the parts of my job I love most."
 
 **David's Learning Journey**: David is a 45-year-old engineer who decided to transition into data science. Traditional online courses overwhelmed him – too much information, no personalization, no connection to his existing skills. LearnFlow changed everything. The platform recognized his engineering background and built learning paths that connected new concepts to his existing knowledge. He completed his data science certification in 6 months instead of the typical 18. "LearnFlow understood how I learn better than I understood it myself," he reflects.
 
@@ -456,7 +449,7 @@ The intelligence revolution isn't something that's happening to us – it's some
 *Ready to experience the future of AI intelligence? Visit [Alexzo.com](https://alexzo.vercel.app) to start your journey with our revolutionary platform. Join hundreds of thousands of users who are already transforming their creativity, learning, and productivity with Alexzo intelligence.*
 
 **About the Author**: This article represents the collective insights and experiences of the Alexzo team, led by our founder and CEO Sar. Our mission is to enhance human potential through revolutionary AI technology, and we're just getting started.`,
-    image: "/images/blog/alexzo-intelligence-platform.png",
+    image: "/attached_assets/stock_images/ai_technology_platfo_f6933607.jpg",
     author: "Sar, CEO & Founder",
     publishedAt: "2025-09-26",
     readTime: "25 min read",
@@ -1190,7 +1183,7 @@ The future of education is here, and it's more personalized, effective, and acce
 Join the thousands of educators, students, and institutions who have already discovered the transformative power of AI-powered personalized learning. The revolution in education has begun – and with LearnFlow, you're not just witnessing it, you're leading it.
 
 Ready to transform education for every learner? Start your LearnFlow journey today and experience the future of learning.`,
-    image: "/images/blog/learnflow-2.0.png",
+    image: "/attached_assets/stock_images/computer_programming_d1551908.jpg",
     author: "Alexzo Education Team",
     publishedAt: "2024-01-10",
     readTime: "18 min read",

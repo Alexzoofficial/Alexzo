@@ -14,7 +14,7 @@ import { AdaptiveAnimation } from "@/components/adaptive-animation"
 interface ProductFeature {
   name: string
   description: string
-  alexisAI: boolean
+  aiPlatform: boolean
   imageGen: boolean | "coming" | "limited"
   videoGen: boolean | "coming" | "limited"
   voiceGen: boolean | "coming" | "limited"
@@ -35,7 +35,7 @@ export default function ShowcasePage() {
     {
       name: "Neural Pattern Analysis",
       description: "Advanced analysis of cognitive patterns for personalized enhancement",
-      alexisAI: true,
+      aiPlatform: true,
       imageGen: false,
       videoGen: false,
       voiceGen: false,
@@ -43,7 +43,7 @@ export default function ShowcasePage() {
     {
       name: "Personalized Learning",
       description: "Adaptive learning paths based on individual cognitive profiles",
-      alexisAI: true,
+      aiPlatform: true,
       imageGen: false,
       videoGen: false,
       voiceGen: false,
@@ -51,7 +51,7 @@ export default function ShowcasePage() {
     {
       name: "Real-time Feedback",
       description: "Immediate feedback on cognitive performance and progress",
-      alexisAI: true,
+      aiPlatform: true,
       imageGen: "limited",
       videoGen: false,
       voiceGen: false,
@@ -59,7 +59,7 @@ export default function ShowcasePage() {
     {
       name: "Text-to-Image Generation",
       description: "Create images from text descriptions using AI",
-      alexisAI: false,
+      aiPlatform: false,
       imageGen: true,
       videoGen: false,
       voiceGen: false,
@@ -67,7 +67,7 @@ export default function ShowcasePage() {
     {
       name: "Style Transfer",
       description: "Apply artistic styles to existing images",
-      alexisAI: false,
+      aiPlatform: false,
       imageGen: true,
       videoGen: "limited",
       voiceGen: false,
@@ -75,7 +75,7 @@ export default function ShowcasePage() {
     {
       name: "Text-to-Video Creation",
       description: "Generate video content from text descriptions",
-      alexisAI: false,
+      aiPlatform: false,
       imageGen: false,
       videoGen: true,
       voiceGen: false,
@@ -83,7 +83,7 @@ export default function ShowcasePage() {
     {
       name: "Voice Synthesis",
       description: "Generate natural-sounding speech from text",
-      alexisAI: false,
+      aiPlatform: false,
       imageGen: false,
       videoGen: false,
       voiceGen: true,
@@ -91,7 +91,7 @@ export default function ShowcasePage() {
     {
       name: "Multi-language Support",
       description: "Support for multiple languages across the platform",
-      alexisAI: true,
+      aiPlatform: true,
       imageGen: "coming",
       videoGen: "coming",
       voiceGen: true,
@@ -99,7 +99,7 @@ export default function ShowcasePage() {
     {
       name: "API Access",
       description: "Programmatic access to AI capabilities",
-      alexisAI: true,
+      aiPlatform: true,
       imageGen: "coming",
       videoGen: "coming",
       voiceGen: "coming",
@@ -107,7 +107,7 @@ export default function ShowcasePage() {
     {
       name: "Batch Processing",
       description: "Process multiple items simultaneously",
-      alexisAI: true,
+      aiPlatform: true,
       imageGen: true,
       videoGen: "coming",
       voiceGen: true,
@@ -115,7 +115,7 @@ export default function ShowcasePage() {
   ]
 
   const productPlans: Record<string, ProductPlan[]> = {
-    alexisAI: [
+    aiPlatform: [
       {
         name: "Free",
         price: "$0",
@@ -355,7 +355,7 @@ export default function ShowcasePage() {
                                   <span className="text-sm text-gray-400">{feature.description}</span>
                                 </div>
                               </td>
-                              <td className="text-center py-4 px-4">{renderFeatureStatus(feature.alexisAI)}</td>
+                              <td className="text-center py-4 px-4">{renderFeatureStatus(feature.aiPlatform)}</td>
                               <td className="text-center py-4 px-4">{renderFeatureStatus(feature.imageGen)}</td>
                               <td className="text-center py-4 px-4">{renderFeatureStatus(feature.videoGen)}</td>
                               <td className="text-center py-4 px-4">{renderFeatureStatus(feature.voiceGen)}</td>
@@ -408,7 +408,7 @@ export default function ShowcasePage() {
                           <div className="mb-4">
                             {plan.recommended && <Badge className="bg-purple-600 mb-2">Recommended</Badge>}
                             <h3 className="text-xl font-bold">
-                              {productKey === "alexisAI" && "Alexis AI"}
+                              {productKey === "aiPlatform" && "AI Platform"}
                               {productKey === "imageGen" && "Image Generator"}
                               {productKey === "videoGen" && "Video Generator"}
                               {productKey === "voiceGen" && "Voice Generator"}
@@ -439,8 +439,8 @@ export default function ShowcasePage() {
                               onClick={() => {
                                 if (plan.name === "Coming Soon") {
                                   window.location.href = "/waitlist"
-                                } else if (productKey === "alexisAI") {
-                                  window.open("https://alexisai.netlify.app/", "_blank")
+                                } else if (productKey === "aiPlatform") {
+                                  window.location.href = "/products"
                                 } else {
                                   window.location.href = "/waitlist"
                                 }

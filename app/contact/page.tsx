@@ -174,7 +174,7 @@ export default function ContactPage() {
               <div>
                 <h2 className="text-3xl md:text-4xl font-bold mb-6">Let's Connect</h2>
                 <p className="text-gray-300 mb-8 leading-relaxed">
-                  Whether you're interested in Alexis AI, have questions about our upcoming products, or want to explore
+                  Whether you have questions about our products, want to explore partnerships, or want to learn more about our AI platform
                   partnership opportunities, we're here to help.
                 </p>
 
