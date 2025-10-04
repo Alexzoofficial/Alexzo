@@ -150,105 +150,374 @@ console.log(data.data[0].url);`
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Image Generator</title>
+    <title>Alexzo AI Image Generator - Powered by AI</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
         body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f0f23 100%);
+            color: #ffffff;
+            min-height: 100vh;
             padding: 20px;
-            background: #1a1a1a;
-            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
-        .container {
-            background: #2a2a2a;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-        }
-        input, button {
+        
+        .main-container {
+            max-width: 900px;
             width: 100%;
-            padding: 12px;
-            margin: 10px 0;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
+            background: rgba(42, 42, 62, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(99, 102, 241, 0.3);
         }
-        input {
-            background: #3a3a3a;
-            color: white;
-            border: 1px solid #555;
-        }
-        button {
-            background: #6366f1;
-            color: white;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-        button:hover {
-            background: #5855eb;
-        }
-        button:disabled {
-            background: #555;
-            cursor: not-allowed;
-        }
-        #result {
-            margin-top: 20px;
+        
+        .header {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            padding: 30px;
             text-align: center;
         }
-        #generatedImage {
-            max-width: 100%;
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.95;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .input-group {
+            margin-bottom: 25px;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #a5b4fc;
+            font-size: 0.95em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .input-group input,
+        .input-group textarea {
+            width: 100%;
+            padding: 15px;
+            background: rgba(30, 30, 50, 0.8);
+            border: 2px solid rgba(99, 102, 241, 0.3);
             border-radius: 10px;
+            color: white;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+        
+        .input-group input:focus,
+        .input-group textarea:focus {
+            outline: none;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+        
+        .input-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        .size-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        .generate-btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.2em;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+        }
+        
+        .generate-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.6);
+        }
+        
+        .generate-btn:active:not(:disabled) {
+            transform: translateY(0);
+        }
+        
+        .generate-btn:disabled {
+            background: #555;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+        
+        #result {
+            margin-top: 30px;
+        }
+        
+        .result-card {
+            background: rgba(30, 30, 50, 0.6);
+            border-radius: 15px;
+            padding: 25px;
+            border: 2px solid rgba(99, 102, 241, 0.3);
+        }
+        
+        .result-card h3 {
+            margin-bottom: 20px;
+            color: #a5b4fc;
+            font-size: 1.3em;
+        }
+        
+        #generatedImage {
+            width: 100%;
+            border-radius: 12px;
+            margin: 15px 0;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease;
+        }
+        
+        #generatedImage:hover {
+            transform: scale(1.02);
+        }
+        
+        .image-info {
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(99, 102, 241, 0.1);
+            border-radius: 8px;
+            border-left: 4px solid #6366f1;
+        }
+        
+        .image-info p {
+            margin: 8px 0;
+            line-height: 1.6;
+        }
+        
+        .image-actions {
+            display: flex;
+            gap: 10px;
             margin-top: 15px;
         }
-        .loading {
-            color: #6366f1;
+        
+        .action-btn {
+            padding: 10px 20px;
+            background: rgba(99, 102, 241, 0.2);
+            color: #a5b4fc;
+            border: 1px solid #6366f1;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
         }
+        
+        .action-btn:hover {
+            background: rgba(99, 102, 241, 0.4);
+            color: white;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+        
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(99, 102, 241, 0.3);
+            border-top: 4px solid #6366f1;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
         .error {
-            color: #ef4444;
+            background: rgba(239, 68, 68, 0.1);
+            color: #fca5a5;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #ef4444;
+        }
+        
+        .success {
+            color: #6ee7b7;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #a5b4fc;
+            font-size: 0.9em;
+            border-top: 1px solid rgba(99, 102, 241, 0.2);
+        }
+        
+        @media (max-width: 768px) {
+            .size-inputs {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .content {
+                padding: 25px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>🎨 AI Image Generator</h1>
-        <p>Generate stunning images using Alexzo's AI model</p>
-        
-        <input type="text" id="apiKey" placeholder="Enter your API key (alexzo_...)" />
-        <input type="text" id="prompt" placeholder="Describe the image you want to generate..." />
-        
-        <div style="display: flex; gap: 10px;">
-            <input type="number" id="width" placeholder="Width (512)" value="512" style="width: 48%;" />
-            <input type="number" id="height" placeholder="Height (512)" value="512" style="width: 48%;" />
+    <div class="main-container">
+        <div class="header">
+            <h1>🎨 AI Image Generator</h1>
+            <p>Transform your ideas into stunning visuals with Alexzo AI</p>
         </div>
         
-        <button onclick="generateImage()">Generate Image</button>
+        <div class="content">
+            <div class="input-group">
+                <label for="apiKey">🔑 API Key</label>
+                <input 
+                    type="text" 
+                    id="apiKey" 
+                    placeholder="Enter your Alexzo API key (alexzo_...)" 
+                    autocomplete="off"
+                />
+            </div>
+            
+            <div class="input-group">
+                <label for="prompt">✨ Image Description</label>
+                <textarea 
+                    id="prompt" 
+                    placeholder="Describe the image you want to create... Be creative and detailed!"
+                    rows="4"
+                ></textarea>
+            </div>
+            
+            <div class="size-inputs">
+                <div class="input-group">
+                    <label for="width">📐 Width (px)</label>
+                    <input 
+                        type="number" 
+                        id="width" 
+                        value="512" 
+                        min="256" 
+                        max="1024"
+                        step="64"
+                    />
+                </div>
+                <div class="input-group">
+                    <label for="height">📏 Height (px)</label>
+                    <input 
+                        type="number" 
+                        id="height" 
+                        value="512" 
+                        min="256" 
+                        max="1024"
+                        step="64"
+                    />
+                </div>
+            </div>
+            
+            <button class="generate-btn" onclick="generateImage()">
+                🚀 Generate Image
+            </button>
+            
+            <div id="result"></div>
+        </div>
         
-        <div id="result"></div>
+        <div class="footer">
+            Powered by <strong>Alexzo AI</strong> • Free AI Image Generation
+        </div>
     </div>
 
     <script>
+        // Load saved API key from localStorage
+        window.addEventListener('DOMContentLoaded', function() {
+            const savedKey = localStorage.getItem('alexzo_api_key');
+            if (savedKey) {
+                document.getElementById('apiKey').value = savedKey;
+            }
+        });
+
         async function generateImage() {
-            const apiKey = document.getElementById('apiKey').value;
-            const prompt = document.getElementById('prompt').value;
-            const width = document.getElementById('width').value || 512;
-            const height = document.getElementById('height').value || 512;
+            const apiKeyInput = document.getElementById('apiKey');
+            const promptInput = document.getElementById('prompt');
+            const widthInput = document.getElementById('width');
+            const heightInput = document.getElementById('height');
             const resultDiv = document.getElementById('result');
-            const button = document.querySelector('button');
+            const button = document.querySelector('.generate-btn');
             
+            const apiKey = apiKeyInput.value.trim();
+            const prompt = promptInput.value.trim();
+            const width = parseInt(widthInput.value) || 512;
+            const height = parseInt(heightInput.value) || 512;
+            
+            // Validation
             if (!apiKey) {
-                resultDiv.innerHTML = '<p class="error">Please enter your API key</p>';
+                resultDiv.innerHTML = \`
+                    <div class="error">
+                        <strong>❌ Error:</strong> Please enter your API key
+                    </div>
+                \`;
+                apiKeyInput.focus();
                 return;
             }
             
             if (!prompt) {
-                resultDiv.innerHTML = '<p class="error">Please enter a prompt</p>';
+                resultDiv.innerHTML = \`
+                    <div class="error">
+                        <strong>❌ Error:</strong> Please describe the image you want to generate
+                    </div>
+                \`;
+                promptInput.focus();
                 return;
             }
             
+            // Save API key for future use
+            localStorage.setItem('alexzo_api_key', apiKey);
+            
+            // Show loading state
             button.disabled = true;
-            button.textContent = 'Generating...';
-            resultDiv.innerHTML = '<p class="loading">🎨 Creating your image...</p>';
+            button.textContent = '⏳ Generating...';
+            resultDiv.innerHTML = \`
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                    <p style="color: #a5b4fc; font-size: 1.1em;">Creating your masterpiece...</p>
+                    <p style="color: #6b7280; font-size: 0.9em; margin-top: 10px;">This may take a few seconds</p>
+                </div>
+            \`;
             
             try {
                 const response = await fetch('https://alexzo.vercel.app/api/generate', {
@@ -259,36 +528,78 @@ console.log(data.data[0].url);`
                     },
                     body: JSON.stringify({
                         prompt: prompt,
-                        width: parseInt(width),
-                        height: parseInt(height)
+                        width: width,
+                        height: height
                     })
                 });
                 
                 const data = await response.json();
                 
                 if (response.ok && data.data && data.data[0]) {
+                    const imageUrl = data.data[0].url;
+                    const revisedPrompt = data.data[0].revised_prompt || prompt;
+                    
                     resultDiv.innerHTML = \`
-                        <h3>✅ Image Generated Successfully!</h3>
-                        <img id="generatedImage" src="\${data.data[0].url}" alt="Generated image" />
-                        <p><strong>Prompt:</strong> \${data.data[0].revised_prompt || prompt}</p>
-                        <p><a href="\${data.data[0].url}" target="_blank" style="color: #6366f1;">Open in new tab</a></p>
+                        <div class="result-card">
+                            <h3 class="success">✅ Image Generated Successfully!</h3>
+                            <img id="generatedImage" src="\${imageUrl}" alt="AI Generated: \${prompt}" />
+                            <div class="image-info">
+                                <p><strong>📝 Original Prompt:</strong> \${prompt}</p>
+                                <p><strong>🎯 AI Enhanced Prompt:</strong> \${revisedPrompt}</p>
+                                <p><strong>📐 Dimensions:</strong> \${width} × \${height}px</p>
+                            </div>
+                            <div class="image-actions">
+                                <a href="\${imageUrl}" download="alexzo-ai-generated.png" class="action-btn">
+                                    ⬇️ Download Image
+                                </a>
+                                <a href="\${imageUrl}" target="_blank" class="action-btn">
+                                    🔗 Open in New Tab
+                                </a>
+                            </div>
+                        </div>
                     \`;
                 } else {
-                    resultDiv.innerHTML = \`<p class="error">❌ Error: \${data.error || 'Failed to generate image'}</p>\`;
+                    const errorMessage = data.error || data.message || 'Failed to generate image';
+                    resultDiv.innerHTML = \`
+                        <div class="error">
+                            <strong>❌ Generation Failed</strong>
+                            <p style="margin-top: 10px;">\${errorMessage}</p>
+                            <p style="margin-top: 10px; font-size: 0.9em; opacity: 0.8;">
+                                Please check your API key and try again
+                            </p>
+                        </div>
+                    \`;
                 }
             } catch (error) {
-                resultDiv.innerHTML = \`<p class="error">❌ Network error: \${error.message}</p>\`;
+                resultDiv.innerHTML = \`
+                    <div class="error">
+                        <strong>❌ Connection Error</strong>
+                        <p style="margin-top: 10px;">\${error.message}</p>
+                        <p style="margin-top: 10px; font-size: 0.9em; opacity: 0.8;">
+                            Please check your internet connection and try again
+                        </p>
+                    </div>
+                \`;
             } finally {
                 button.disabled = false;
-                button.textContent = 'Generate Image';
+                button.textContent = '🚀 Generate Image';
             }
         }
         
-        // Allow Enter key to generate
-        document.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
+        // Allow Enter key in prompt textarea (Ctrl+Enter to submit)
+        document.getElementById('prompt').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && e.ctrlKey) {
                 generateImage();
             }
+        });
+        
+        // Enter key in other inputs triggers generation
+        ['apiKey', 'width', 'height'].forEach(id => {
+            document.getElementById(id).addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    generateImage();
+                }
+            });
         });
     </script>
 </body>
@@ -508,9 +819,6 @@ console.log(data.data[0].url);`
                               <p className="text-sm text-gray-400">
                                 Created {new Date(key.created).toLocaleDateString()}
                               </p>
-                              <p className="text-sm text-gray-400">
-                                Last used: {key.lastUsed}
-                              </p>
                             </div>
                             <div className="flex items-center gap-2">
                               <Button
@@ -594,6 +902,19 @@ console.log(data.data[0].url);`
                     </pre>
                   </div>
                   <div className="flex flex-col sm:flex-row gap-2">
+                    <Button
+                      onClick={() => {
+                        const blob = new Blob([fullExample], { type: "text/html" })
+                        const url = URL.createObjectURL(blob)
+                        window.open(url, "_blank")
+                        toast.success("Preview opened in new tab!")
+                        setTimeout(() => URL.revokeObjectURL(url), 1000)
+                      }}
+                      className="bg-green-600 hover:bg-green-700"
+                    >
+                      <Code className="h-4 w-4 mr-2" />
+                      Live Preview
+                    </Button>
                     <Button
                       onClick={() => {
                         navigator.clipboard.writeText(fullExample)
