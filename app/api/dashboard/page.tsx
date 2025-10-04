@@ -42,8 +42,24 @@ export default function APIDashboard() {
       loadAPIKeys()
     }
 
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key && e.key.startsWith('api_keys_')) {
+        loadAPIKeys()
+      }
+    }
+
     window.addEventListener('api-key-updated', handleAPIKeyUpdate)
-    return () => window.removeEventListener('api-key-updated', handleAPIKeyUpdate)
+    window.addEventListener('storage', handleStorageChange)
+    
+    const intervalId = setInterval(() => {
+      loadAPIKeys()
+    }, 2000)
+
+    return () => {
+      window.removeEventListener('api-key-updated', handleAPIKeyUpdate)
+      window.removeEventListener('storage', handleStorageChange)
+      clearInterval(intervalId)
+    }
   }, [user])
 
   const loadAPIKeys = () => {
