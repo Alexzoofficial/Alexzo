@@ -19,7 +19,31 @@ The application is built using Next.js 15.2.4 with TypeScript. UI components lev
 - **Tailwind CSS**: For utility-first styling.
 - **Google Analytics**: For tracking and analytics.
 
+## Replit Environment Setup
+- **Development Server**: Configured to run on port 5000 at 0.0.0.0
+- **Next.js Configuration**: Pre-configured with Replit domain support in `next.config.mjs`
+- **Workflow**: "Next.js Dev Server" workflow runs `npm run dev` on port 5000
+- **Dependencies**: Installed with `--legacy-peer-deps` flag due to React 19 compatibility
+- **Deployment**: Configured for autoscale deployment with build and start commands
+- **Firebase**: Optional - App runs without Firebase (auth features disabled) if environment variables not set
+
+## Firebase Configuration (Optional)
+To enable Firebase authentication features, add the following environment variables:
+- `NEXT_PUBLIC_FIREBASE_API_KEY`
+- `NEXT_PUBLIC_FIREBASE_PROJECT_ID`
+- `NEXT_PUBLIC_FIREBASE_APP_ID`
+- `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID`
+
+The app gracefully handles missing Firebase configuration and will run with auth features disabled.
+
 ## Recent Changes
+- **2025-10-04**: GitHub Import Setup for Replit - COMPLETED
+  - ✅ **Installed dependencies** - Used `npm install --legacy-peer-deps` to resolve React 19 peer dependency conflicts
+  - ✅ **Configured workflow** - Set up "Next.js Dev Server" on port 5000 with webview output
+  - ✅ **Verified build** - Production build tested successfully, all routes compile without errors
+  - ✅ **Configured deployment** - Set up autoscale deployment with proper build and run commands
+  - ✅ **Website functional** - App loads correctly, navigation works, gracefully handles missing Firebase config
+  
 - **2025-10-04**: Complete Removal of API Request Tracking - COMPLETED
   - ✅ **Removed request tracking completely** - All API request counting functionality permanently removed from the application
   - ✅ **Removed 'requests' field** - Removed from APIKey interface in both `/app/api/page.tsx` and `/app/api/dashboard/page.tsx`
