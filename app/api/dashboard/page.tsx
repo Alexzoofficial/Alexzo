@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { useAuth } from "@/lib/auth-context"
 import { toast } from "sonner"
+import Image from "next/image"
 
 interface APIKey {
   id: string
@@ -27,9 +28,22 @@ export default function APIDashboard() {
   const [apiKeys, setApiKeys] = useState<APIKey[]>([])
   const [showCreateKey, setShowCreateKey] = useState(false)
   const [keyName, setKeyName] = useState("")
+  const [showTestAPI, setShowTestAPI] = useState(false)
+  const [testPrompt, setTestPrompt] = useState("")
+  const [testResult, setTestResult] = useState<string | null>(null)
+  const [isTesting, setIsTesting] = useState(false)
 
   useEffect(() => {
     loadAPIKeys()
+    
+    if (!user) return
+
+    const handleAPIKeyUpdate = () => {
+      loadAPIKeys()
+    }
+
+    window.addEventListener('api-key-updated', handleAPIKeyUpdate)
+    return () => window.removeEventListener('api-key-updated', handleAPIKeyUpdate)
   }, [user])
 
   const loadAPIKeys = () => {
@@ -85,6 +99,57 @@ export default function APIDashboard() {
   }
 
   const totalRequests = apiKeys.reduce((sum, key) => sum + key.requests, 0)
+
+  const testAPI = async () => {
+    if (!testPrompt.trim()) {
+      toast.error("Please enter a prompt")
+      return
+    }
+
+    if (apiKeys.length === 0) {
+      toast.error("Please create an API key first")
+      return
+    }
+
+    setIsTesting(true)
+    setTestResult(null)
+
+    try {
+      const apiKey = apiKeys[0].key
+
+      const response = await fetch('/api/proxy/zyfoox/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`
+        },
+        body: JSON.stringify({
+          prompt: testPrompt,
+          width: 512,
+          height: 512
+        })
+      })
+
+      const data = await response.json()
+
+      if (response.ok && data.data) {
+        setTestResult(data.data[0].url)
+        toast.success("Image generated successfully!")
+        
+        const { trackAPIRequest } = await import("@/lib/api-tracker")
+        if (user) {
+          trackAPIRequest(user.uid, apiKey, 'api_keys')
+        }
+      } else {
+        toast.error(data.error || "Failed to generate image")
+      }
+    } catch (error) {
+      console.error("Test API error:", error)
+      toast.error("Failed to test API")
+    } finally {
+      setIsTesting(false)
+    }
+  }
 
   const codeExample = `// Zyfoox Image Generation
 const response = await fetch('/api/proxy/zyfoox/generate', {
@@ -206,9 +271,10 @@ console.log(data.data[0].url);`
 
         {/* Main Content */}
         <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="grid w-full grid-cols-4 bg-gray-900/50 border-gray-800 mb-8 h-12">
+          <TabsList className="grid w-full grid-cols-5 bg-gray-900/50 border-gray-800 mb-8 h-12">
             <TabsTrigger value="overview" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white">Overview</TabsTrigger>
             <TabsTrigger value="keys" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white">API Keys</TabsTrigger>
+            <TabsTrigger value="test" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white">Test API</TabsTrigger>
             <TabsTrigger value="examples" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white">Code Examples</TabsTrigger>
             <TabsTrigger value="docs" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white">Documentation</TabsTrigger>
           </TabsList>
@@ -293,6 +359,66 @@ console.log(data.data[0].url);`
                 ))}
               </div>
             )}
+          </TabsContent>
+
+          {/* Test API Tab */}
+          <TabsContent value="test" className="space-y-6">
+            <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-sm">
+              <CardHeader>
+                <CardTitle className="text-white text-xl">Test Your API</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <p className="text-gray-300">
+                  Test your API key by generating an image. Each test will increment your request counter in real-time.
+                </p>
+                {apiKeys.length === 0 ? (
+                  <div className="text-center py-8">
+                    <p className="text-gray-400 mb-4">Please create an API key first to test the API</p>
+                    <Button onClick={() => setShowCreateKey(true)} className="bg-purple-600 hover:bg-purple-700">
+                      <Plus className="h-4 w-4 mr-2" />
+                      Create API Key
+                    </Button>
+                  </div>
+                ) : (
+                  <>
+                    <div>
+                      <Label htmlFor="testPrompt" className="text-white">Image Prompt</Label>
+                      <Input
+                        id="testPrompt"
+                        value={testPrompt}
+                        onChange={(e) => setTestPrompt(e.target.value)}
+                        placeholder="A beautiful sunset over mountains..."
+                        className="bg-gray-800 border-gray-700 text-white mt-2"
+                        disabled={isTesting}
+                      />
+                    </div>
+                    <Button 
+                      onClick={testAPI} 
+                      disabled={isTesting || !testPrompt.trim()}
+                      className="w-full bg-purple-600 hover:bg-purple-700"
+                    >
+                      {isTesting ? "Generating..." : "Test API & Generate Image"}
+                    </Button>
+                    {testResult && (
+                      <div className="mt-4 space-y-2">
+                        <p className="text-green-400 font-semibold">✓ Image generated successfully!</p>
+                        <Image 
+                          src={testResult} 
+                          alt="Generated" 
+                          width={512}
+                          height={512}
+                          className="w-full rounded-lg border border-gray-700"
+                          unoptimized
+                        />
+                        <p className="text-sm text-gray-400">
+                          Using API Key: {apiKeys[0].name} • Requests: {apiKeys[0].requests}
+                        </p>
+                      </div>
+                    )}
+                  </>
+                )}
+              </CardContent>
+            </Card>
           </TabsContent>
 
           {/* Code Examples Tab */}

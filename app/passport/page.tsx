@@ -65,6 +65,15 @@ export default function PassportPage() {
     } else {
       loadAPIKeys()
     }
+    
+    if (!user) return
+
+    const handleAPIKeyUpdate = () => {
+      loadAPIKeys()
+    }
+
+    window.addEventListener('api-key-updated', handleAPIKeyUpdate)
+    return () => window.removeEventListener('api-key-updated', handleAPIKeyUpdate)
   }, [user])
 
   const loadAPIKeys = () => {
