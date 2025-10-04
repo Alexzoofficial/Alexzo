@@ -34,9 +34,9 @@ export default function APIDashboard() {
   const [isTesting, setIsTesting] = useState(false)
 
   useEffect(() => {
-    loadAPIKeys()
+    if (typeof window === 'undefined' || !user) return
     
-    if (!user) return
+    loadAPIKeys()
 
     const handleAPIKeyUpdate = () => {
       loadAPIKeys()
@@ -63,11 +63,15 @@ export default function APIDashboard() {
   }, [user])
 
   const loadAPIKeys = () => {
-    if (user) {
+    if (typeof window === 'undefined' || !user) return
+    
+    try {
       const savedKeys = localStorage.getItem(`api_keys_${user.uid}`)
       if (savedKeys) {
         setApiKeys(JSON.parse(savedKeys))
       }
+    } catch (error) {
+      console.error('Failed to load API keys:', error)
     }
   }
 

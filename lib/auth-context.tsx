@@ -60,6 +60,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         if (!isFirebaseConfigured || !auth) {
           console.log("Firebase not configured - authentication unavailable")
+          setUser(null)
           setLoading(false)
           setInitialized(true)
           return
