@@ -42,7 +42,7 @@ const getRandomAvatar = () => {
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<FirebaseUser | null>(null)
   const [userAvatar, setUserAvatar] = useState<string | null>(null)
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false)
   const [initialized, setInitialized] = useState(false)
 
   useEffect(() => {
