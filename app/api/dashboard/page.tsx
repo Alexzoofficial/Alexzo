@@ -24,7 +24,7 @@ interface APIKey {
 }
 
 export default function APIDashboard() {
-  const { user } = useAuth()
+  const { user, loading } = useAuth()
   const [apiKeys, setApiKeys] = useState<APIKey[]>([])
   const [showCreateKey, setShowCreateKey] = useState(false)
   const [keyName, setKeyName] = useState("")
@@ -168,15 +168,30 @@ const response = await fetch('/api/proxy/zyfoox/generate', {
 const data = await response.json();
 console.log(data.data[0].url);`
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-violet-900 flex items-center justify-center">
+        <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-sm p-8">
+          <CardContent className="text-center">
+            <div className="animate-pulse">
+              <div className="h-8 w-8 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+              <p className="text-gray-300">Loading...</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
   if (!user) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-violet-900 flex items-center justify-center">
         <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-sm p-8">
           <CardContent className="text-center">
             <h2 className="text-2xl font-bold text-white mb-4">Authentication Required</h2>
-            <p className="text-gray-300 mb-6">Please sign in to access the API dashboard</p>
-            <Button onClick={() => window.close()} className="bg-purple-600 hover:bg-purple-700">
-              Close Window
+            <p className="text-gray-300 mb-6">Please sign in to access the API section</p>
+            <Button onClick={() => window.location.href = '/'} className="bg-purple-600 hover:bg-purple-700">
+              Go to Home
             </Button>
           </CardContent>
         </Card>
