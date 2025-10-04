@@ -31,7 +31,6 @@ interface APIKey {
   key: string
   created: string
   lastUsed: string
-  requests: number
 }
 
 export default function APIPage() {
@@ -43,47 +42,15 @@ export default function APIPage() {
   const [deleteKeyId, setDeleteKeyId] = useState<string | null>(null)
 
   useEffect(() => {
-    if (typeof window === 'undefined' || !user) return
-    
     loadAPIKeys()
-
-    const handleAPIKeyUpdate = () => {
-      loadAPIKeys()
-    }
-
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key && e.key.startsWith('api_keys_')) {
-        loadAPIKeys()
-      }
-    }
-
-    window.addEventListener('api-key-updated', handleAPIKeyUpdate)
-    window.addEventListener('storage', handleStorageChange)
-    
-    const intervalId = setInterval(() => {
-      loadAPIKeys()
-    }, 2000)
-
-    return () => {
-      window.removeEventListener('api-key-updated', handleAPIKeyUpdate)
-      window.removeEventListener('storage', handleStorageChange)
-      clearInterval(intervalId)
-    }
   }, [user])
 
   const loadAPIKeys = () => {
-    if (typeof window === 'undefined' || !user) return
-    
-    try {
+    if (user) {
       const savedKeys = localStorage.getItem(`api_keys_${user.uid}`)
       if (savedKeys) {
         setApiKeys(JSON.parse(savedKeys))
-      } else {
-        setApiKeys([])
       }
-    } catch (error) {
-      console.error('Failed to load API keys:', error)
-      setApiKeys([])
     }
   }
 
@@ -125,7 +92,6 @@ export default function APIPage() {
       key: generateUniqueAPIKey(),
       created: new Date().toISOString(),
       lastUsed: "Never",
-      requests: 0,
     }
 
     const updatedKeys = [...apiKeys, newKey]
@@ -161,7 +127,6 @@ export default function APIPage() {
     toast.success("API key deleted successfully!")
   }
 
-  const totalRequests = apiKeys.reduce((sum, key) => sum + key.requests, 0)
 
   const codeExample = `// AI Image Generation - Free Use
 const response = await fetch('https://alexzo.vercel.app/api/generate', {
@@ -445,10 +410,6 @@ console.log(data.data[0].url);`
                   <span>Total API Keys:</span>
                   <span className="text-white font-semibold">{apiKeys.length}</span>
                 </div>
-                <div className="flex justify-between items-center py-2 border-b border-gray-800">
-                  <span>Total Requests:</span>
-                  <span className="text-white font-semibold">{totalRequests}</span>
-                </div>
                 <div className="flex justify-between items-center py-2">
                   <span>Status:</span>
                   <Badge className="bg-green-600 text-white">Free Use</Badge>
@@ -548,7 +509,7 @@ console.log(data.data[0].url);`
                                 Created {new Date(key.created).toLocaleDateString()}
                               </p>
                               <p className="text-sm text-gray-400">
-                                Last used: {key.lastUsed} • {key.requests} requests
+                                Last used: {key.lastUsed}
                               </p>
                             </div>
                             <div className="flex items-center gap-2">

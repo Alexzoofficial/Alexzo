@@ -20,7 +20,6 @@ interface APIKey {
   key: string
   created: string
   lastUsed: string
-  requests: number
 }
 
 export default function APIDashboard() {
@@ -34,44 +33,15 @@ export default function APIDashboard() {
   const [isTesting, setIsTesting] = useState(false)
 
   useEffect(() => {
-    if (typeof window === 'undefined' || !user) return
-    
     loadAPIKeys()
-
-    const handleAPIKeyUpdate = () => {
-      loadAPIKeys()
-    }
-
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key && e.key.startsWith('api_keys_')) {
-        loadAPIKeys()
-      }
-    }
-
-    window.addEventListener('api-key-updated', handleAPIKeyUpdate)
-    window.addEventListener('storage', handleStorageChange)
-    
-    const intervalId = setInterval(() => {
-      loadAPIKeys()
-    }, 2000)
-
-    return () => {
-      window.removeEventListener('api-key-updated', handleAPIKeyUpdate)
-      window.removeEventListener('storage', handleStorageChange)
-      clearInterval(intervalId)
-    }
   }, [user])
 
   const loadAPIKeys = () => {
-    if (typeof window === 'undefined' || !user) return
-    
-    try {
+    if (user) {
       const savedKeys = localStorage.getItem(`api_keys_${user.uid}`)
       if (savedKeys) {
         setApiKeys(JSON.parse(savedKeys))
       }
-    } catch (error) {
-      console.error('Failed to load API keys:', error)
     }
   }
 
@@ -91,7 +61,6 @@ export default function APIDashboard() {
       key: generateAPIKey(),
       created: new Date().toISOString(),
       lastUsed: "Never",
-      requests: 0,
     }
 
     const updatedKeys = [...apiKeys, newKey]
@@ -118,7 +87,6 @@ export default function APIDashboard() {
     toast.success("API key deleted successfully!")
   }
 
-  const totalRequests = apiKeys.reduce((sum, key) => sum + key.requests, 0)
 
   const testAPI = async () => {
     if (!testPrompt.trim()) {
@@ -155,11 +123,6 @@ export default function APIDashboard() {
       if (response.ok && data.data) {
         setTestResult(data.data[0].url)
         toast.success("Image generated successfully!")
-        
-        const { trackAPIRequest } = await import("@/lib/api-tracker")
-        if (user) {
-          trackAPIRequest(user.uid, apiKey, 'api_keys')
-        }
       } else {
         toast.error(data.error || "Failed to generate image")
       }
@@ -254,7 +217,7 @@ console.log(data.data[0].url);`
 
       <div className="relative z-10 container mx-auto px-6 py-8">
         {/* Stats Overview */}
-        <div className="grid md:grid-cols-4 gap-6 mb-8">
+        <div className="grid md:grid-cols-3 gap-6 mb-8">
           <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-sm">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
@@ -263,18 +226,6 @@ console.log(data.data[0].url);`
                   <p className="text-2xl font-bold text-white">{apiKeys.length}</p>
                 </div>
                 <Key className="h-8 w-8 text-purple-400" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-sm">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-gray-400 text-sm">Total Requests</p>
-                  <p className="text-2xl font-bold text-white">{totalRequests}</p>
-                </div>
-                <BarChart3 className="h-8 w-8 text-blue-400" />
               </div>
             </CardContent>
           </Card>
@@ -386,7 +337,7 @@ console.log(data.data[0].url);`
                             </Button>
                           </div>
                           <p className="text-sm text-gray-400">Created {new Date(key.created).toLocaleDateString()}</p>
-                          <p className="text-sm text-gray-400">Last used: {key.lastUsed} • {key.requests} requests</p>
+                          <p className="text-sm text-gray-400">Last used: {key.lastUsed}</p>
                         </div>
                       </div>
                     </CardContent>
@@ -404,7 +355,7 @@ console.log(data.data[0].url);`
               </CardHeader>
               <CardContent className="space-y-4">
                 <p className="text-gray-300">
-                  Test your API key by generating an image. Each test will increment your request counter in real-time.
+                  Test your API key by generating an image.
                 </p>
                 {apiKeys.length === 0 ? (
                   <div className="text-center py-8">
@@ -446,7 +397,7 @@ console.log(data.data[0].url);`
                           unoptimized
                         />
                         <p className="text-sm text-gray-400">
-                          Using API Key: {apiKeys[0].name} • Requests: {apiKeys[0].requests}
+                          Using API Key: {apiKeys[0].name}
                         </p>
                       </div>
                     )}

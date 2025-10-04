@@ -78,9 +78,6 @@ export default function PlaygroundPage() {
       } else {
         setResponse(data.choices[0].message.content)
         toast.success("Response generated successfully!")
-        
-        const { trackAPIRequest } = await import("@/lib/api-tracker")
-        trackAPIRequest(user.uid, apiKey, 'passport_keys')
       }
     } catch (error) {
       console.error("Error:", error)
