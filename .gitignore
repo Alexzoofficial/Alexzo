@@ -27,4 +27,11 @@ yarn-error.log*
 next-env.d.ts
 .env.local
 .env*.local
+
+# Firebase credentials and sensitive files
 firebase-service-account*.json
+*firebase*adminsdk*.json
+serviceAccountKey.json
+
+# Attached assets (user uploads, screenshots, etc)
+attached_assets/
