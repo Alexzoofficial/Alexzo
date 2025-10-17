@@ -1,8 +1,4 @@
 // Build-time environment constants for client-side use
-// Legacy Supabase config (deprecated)
-export const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
-export const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
-export const isSupabaseConfigured = Boolean(SUPABASE_URL && SUPABASE_ANON_KEY)
 
 // Firebase configuration
 export const FIREBASE_API_KEY = process.env.NEXT_PUBLIC_FIREBASE_API_KEY || ''

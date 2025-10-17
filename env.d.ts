@@ -14,13 +14,6 @@ declare namespace NodeJS {
     NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID?: string
     FIREBASE_PRIVATE_KEY?: string
     FIREBASE_CLIENT_EMAIL?: string
-    // Legacy Supabase config (deprecated)
-    SUPABASE_URL?: string
-    SUPABASE_ANON_KEY?: string
-    SUPABASE_SERVICE_ROLE_KEY?: string
-    NEXT_PUBLIC_SUPABASE_URL?: string
-    NEXT_PUBLIC_SUPABASE_ANON_KEY?: string
-    NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL?: string
   }
 }
 
