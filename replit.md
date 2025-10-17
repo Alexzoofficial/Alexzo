@@ -7,15 +7,13 @@ Alexzo is an AI-powered platform built with Next.js that transforms ideas using 
 I prefer iterative development, with a focus on clear and concise communication. Please ask before making major architectural changes or introducing new dependencies. I value detailed explanations when complex topics are discussed but prefer straightforward answers for routine tasks. Ensure all solutions are robust, scalable, and maintainable.
 
 ## System Architecture
-The application is built using Next.js 15.2.4 with TypeScript. UI components leverage Radix UI styled with Tailwind CSS, including custom theming for a responsive design with dark/light modes. Firebase Auth with Google OAuth handles user authentication (optional). The primary database is Neon Postgres, accessed via Drizzle ORM with type-safe queries. The system incorporates Google Analytics for tracking and runs on a development server configured for the Replit environment. Core features include an AI-powered platform interface, user authentication, blog functionality, contact forms, newsletter sign-ups, and a user dashboard.
+The application is built using Next.js 15.2.4 with TypeScript. UI components leverage Radix UI styled with Tailwind CSS, including custom theming for a responsive design with dark/light modes. Firebase serves as the complete backend solution, providing authentication with Google OAuth and Firestore database for data storage. The system incorporates Google Analytics for tracking and runs on a development server configured for the Replit environment. Core features include an AI-powered platform interface, user authentication, blog functionality, contact forms, newsletter sign-ups, and a user dashboard.
 
 ## External Dependencies
-- **Database**:
-    - Neon Postgres (serverless Postgres database)
-    - Drizzle ORM (type-safe database queries)
-- **Firebase** (Optional):
-    - Firebase Auth (for authentication with Google OAuth)
-    - Firebase Admin SDK (for server-side operations in API routes)
+- **Firebase** (Primary Backend):
+    - Firebase Auth (authentication with Google OAuth)
+    - Firebase Firestore (NoSQL cloud database)
+    - Firebase Admin SDK (server-side operations in API routes)
 - **Next.js**: The core web framework.
 - **Radix UI**: For unstyled, accessible UI components.
 - **Tailwind CSS**: For utility-first styling.
@@ -39,15 +37,12 @@ Firebase authentication is **ENABLED** and configured via `.env.local` file (git
 The `.env.local` file contains all Firebase credentials and is automatically loaded by Next.js. This file is in `.gitignore` to prevent committing sensitive credentials to version control.
 
 ## Database Schema
-The Neon Postgres database contains the following tables:
-- **profiles**: User profiles with OAuth support (id, email, full_name, avatar_url, password_hash, provider, provider_id, last_sign_in, created_at, updated_at)
-- **newsletter_subscriptions**: Email newsletter subscriptions (id, email, subscribed_at, source, active, created_at)
-- **waitlist_submissions**: Product waitlist entries (id, name, email, product, company, use_case, submitted_at, source, status, created_at)
-- **contact_submissions**: Contact form submissions (id, name, email, company, subject, category, message, submitted_at, source, status, created_at)
-- **apis**: API endpoint management (id, user_id, name, description, endpoint, method, status, api_key, requests_count, success_rate, created_at, updated_at)
-- **api_analytics**: API usage analytics (id, api_id, request_count, success_count, error_count, date, created_at)
+Firebase Firestore collections store application data:
+- **contact_submissions**: Contact form submissions (name, email, company, subject, category, message, source, status, submittedAt, createdAt)
+- **newsletter_subscriptions**: Newsletter subscriptions (email, source, active, subscribedAt, createdAt)
+- **waitlist_submissions**: Waitlist entries (name, email, product, company, useCase, source, status, submittedAt, createdAt)
 
-Database operations use Drizzle ORM with the schema defined in `shared/schema.ts`. Run `npm run db:push` to sync schema changes to the database.
+All database operations use Firebase Admin SDK via `getAdminFirestore()` from `lib/firebase/admin.ts`. The application gracefully handles cases where Firebase is not configured.
 
 ## Recent Changes
 - **2025-10-04**: GitHub Import Setup for Replit - COMPLETED
@@ -95,3 +90,13 @@ Database operations use Drizzle ORM with the schema defined in `shared/schema.ts
   - ✅ **Deleted sensitive files** - Removed temporary Firebase service account JSON files from attached_assets for security
   - ✅ **Firebase initialized successfully** - Verified Firebase authentication is fully operational (logs show "Firebase initialized successfully")
   - ✅ **Auth system confirmed** - Application shows isFirebaseConfigured: true, authentication features enabled
+
+- **2025-10-17**: Complete Migration to Firebase (Neon Postgres Removed) - COMPLETED
+  - ✅ **Removed Neon Postgres** - Deleted all Neon database files (server/db.ts, drizzle.config.ts, shared/schema.ts)
+  - ✅ **Migrated to Firebase Firestore** - Converted contact, newsletter, and waitlist API routes to use Firebase Firestore
+  - ✅ **Removed database packages** - Uninstalled @neondatabase/serverless, drizzle-orm, drizzle-kit, ws, @types/ws
+  - ✅ **Removed database scripts** - Removed db:push, db:generate, db:studio scripts from package.json
+  - ✅ **Removed Supabase references** - Cleaned up all deprecated Supabase config from lib/public-env.ts, env.d.ts, next.config.mjs
+  - ✅ **Security verified** - .env.local properly gitignored, no secrets exposed in codebase
+  - ✅ **Build verified** - Production build passes successfully, Firebase initialized correctly
+  - ✅ **Architect approved** - Migration confirmed complete and production-ready, safe for GitHub deployment
