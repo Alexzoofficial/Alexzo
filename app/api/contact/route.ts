@@ -1,6 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { db } from "@/server/db"
-import { contactSubmissions } from "@/shared/schema"
+import { getAdminFirestore } from "@/lib/firebase/admin"
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -20,20 +19,27 @@ export async function POST(request: NextRequest) {
     }
 
     try {
-      await db.insert(contactSubmissions).values({
-        name,
-        email,
-        company: company || null,
-        subject,
-        category,
-        message,
-        source: "website",
-        status: "new",
-      })
-      
-      console.log("Contact submission saved to database")
+      const db = getAdminFirestore()
+      if (db) {
+        await db.collection('contact_submissions').add({
+          name,
+          email,
+          company: company || null,
+          subject,
+          category,
+          message,
+          source: "website",
+          status: "new",
+          submittedAt: new Date().toISOString(),
+          createdAt: new Date().toISOString(),
+        })
+        
+        console.log("Contact submission saved to Firebase Firestore")
+      } else {
+        console.warn("Firebase not configured, skipping database save")
+      }
     } catch (dbError) {
-      console.error("Database save failed:", dbError)
+      console.error("Firebase save failed:", dbError)
       return NextResponse.json({ error: "Failed to save contact submission" }, { status: 500 })
     }
 

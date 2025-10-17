@@ -1,6 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { db } from "@/server/db"
-import { newsletterSubscriptions } from "@/shared/schema"
+import { getAdminFirestore } from "@/lib/firebase/admin"
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -20,18 +19,31 @@ export async function POST(request: NextRequest) {
     }
 
     try {
-      await db.insert(newsletterSubscriptions).values({
-        email,
-        source: "website",
-        active: true,
-      })
-      
-      console.log("Newsletter subscription saved to database")
-    } catch (dbError: any) {
-      if (dbError?.code === '23505') {
-        return NextResponse.json({ error: "Email already subscribed" }, { status: 409 })
+      const db = getAdminFirestore()
+      if (db) {
+        // Check if email already exists
+        const existingSubscription = await db.collection('newsletter_subscriptions')
+          .where('email', '==', email)
+          .get()
+        
+        if (!existingSubscription.empty) {
+          return NextResponse.json({ error: "Email already subscribed" }, { status: 409 })
+        }
+        
+        await db.collection('newsletter_subscriptions').add({
+          email,
+          source: "website",
+          active: true,
+          subscribedAt: new Date().toISOString(),
+          createdAt: new Date().toISOString(),
+        })
+        
+        console.log("Newsletter subscription saved to Firebase Firestore")
+      } else {
+        console.warn("Firebase not configured, skipping database save")
       }
-      console.error("Database save failed:", dbError)
+    } catch (dbError) {
+      console.error("Firebase save failed:", dbError)
       return NextResponse.json({ error: "Failed to save subscription" }, { status: 500 })
     }
 

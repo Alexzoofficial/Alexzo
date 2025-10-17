@@ -1,6 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { db } from "@/server/db"
-import { waitlistSubmissions } from "@/shared/schema"
+import { getAdminFirestore } from "@/lib/firebase/admin"
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -20,19 +19,26 @@ export async function POST(request: NextRequest) {
     }
 
     try {
-      await db.insert(waitlistSubmissions).values({
-        name,
-        email,
-        product,
-        company: company || null,
-        useCase: useCase || null,
-        source: "website",
-        status: "pending",
-      })
-      
-      console.log("Waitlist submission saved to database")
+      const db = getAdminFirestore()
+      if (db) {
+        await db.collection('waitlist_submissions').add({
+          name,
+          email,
+          product,
+          company: company || null,
+          useCase: useCase || null,
+          source: "website",
+          status: "pending",
+          submittedAt: new Date().toISOString(),
+          createdAt: new Date().toISOString(),
+        })
+        
+        console.log("Waitlist submission saved to Firebase Firestore")
+      } else {
+        console.warn("Firebase not configured, skipping database save")
+      }
     } catch (dbError) {
-      console.error("Database save failed:", dbError)
+      console.error("Firebase save failed:", dbError)
       return NextResponse.json({ error: "Failed to save waitlist submission" }, { status: 500 })
     }
 
