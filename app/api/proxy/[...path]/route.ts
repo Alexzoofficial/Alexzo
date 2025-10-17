@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+import { getAdminFirestore } from "@/lib/firebase/admin"
 
 // Helper to get the catch-all path segment as a string
 function getPathString(request: Request): string {
@@ -8,8 +9,8 @@ function getPathString(request: Request): string {
   return cleaned
 }
 
-// Shared validation for API key
-function validateApiKey(request: Request): NextResponse | null {
+// Shared validation for API key - validates against Firestore
+async function validateApiKey(request: Request): Promise<NextResponse | null> {
   const authHeader = request.headers.get("authorization")
   if (!authHeader || !authHeader.startsWith("Bearer alexzo_")) {
     return NextResponse.json(
@@ -17,7 +18,40 @@ function validateApiKey(request: Request): NextResponse | null {
       { status: 401 }
     )
   }
-  return null
+
+  // Extract the API key
+  const apiKey = authHeader.replace("Bearer ", "")
+
+  // Validate against Firestore
+  try {
+    const db = getAdminFirestore()
+    if (!db) {
+      console.error("[Proxy] Firestore not configured")
+      return NextResponse.json(
+        { error: "Server configuration error" },
+        { status: 500 }
+      )
+    }
+
+    // Query the api_keys collection
+    const keyDoc = await db.collection("api_keys").doc(apiKey).get()
+    
+    if (!keyDoc.exists) {
+      return NextResponse.json(
+        { error: "Invalid API key. Key not found." },
+        { status: 401 }
+      )
+    }
+
+    // Key is valid, return null to allow request to proceed
+    return null
+  } catch (error) {
+    console.error("[Proxy] Error validating API key:", error)
+    return NextResponse.json(
+      { error: "Error validating API key" },
+      { status: 500 }
+    )
+  }
 }
 
 // Handle image generation endpoints (generate and zyfoox/generate)
@@ -127,8 +161,8 @@ export async function POST(request: Request) {
   try {
     const pathString = getPathString(request)
 
-    // Validate API key for all endpoints
-    const authError = validateApiKey(request)
+    // Validate API key for all endpoints (blocks until validated)
+    const authError = await validateApiKey(request)
     if (authError) {
       return authError
     }
@@ -139,7 +173,7 @@ export async function POST(request: Request) {
     // Parse request body
     const body = await request.json().catch(() => null)
 
-    // Track usage in background (non-blocking)
+    // Track usage in background (non-blocking) - only after validation succeeds
     trackUsage(apiKey, pathString)
 
     // Route to appropriate handler
