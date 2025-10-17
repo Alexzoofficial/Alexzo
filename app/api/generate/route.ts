@@ -1,5 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
 
+// Track API usage in background (non-blocking)
+async function trackUsage(apiKey: string) {
+  try {
+    await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:5000'}/api/keys/track`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ apiKey, endpoint: 'generate' }),
+    }).catch(() => {})
+  } catch {}
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
@@ -20,6 +31,12 @@ export async function POST(request: NextRequest) {
         { status: 401 }
       )
     }
+
+    // Extract API key for tracking
+    const apiKey = authHeader.replace('Bearer ', '')
+    
+    // Track usage in background (non-blocking)
+    trackUsage(apiKey)
 
     // Validate dimensions
     if (width < 256 || width > 1024 || height < 256 || height > 1024) {

@@ -112,6 +112,17 @@ async function handleChatCompletions(body: any): Promise<NextResponse> {
   })
 }
 
+// Track API usage in background (non-blocking)
+async function trackUsage(apiKey: string, endpoint: string) {
+  try {
+    await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:5000'}/api/keys/track`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ apiKey, endpoint }),
+    }).catch(() => {})
+  } catch {}
+}
+
 export async function POST(request: Request) {
   try {
     const pathString = getPathString(request)
@@ -122,8 +133,14 @@ export async function POST(request: Request) {
       return authError
     }
 
+    // Extract API key for tracking
+    const apiKey = request.headers.get("authorization")?.replace("Bearer ", "") || ""
+
     // Parse request body
     const body = await request.json().catch(() => null)
+
+    // Track usage in background (non-blocking)
+    trackUsage(apiKey, pathString)
 
     // Route to appropriate handler
     if (pathString === "generate" || pathString === "zyfoox/generate") {
