@@ -25,7 +25,6 @@ interface API {
   endpoint: string
   method: string
   status: "active" | "inactive"
-  requests: number
   successRate: number
   createdAt: string
   apiKey: string
@@ -68,65 +67,83 @@ export default function APICreatePage() {
     }
   }, [user])
 
-  const loadUserAPIs = () => {
-    // Load APIs from localStorage for demo
-    const savedAPIs = localStorage.getItem(`apis_${user?.uid}`)
-    if (savedAPIs) {
-      setApis(JSON.parse(savedAPIs))
+  const loadUserAPIs = async () => {
+    if (!user) return
+    
+    try {
+      const response = await fetch('/api/custom-apis', {
+        method: 'GET',
+        headers: {
+          'x-user-id': user.uid
+        }
+      })
+      
+      if (response.ok) {
+        const data = await response.json()
+        setApis(data.apis || [])
+      }
+    } catch (error) {
+      console.error('Error loading APIs:', error)
+      toast.error('Failed to load APIs')
     }
   }
 
   const loadGeneratedImages = () => {
-    // Load generated images from localStorage
-    const savedImages = localStorage.getItem(`dog_images_${user?.uid}`)
-    if (savedImages) {
-      setGeneratedDogImages(JSON.parse(savedImages))
-    }
+    // Images are not saved - this function is now a no-op
+    // User requested: images should NOT be saved
   }
 
   const saveAPIs = (newAPIs: API[]) => {
-    if (user) {
-      localStorage.setItem(`apis_${user.uid}`, JSON.stringify(newAPIs))
-      setApis(newAPIs)
-    }
+    // APIs are now saved to Firebase via API endpoints, not localStorage
+    setApis(newAPIs)
   }
 
   const saveGeneratedImages = (images: GeneratedImage[]) => {
-    if (user) {
-      localStorage.setItem(`dog_images_${user.uid}`, JSON.stringify(images))
-      setGeneratedDogImages(images)
-    }
+    // Images are NOT saved per user request
+    // Just update state for current session only
+    setGeneratedDogImages(images)
   }
 
   const generateAPIKey = () => {
     return `alexzo_${Math.random().toString(36).substring(2, 15)}${Math.random().toString(36).substring(2, 15)}`
   }
 
-  const createAPI = () => {
+  const createAPI = async () => {
     if (!formData.name || !formData.description || !formData.endpoint) {
       toast.error("Please fill in all fields")
       return
     }
 
-    const newAPI: API = {
-      id: Date.now().toString(),
-      name: formData.name,
-      description: formData.description,
-      endpoint: formData.endpoint,
-      method: formData.method,
-      status: "active",
-      requests: 0,
-      successRate: 100,
-      createdAt: new Date().toISOString(),
-      apiKey: generateAPIKey(),
+    if (!user) return
+
+    try {
+      const response = await fetch('/api/custom-apis', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          userId: user.uid,
+          name: formData.name,
+          description: formData.description,
+          endpoint: formData.endpoint,
+          method: formData.method
+        })
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        setApis([...apis, data.api])
+        setFormData({ name: "", description: "", endpoint: "", method: "GET" })
+        setShowCreateDialog(false)
+        toast.success("API created successfully!")
+      } else {
+        toast.error("Failed to create API")
+      }
+    } catch (error) {
+      console.error('Error creating API:', error)
+      toast.error("Failed to create API")
     }
-
-    const updatedAPIs = [...apis, newAPI]
-    saveAPIs(updatedAPIs)
-
-    setFormData({ name: "", description: "", endpoint: "", method: "GET" })
-    setShowCreateDialog(false)
-    toast.success("API created successfully!")
   }
 
   const generateDogImage = async () => {
@@ -175,10 +192,27 @@ export default function APICreatePage() {
     }
   }
 
-  const deleteAPI = (id: string) => {
-    const updatedAPIs = apis.filter((api) => api.id !== id)
-    saveAPIs(updatedAPIs)
-    toast.success("API deleted successfully!")
+  const deleteAPI = async (id: string) => {
+    if (!user) return
+
+    try {
+      const response = await fetch(`/api/custom-apis?id=${id}`, {
+        method: 'DELETE',
+        headers: {
+          'x-user-id': user.uid
+        }
+      })
+
+      if (response.ok) {
+        setApis(apis.filter((api) => api.id !== id))
+        toast.success("API deleted successfully!")
+      } else {
+        toast.error("Failed to delete API")
+      }
+    } catch (error) {
+      console.error('Error deleting API:', error)
+      toast.error("Failed to delete API")
+    }
   }
 
   const copyAPIKey = (apiKey: string) => {
@@ -186,13 +220,39 @@ export default function APICreatePage() {
     toast.success("API key copied to clipboard!")
   }
 
-  const toggleAPIStatus = (id: string) => {
-    const updatedAPIs = apis.map((api) =>
-      api.id === id
-        ? { ...api, status: api.status === "active" ? "inactive" : ("active" as "active" | "inactive") }
-        : api,
-    )
-    saveAPIs(updatedAPIs)
+  const toggleAPIStatus = async (id: string) => {
+    if (!user) return
+
+    const api = apis.find(a => a.id === id)
+    if (!api) return
+
+    const newStatus = api.status === "active" ? "inactive" : "active"
+
+    try {
+      const response = await fetch('/api/custom-apis', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          apiId: id,
+          userId: user.uid,
+          status: newStatus
+        })
+      })
+
+      if (response.ok) {
+        setApis(apis.map((api) =>
+          api.id === id ? { ...api, status: newStatus as "active" | "inactive" } : api
+        ))
+        toast.success("API status updated!")
+      } else {
+        toast.error("Failed to update API status")
+      }
+    } catch (error) {
+      console.error('Error updating API status:', error)
+      toast.error("Failed to update API status")
+    }
   }
 
   const deleteGeneratedImage = (id: string) => {
@@ -283,7 +343,7 @@ export default function APICreatePage() {
           {/* API Management Tab */}
           <TabsContent value="apis" className="space-y-8">
             {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-sm">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
@@ -306,18 +366,6 @@ export default function APICreatePage() {
                       </p>
                     </div>
                     <Zap className="h-8 w-8 text-green-400" />
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-sm">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-gray-400 text-sm">Total Requests</p>
-                      <p className="text-2xl font-bold text-white">{apis.reduce((sum, api) => sum + api.requests, 0)}</p>
-                    </div>
-                    <BarChart3 className="h-8 w-8 text-blue-400" />
                   </div>
                 </CardContent>
               </Card>
@@ -495,15 +543,9 @@ export default function APICreatePage() {
                           </Button>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-4 text-sm">
-                          <div>
-                            <p className="text-gray-400">Requests</p>
-                            <p className="text-white font-semibold">{api.requests.toLocaleString()}</p>
-                          </div>
-                          <div>
-                            <p className="text-gray-400">Success Rate</p>
-                            <p className="text-white font-semibold">{api.successRate}%</p>
-                          </div>
+                        <div className="text-sm">
+                          <p className="text-gray-400">Success Rate</p>
+                          <p className="text-white font-semibold">{api.successRate}%</p>
                         </div>
 
                         <div className="text-xs text-gray-500">Created {new Date(api.createdAt).toLocaleDateString()}</div>
@@ -639,15 +681,7 @@ export default function APICreatePage() {
             </DialogHeader>
             {selectedAPI && (
               <div className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <Card className="bg-gray-800/50 border-gray-700 backdrop-blur-sm">
-                    <CardContent className="p-4">
-                      <div className="text-center">
-                        <p className="text-gray-400 text-sm">Total Requests</p>
-                        <p className="text-2xl font-bold text-white">{selectedAPI.requests.toLocaleString()}</p>
-                      </div>
-                    </CardContent>
-                  </Card>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <Card className="bg-gray-800/50 border-gray-700 backdrop-blur-sm">
                     <CardContent className="p-4">
                       <div className="text-center">

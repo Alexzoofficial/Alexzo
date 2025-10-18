@@ -41,8 +41,15 @@ Firebase Firestore collections store application data:
 - **contact_submissions**: Contact form submissions (name, email, company, subject, category, message, source, status, submittedAt, createdAt)
 - **newsletter_subscriptions**: Newsletter subscriptions (email, source, active, subscribedAt, createdAt)
 - **waitlist_submissions**: Waitlist entries (name, email, product, company, useCase, source, status, submittedAt, createdAt)
+- **api_keys**: API authentication keys (userId, name, key, created, lastUsed) - Note: requestCount removed per user requirement
+- **custom_apis**: Custom API endpoint configurations (userId, name, description, endpoint, method, status, successRate, createdAt, apiKey) - Note: request tracking disabled
 
 All database operations use Firebase Admin SDK via `getAdminFirestore()` from `lib/firebase/admin.ts`. The application gracefully handles cases where Firebase is not configured.
+
+**Important Notes:**
+- Request tracking and counting have been completely disabled per user requirement
+- Generated images are NOT saved to database or localStorage per user requirement
+- API deletions are instant and remove data from Firestore immediately
 
 ## Recent Changes
 - **2025-10-04**: GitHub Import Setup for Replit - COMPLETED
@@ -127,3 +134,16 @@ All database operations use Firebase Admin SDK via `getAdminFirestore()` from `l
   - ✅ **Created Helper Library** - Built lib/api-keys.ts for frontend integration with Firestore API key management
   - ✅ **Architect Verified** - All validation logic confirmed working correctly, security hardened
   - ✅ **API Keys Now Persistent** - API keys and usage data permanently stored in Firebase Firestore (no longer localStorage)
+
+- **2025-10-18**: Complete Firebase Integration & Request Tracking Removal - COMPLETED
+  - ✅ **Firebase Environment Setup** - Created .env.local with complete Firebase credentials from service account JSON
+  - ✅ **API Dashboard Migration** - Updated /app/api/dashboard/page.tsx to use Firebase backend API (/api/keys) instead of localStorage
+  - ✅ **API Create Page Migration** - Updated /app/api/create/page.tsx to use Firebase backend API (/api/custom-apis) instead of localStorage
+  - ✅ **Created Custom APIs Backend** - Built /app/api/custom-apis/route.ts for CRUD operations on custom API configurations in Firestore
+  - ✅ **Removed Request Tracking** - Completely disabled request counting in both frontend and backend per user requirement
+  - ✅ **Removed Image Storage** - Disabled generated dog images from being saved to localStorage per user requirement
+  - ✅ **Updated Track Endpoint** - Modified /api/keys/track/route.ts to only update lastUsed timestamp, no request counting
+  - ✅ **Removed requestCount Field** - Removed from API keys creation and interface definitions
+  - ✅ **All LSP Errors Fixed** - TypeScript compilation successful, no errors
+  - ✅ **Instant Delete Working** - API deletion now instantly removes from Firestore database
+  - ✅ **All Data Now Persistent** - API keys and custom API configurations permanently stored in Firebase Firestore

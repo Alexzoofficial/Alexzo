@@ -36,12 +36,24 @@ export default function APIDashboard() {
     loadAPIKeys()
   }, [user])
 
-  const loadAPIKeys = () => {
-    if (user) {
-      const savedKeys = localStorage.getItem(`api_keys_${user.uid}`)
-      if (savedKeys) {
-        setApiKeys(JSON.parse(savedKeys))
+  const loadAPIKeys = async () => {
+    if (!user) return
+    
+    try {
+      const response = await fetch('/api/keys', {
+        method: 'GET',
+        headers: {
+          'x-user-id': user.uid
+        }
+      })
+      
+      if (response.ok) {
+        const data = await response.json()
+        setApiKeys(data.keys || [])
       }
+    } catch (error) {
+      console.error('Error loading API keys:', error)
+      toast.error('Failed to load API keys')
     }
   }
 
@@ -49,28 +61,39 @@ export default function APIDashboard() {
     return `alexzo_${Math.random().toString(36).substring(2, 15)}${Math.random().toString(36).substring(2, 15)}`
   }
 
-  const createAPIKey = () => {
+  const createAPIKey = async () => {
     if (!keyName.trim()) {
       toast.error("Please enter a name for your API key")
       return
     }
 
-    const newKey: APIKey = {
-      id: Date.now().toString(),
-      name: keyName,
-      key: generateAPIKey(),
-      created: new Date().toISOString(),
-      lastUsed: "Never",
-    }
+    if (!user) return
 
-    const updatedKeys = [...apiKeys, newKey]
-    if (user) {
-      localStorage.setItem(`api_keys_${user.uid}`, JSON.stringify(updatedKeys))
+    try {
+      const response = await fetch('/api/keys', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          userId: user.uid,
+          name: keyName
+        })
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        setApiKeys([...apiKeys, data.key])
+        setKeyName("")
+        setShowCreateKey(false)
+        toast.success("API key created successfully!")
+      } else {
+        toast.error("Failed to create API key")
+      }
+    } catch (error) {
+      console.error('Error creating API key:', error)
+      toast.error("Failed to create API key")
     }
-    setApiKeys(updatedKeys)
-    setKeyName("")
-    setShowCreateKey(false)
-    toast.success("API key created successfully!")
   }
 
   const copyAPIKey = (key: string) => {
@@ -78,13 +101,27 @@ export default function APIDashboard() {
     toast.success("API key copied to clipboard!")
   }
 
-  const deleteAPIKey = (id: string) => {
-    const updatedKeys = apiKeys.filter((key) => key.id !== id)
-    if (user) {
-      localStorage.setItem(`api_keys_${user.uid}`, JSON.stringify(updatedKeys))
+  const deleteAPIKey = async (id: string) => {
+    if (!user) return
+
+    try {
+      const response = await fetch(`/api/keys?id=${id}`, {
+        method: 'DELETE',
+        headers: {
+          'x-user-id': user.uid
+        }
+      })
+
+      if (response.ok) {
+        setApiKeys(apiKeys.filter((key) => key.id !== id))
+        toast.success("API key deleted successfully!")
+      } else {
+        toast.error("Failed to delete API key")
+      }
+    } catch (error) {
+      console.error('Error deleting API key:', error)
+      toast.error("Failed to delete API key")
     }
-    setApiKeys(updatedKeys)
-    toast.success("API key deleted successfully!")
   }
 
 

@@ -57,7 +57,6 @@ export async function POST(request: NextRequest) {
       key: apiKey,
       created: new Date().toISOString(),
       lastUsed: null,
-      requestCount: 0,
     }
 
     const docRef = await db.collection('api_keys').add(newKey)
