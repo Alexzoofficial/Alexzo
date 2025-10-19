@@ -1,8 +1,7 @@
 "use client"
 
-import { useEffect, useState, type ReactNode } from "react"
+import { useEffect, useState, useRef, type ReactNode } from "react"
 import { motion, type Variants } from "framer-motion"
-import { useLazyLoad } from "@/hooks/use-lazy-load"
 import { useAdaptiveAnimation } from "@/hooks/use-adaptive-animation"
 
 interface AdaptiveAnimationProps {
@@ -27,28 +26,47 @@ export function AdaptiveAnimation({
   threshold = 0.1,
   rootMargin = "0px",
 }: AdaptiveAnimationProps) {
-  const { isVisible, elementRef } = useLazyLoad<HTMLDivElement>({
-    threshold,
-    rootMargin,
-    triggerOnce: true,
-  })
-
-  const { animationSpeed, isRapidScrolling } = useAdaptiveAnimation()
+  const [isMounted, setIsMounted] = useState(false)
+  const [isVisible, setIsVisible] = useState(false)
   const [shouldAnimate, setShouldAnimate] = useState(false)
+  const elementRef = useRef<HTMLDivElement>(null)
+  const { animationSpeed, isRapidScrolling } = useAdaptiveAnimation()
 
   useEffect(() => {
-    if (isVisible) {
+    setIsMounted(true)
+  }, [])
+
+  useEffect(() => {
+    if (!isMounted || !elementRef.current) return
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true)
+          if (elementRef.current) {
+            observer.unobserve(elementRef.current)
+          }
+        }
+      },
+      { threshold, rootMargin }
+    )
+
+    observer.observe(elementRef.current)
+    return () => observer.disconnect()
+  }, [isMounted, threshold, rootMargin])
+
+  useEffect(() => {
+    if (isVisible && isMounted) {
       const adaptiveDelay = isRapidScrolling ? delay * 0.3 : delay
       const timer = setTimeout(() => {
         setShouldAnimate(true)
       }, adaptiveDelay)
-
       return () => clearTimeout(timer)
     }
-  }, [isVisible, delay, isRapidScrolling])
+  }, [isVisible, delay, isMounted, isRapidScrolling])
 
   return (
-    <div ref={elementRef} className={className}>
+    <div ref={elementRef} className={className} suppressHydrationWarning>
       <motion.div
         initial="hidden"
         animate={shouldAnimate ? "visible" : "hidden"}
@@ -58,6 +76,7 @@ export function AdaptiveAnimation({
           ease: "easeOut",
           delay: 0,
         }}
+        suppressHydrationWarning
       >
         {children}
       </motion.div>

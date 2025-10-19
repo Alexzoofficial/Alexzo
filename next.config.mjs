@@ -8,19 +8,6 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: false,
   },
-  experimental: {
-    allowedDevOrigins: [
-      '127.0.0.1', 
-      'localhost', 
-      '*.replit.dev',
-      '*.vercel.app',
-      'alexzo.vercel.app',
-      '127.0.0.1:5000', 
-      'localhost:5000',
-      ...(replitDomain ? [replitDomain, `${replitDomain}:5000`] : []),
-      ...(vercelDomain ? [vercelDomain, `https://${vercelDomain}`] : [])
-    ],
-  },
   images: {
     unoptimized: false,
     remotePatterns: [
@@ -39,6 +26,14 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: 'alexzo.vercel.app',
+      },
+      {
+        protocol: 'https',
+        hostname: 'lh3.googleusercontent.com',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.googleusercontent.com',
       }
     ]
   },

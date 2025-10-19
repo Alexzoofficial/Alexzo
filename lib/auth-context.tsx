@@ -27,18 +27,6 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
-// Generate random avatar for new users
-const getRandomAvatar = () => {
-  const avatars = [
-    "/images/avatars/user-1.png",
-    "/images/avatars/user-2.png",
-    "/images/avatars/user-3.png",
-    "/images/avatars/user-4.png",
-    "/images/avatars/user-5.png",
-  ]
-  return avatars[Math.floor(Math.random() * avatars.length)]
-}
-
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<FirebaseUser | null>(null)
   const [userAvatar, setUserAvatar] = useState<string | null>(null)
@@ -139,24 +127,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const loadUserProfile = async (firebaseUser: FirebaseUser) => {
     try {
+      const googlePhotoURL = firebaseUser.photoURL || null
+      setUserAvatar(googlePhotoURL)
+      
       if (!db) {
-        console.warn("Firestore not available, using default avatar")
-        setUserAvatar(getRandomAvatar())
+        console.warn("Firestore not available, using Google profile photo")
         return
       }
       const userDoc = await getDoc(doc(db, "profiles", firebaseUser.uid))
       
       if (userDoc.exists()) {
         const profileData = userDoc.data()
-        setUserAvatar(profileData.avatar_url || getRandomAvatar())
+        setUserAvatar(googlePhotoURL || profileData.avatar_url || null)
       } else {
-        // Create new profile for first-time user
-        const randomAvatar = getRandomAvatar()
         const profileData = {
           id: firebaseUser.uid,
           email: firebaseUser.email,
           full_name: firebaseUser.displayName || '',
-          avatar_url: randomAvatar,
+          avatar_url: googlePhotoURL,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
         }
@@ -164,11 +152,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (db) {
           await setDoc(doc(db, "profiles", firebaseUser.uid), profileData)
         }
-        setUserAvatar(randomAvatar)
       }
     } catch (error) {
       console.error("Failed to load user profile:", error)
-      setUserAvatar(getRandomAvatar())
+      setUserAvatar(firebaseUser.photoURL || null)
     }
   }
 
