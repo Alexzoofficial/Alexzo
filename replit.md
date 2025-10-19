@@ -9,14 +9,18 @@ I prefer iterative development, with a focus on clear and concise communication.
 ## System Architecture
 The application is built using Next.js 15.2.4 with TypeScript. UI components are developed with Radix UI and styled using Tailwind CSS, featuring custom theming for responsive design with dark/light modes. Firebase is the chosen backend, providing authentication via Google OAuth and utilizing Firestore as the NoSQL database for data storage. The system integrates Google Analytics for tracking and includes features like user authentication, blog functionality, contact forms, newsletter sign-ups, an API proxy gateway, and a user dashboard. All data persistence for forms, API keys, and custom API configurations is handled by Firebase Firestore.
 
-### API Usage Tracking
-The `/api/generate` endpoint automatically saves minimal metadata to Firestore's `api_usage` collection for successful requests only:
-- **User Details**: userId, userName, userEmail
-- **API Information**: apiKey, apiKeyName
-- **Request Data**: prompt, width, height, model
-- **Timestamp**: createdAt
+### API Usage Policy
+The `/api/generate` endpoint is designed for unlimited requests with minimal database overhead:
+- **No request logging**: Individual API requests are NOT saved to the database
+- **No tracking**: Prompts, dimensions, or generation details are NOT stored
+- **Lightweight validation**: API keys are validated against Firestore but no usage data is persisted
+- **Unlimited requests**: Users can make unlimited API calls without database writes
 
-**Important**: NO error information, image data, or URLs are saved to minimize server load and storage costs. Failed requests are not logged.
+### User Data Management
+When a user deletes their account:
+- All user data is automatically cleaned up from Firestore
+- Deleted data includes: profile, API keys, custom APIs, and any associated records
+- User deletion endpoint: `DELETE /api/user/delete` with `x-user-id` header
 
 ## External Dependencies
 - **Firebase**: Provides authentication (Firebase Auth with Google OAuth) and database services (Firebase Firestore). The Firebase Admin SDK is used for server-side operations.
