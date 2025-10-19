@@ -12,25 +12,119 @@ async function trackUsage(apiKey: string) {
   } catch {}
 }
 
-// Validate API key against Firestore
-async function validateApiKey(apiKey: string): Promise<boolean> {
+// Validate API key against Firestore and return user info
+async function validateApiKey(apiKey: string): Promise<{ isValid: boolean; userId?: string; apiKeyName?: string }> {
   try {
     const db = getAdminFirestore()
     if (!db) {
       console.error('[Generate] Firestore not configured')
-      return false
+      return { isValid: false }
     }
 
-    // Query the api_keys collection
-    const keyDoc = await db.collection('api_keys').doc(apiKey).get()
-    return keyDoc.exists
+    // Query the api_keys collection by key field (consistent with /api/keys/track)
+    const keysSnapshot = await db
+      .collection('api_keys')
+      .where('key', '==', apiKey)
+      .limit(1)
+      .get()
+
+    if (keysSnapshot.empty) {
+      return { isValid: false }
+    }
+
+    const keyData = keysSnapshot.docs[0].data()
+    return {
+      isValid: true,
+      userId: keyData.userId,
+      apiKeyName: keyData.name
+    }
   } catch (error) {
     console.error('[Generate] Error validating API key:', error)
-    return false
+    return { isValid: false }
+  }
+}
+
+// Get user profile information from Firestore
+async function getUserProfile(userId: string): Promise<{ userName?: string; userEmail?: string }> {
+  try {
+    const db = getAdminFirestore()
+    if (!db) {
+      console.warn('[Generate] Firestore not configured, skipping user profile lookup')
+      return {}
+    }
+
+    const userDoc = await db.collection('profiles').doc(userId).get()
+    
+    if (!userDoc.exists) {
+      console.warn('[Generate] User profile not found for userId:', userId)
+      return {}
+    }
+
+    const userData = userDoc.data()
+    return {
+      userName: userData?.full_name || 'Unknown User',
+      userEmail: userData?.email || ''
+    }
+  } catch (error) {
+    console.error('[Generate] Error fetching user profile:', error)
+    return {}
+  }
+}
+
+// Save generation request to Firestore (metadata only, NO image data)
+async function saveGenerationRequest(data: {
+  userId: string
+  userName: string
+  userEmail: string
+  apiKey: string
+  apiKeyName: string
+  prompt: string
+  width: number
+  height: number
+  model: string
+  status: 'success' | 'failed'
+  errorMessage?: string
+}) {
+  try {
+    const db = getAdminFirestore()
+    if (!db) {
+      console.warn('[Generate] Firestore not configured, skipping request logging')
+      return
+    }
+
+    await db.collection('api_usage').add({
+      userId: data.userId,
+      userName: data.userName,
+      userEmail: data.userEmail,
+      apiKey: data.apiKey,
+      apiKeyName: data.apiKeyName,
+      endpoint: 'generate',
+      prompt: data.prompt,
+      width: data.width,
+      height: data.height,
+      model: data.model,
+      status: data.status,
+      errorMessage: data.errorMessage || null,
+      createdAt: new Date().toISOString(),
+      timestamp: new Date().toISOString(),
+    })
+
+    console.log('[Generate] Request logged to Firestore for user:', data.userName, `(${data.userId})`)
+  } catch (error) {
+    console.error('[Generate] Error saving request to Firestore:', error)
   }
 }
 
 export async function POST(request: NextRequest) {
+  let userId: string | undefined
+  let apiKeyName: string | undefined
+  let userName = 'Unknown User'
+  let userEmail = ''
+  let apiKeyValue = ''
+  let prompt = ''
+  let width = 512
+  let height = 512
+
   try {
     // Check authorization header first
     const authHeader = request.headers.get('authorization')
@@ -43,19 +137,30 @@ export async function POST(request: NextRequest) {
 
     // Extract API key
     const apiKey = authHeader.replace('Bearer ', '')
+    apiKeyValue = apiKey
     
-    // Validate API key against Firestore (blocks until validated)
-    const isValid = await validateApiKey(apiKey)
-    if (!isValid) {
+    // Validate API key against Firestore and get user info
+    const validationResult = await validateApiKey(apiKey)
+    if (!validationResult.isValid) {
       return NextResponse.json(
         { error: 'Invalid API key. Key not found.' },
         { status: 401 }
       )
     }
 
-    // Parse request body
+    userId = validationResult.userId
+    apiKeyName = validationResult.apiKeyName || 'Unknown'
+
+    // Get user profile information
+    const userProfile = userId ? await getUserProfile(userId) : {}
+    userName = userProfile.userName || 'Unknown User'
+    userEmail = userProfile.userEmail || ''
+
+    // Parse request body (cache the values for error handler)
     const body = await request.json()
-    const { prompt, width = 512, height = 512 } = body
+    prompt = body.prompt || ''
+    width = body.width || 512
+    height = body.height || 512
 
     if (!prompt) {
       return NextResponse.json(
@@ -88,6 +193,22 @@ export async function POST(request: NextRequest) {
     const seed = Math.floor(Math.random() * 1000000)
     const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=${width}&height=${height}&seed=${seed}&nologo=true&enhance=true&model=flux`
 
+    // Save generation request to Firestore (metadata only, NO image data/URL)
+    if (userId) {
+      await saveGenerationRequest({
+        userId,
+        userName,
+        userEmail,
+        apiKey,
+        apiKeyName,
+        prompt,
+        width,
+        height,
+        model: 'alexzo-ai-v1',
+        status: 'success'
+      })
+    }
+
     // Return response in standard format
     const response = {
       created: Math.floor(Date.now() / 1000),
@@ -110,6 +231,28 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('API Error:', error)
+
+    // Save failed request to Firestore if we have user info
+    if (userId && apiKeyName) {
+      try {
+        await saveGenerationRequest({
+          userId,
+          userName,
+          userEmail,
+          apiKey: apiKeyValue,
+          apiKeyName,
+          prompt: prompt || 'Unknown',
+          width: width || 512,
+          height: height || 512,
+          model: 'alexzo-ai-v1',
+          status: 'failed',
+          errorMessage: error instanceof Error ? error.message : 'Internal server error'
+        })
+      } catch (saveError) {
+        console.error('[Generate] Error saving failed request:', saveError)
+      }
+    }
+
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
