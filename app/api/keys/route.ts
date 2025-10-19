@@ -1,15 +1,28 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { getAdminFirestore } from "@/lib/firebase/admin"
+import { getAdminFirestore, getAdminAuth } from "@/lib/firebase/admin"
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
 export async function GET(request: NextRequest) {
   try {
-    const userId = request.headers.get('x-user-id')
+    const authHeader = request.headers.get('authorization')
+    if (!authHeader?.startsWith('Bearer ')) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
     
-    if (!userId) {
-      return NextResponse.json({ error: "User ID required" }, { status: 401 })
+    const idToken = authHeader.replace('Bearer ', '')
+    const auth = getAdminAuth()
+    if (!auth) {
+      return NextResponse.json({ error: "Authentication not configured" }, { status: 500 })
+    }
+    
+    let userId: string
+    try {
+      const decodedToken = await auth.verifyIdToken(idToken)
+      userId = decodedToken.uid
+    } catch (error) {
+      return NextResponse.json({ error: "Invalid authentication token" }, { status: 401 })
     }
 
     const db = getAdminFirestore()
@@ -37,11 +50,32 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const data = await request.json()
-    const { userId, name } = data
+    const authHeader = request.headers.get('authorization')
+    if (!authHeader?.startsWith('Bearer ')) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+    
+    const idToken = authHeader.replace('Bearer ', '')
+    const auth = getAdminAuth()
+    if (!auth) {
+      return NextResponse.json({ error: "Authentication not configured" }, { status: 500 })
+    }
+    
+    let userId: string
+    let userDisplayName: string
+    try {
+      const decodedToken = await auth.verifyIdToken(idToken)
+      userId = decodedToken.uid
+      userDisplayName = decodedToken.name || decodedToken.email || 'User'
+    } catch (error) {
+      return NextResponse.json({ error: "Invalid authentication token" }, { status: 401 })
+    }
 
-    if (!userId || !name) {
-      return NextResponse.json({ error: "User ID and name required" }, { status: 400 })
+    const data = await request.json()
+    const { name } = data
+
+    if (!name) {
+      return NextResponse.json({ error: "Name required" }, { status: 400 })
     }
 
     const db = getAdminFirestore()
@@ -53,6 +87,7 @@ export async function POST(request: NextRequest) {
 
     const newKey = {
       userId,
+      userName: userDisplayName,
       name,
       key: apiKey,
       created: new Date().toISOString(),
@@ -76,12 +111,30 @@ export async function POST(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
+    const authHeader = request.headers.get('authorization')
+    if (!authHeader?.startsWith('Bearer ')) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+    
+    const idToken = authHeader.replace('Bearer ', '')
+    const auth = getAdminAuth()
+    if (!auth) {
+      return NextResponse.json({ error: "Authentication not configured" }, { status: 500 })
+    }
+    
+    let userId: string
+    try {
+      const decodedToken = await auth.verifyIdToken(idToken)
+      userId = decodedToken.uid
+    } catch (error) {
+      return NextResponse.json({ error: "Invalid authentication token" }, { status: 401 })
+    }
+
     const { searchParams } = new URL(request.url)
     const keyId = searchParams.get('id')
-    const userId = request.headers.get('x-user-id')
 
-    if (!keyId || !userId) {
-      return NextResponse.json({ error: "Key ID and User ID required" }, { status: 400 })
+    if (!keyId) {
+      return NextResponse.json({ error: "Key ID required" }, { status: 400 })
     }
 
     const db = getAdminFirestore()

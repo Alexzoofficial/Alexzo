@@ -17,6 +17,7 @@ import {
   Shield,
   Eye,
   Mic,
+  Trash,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -28,15 +29,7 @@ import { useAuth } from "@/lib/auth-context"
 import { AuthModal } from "@/components/auth-modal"
 import { toast } from "sonner"
 import Link from "next/link"
-
-interface APIKey {
-  id: string
-  name: string
-  key: string
-  created: string
-  lastUsed: string
-  requests: number
-}
+import { fetchAPIKeys, createAPIKey as createAPIKeyLib, deleteAPIKey as deleteAPIKeyLib, type APIKey } from "@/lib/api-keys"
 
 interface ModelCategory {
   title: string
@@ -65,49 +58,63 @@ export default function PassportPage() {
     } else {
       loadAPIKeys()
     }
-    
-    if (!user) return
-
-    const handleAPIKeyUpdate = () => {
-      loadAPIKeys()
-    }
-
-    window.addEventListener('api-key-updated', handleAPIKeyUpdate)
-    return () => window.removeEventListener('api-key-updated', handleAPIKeyUpdate)
   }, [user])
 
-  const loadAPIKeys = () => {
-    const savedKeys = localStorage.getItem(`passport_keys_${user?.uid}`)
-    if (savedKeys) {
-      setApiKeys(JSON.parse(savedKeys))
+  const loadAPIKeys = async () => {
+    if (!user) return
+    
+    try {
+      const keys = await fetchAPIKeys()
+      setApiKeys(keys)
+    } catch (error) {
+      console.error('Error loading API keys:', error)
+      toast.error("Failed to load API keys")
     }
   }
 
-  const generateAPIKey = () => {
-    return `alexzo-xyz_${Math.random().toString(36).substring(2, 15)}${Math.random().toString(36).substring(2, 15)}`
-  }
-
-  const createAPIKey = () => {
+  const createAPIKey = async () => {
     if (!keyName.trim()) {
       toast.error("Please enter a name for your API key")
       return
     }
 
-    const newKey: APIKey = {
-      id: Date.now().toString(),
-      name: keyName,
-      key: generateAPIKey(),
-      created: new Date().toISOString(),
-      lastUsed: "Never",
-      requests: 0,
-    }
+    if (!user) return
 
-    const updatedKeys = [...apiKeys, newKey]
-    localStorage.setItem(`passport_keys_${user?.uid}`, JSON.stringify(updatedKeys))
-    setApiKeys(updatedKeys)
-    setKeyName("")
-    setShowCreateKey(false)
-    toast.success("API key created successfully!")
+    try {
+      const newKey = await createAPIKeyLib(keyName)
+      
+      if (newKey) {
+        toast.success("API key created successfully!")
+        setKeyName("")
+        await loadAPIKeys()
+      } else {
+        toast.error("Failed to create API key")
+      }
+    } catch (error) {
+      console.error('Error creating API key:', error)
+      toast.error("Failed to create API key")
+    }
+  }
+
+  const deleteAPIKey = async (keyId: string) => {
+    if (!user) return
+
+    const confirmed = window.confirm("Are you sure you want to delete this API key? This action cannot be undone.")
+    if (!confirmed) return
+
+    try {
+      const success = await deleteAPIKeyLib(keyId)
+      
+      if (success) {
+        toast.success("API key deleted successfully!")
+        await loadAPIKeys()
+      } else {
+        toast.error("Failed to delete API key")
+      }
+    } catch (error) {
+      console.error('Error deleting API key:', error)
+      toast.error("Failed to delete API key")
+    }
   }
 
   const copyAPIKey = (key: string) => {
@@ -486,7 +493,7 @@ export default function PassportPage() {
                             <p className="text-gray-400 text-sm">
                               Created {new Date(key.created).toLocaleDateString()}
                             </p>
-                            <p className="text-gray-400 text-sm">Last used: {key.lastUsed}</p>
+                            <p className="text-gray-400 text-sm">Last used: {key.lastUsed || "Never"}</p>
                           </div>
                           <div className="flex items-center space-x-2">
                             <code className="bg-gray-900 px-3 py-1 rounded text-sm text-gray-300">
@@ -499,6 +506,14 @@ export default function PassportPage() {
                               className="text-gray-400 hover:text-white"
                             >
                               <Copy className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => deleteAPIKey(key.id)}
+                              className="text-red-400 hover:text-red-300"
+                            >
+                              <Trash className="h-4 w-4" />
                             </Button>
                           </div>
                         </div>
