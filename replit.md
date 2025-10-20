@@ -3,7 +3,16 @@
 ## Overview
 Alexzo is an AI-powered platform built with Next.js, designed to transform ideas using advanced AI technology. It offers a modern interface for interacting with AI capabilities, including user authentication, a dashboard, and content management. The project aims to pioneer the future of AI-powered human enhancement.
 
-## Recent Changes (October 19, 2025)
+## Recent Changes
+
+### October 20, 2025 - Production Optimization & SEO Enhancement
+- **Dynamic Sitemap**: Implemented fully dynamic sitemap with automatic URL detection supporting Replit, Vercel, and custom domains. Automatically includes all blog posts from blog-data.ts. Removed X-Robots-Tag: noindex header that was preventing search engine indexing.
+- **Dynamic robots.txt**: Updated with environment-aware domain detection and secure API endpoint blocking (/api/keys, /api/user/delete, /api/custom-apis, /dashboard).
+- **SEO Improvements**: All hardcoded URLs replaced with dynamic detection. Created lib/site-url.ts utility for consistent URL generation across the application. Updated metadata, OpenGraph tags, and JSON-LD structured data.
+- **Deployment Configuration**: Configured autoscale deployment for production with proper build and run commands.
+- **Firebase Setup**: Prepared environment for Firebase secrets integration via Replit secrets manager.
+
+### October 19, 2025
 - **Avatar System**: Replaced static random avatars with Google profile pictures from Firebase authentication. Users now see their Google account photo throughout the application.
 - **Next.js Configuration**: Removed invalid `allowedDevOrigins` experimental flag and added Google profile picture domains to remote image patterns for proper image loading.
 - **Animation Component**: Enhanced AdaptiveAnimation component with better SSR handling and hydration warning suppression (note: minor hydration warning from framer-motion is expected and does not affect functionality).

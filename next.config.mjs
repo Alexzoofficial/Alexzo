@@ -29,6 +29,18 @@ const nextConfig = {
       },
       {
         protocol: 'https',
+        hostname: '**.vercel.app',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.replit.dev',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.repl.co',
+      },
+      {
+        protocol: 'https',
         hostname: 'lh3.googleusercontent.com',
       },
       {
