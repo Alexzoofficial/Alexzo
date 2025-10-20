@@ -627,6 +627,11 @@ export default function HomePage() {
                   </Link>
                 </li>
                 <li>
+                  <Link href="/showcase" className="hover:text-white transition-colors">
+                    Showcase
+                  </Link>
+                </li>
+                <li>
                   <Link href="/privacy" className="hover:text-white transition-colors">
                     Privacy Policy
                   </Link>

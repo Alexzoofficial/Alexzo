@@ -5,6 +5,7 @@ integrations = ["firebase_barebones_javascript:1.0.0", "javascript_database:1.0.
 
 [nix]
 channel = "stable-25_05"
+packages = ["libwebp"]
 
 [workflows]
 runButton = "Project"
@@ -33,10 +34,6 @@ waitForPort = 5000
 [[ports]]
 localPort = 5000
 externalPort = 80
-
-[[ports]]
-localPort = 37211
-externalPort = 8081
 
 [[ports]]
 localPort = 40559

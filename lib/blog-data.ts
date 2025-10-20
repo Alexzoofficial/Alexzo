@@ -449,7 +449,7 @@ The intelligence revolution isn't something that's happening to us – it's some
 *Ready to experience the future of AI intelligence? Visit [Alexzo.com](https://alexzo.vercel.app) to start your journey with our revolutionary platform. Join hundreds of thousands of users who are already transforming their creativity, learning, and productivity with Alexzo intelligence.*
 
 **About the Author**: This article represents the collective insights and experiences of the Alexzo team, led by our founder and CEO Sar. Our mission is to enhance human potential through revolutionary AI technology, and we're just getting started.`,
-    image: "/images/blog/alexzo-ai-revolution.jpg",
+    image: "/images/blog/alexzo-ai-revolution.webp",
     author: "Sar, CEO & Founder",
     publishedAt: "2025-09-26",
     readTime: "25 min read",
@@ -727,7 +727,7 @@ Whether you're looking to enhance your marketing campaigns, accelerate your crea
 The future of visual content creation is here, and it's more accessible, powerful, and creative than ever before. Join thousands of satisfied users who have already discovered the transformative power of AI-generated imagery, and start creating stunning visual content that captivates audiences and drives results.
 
 Ready to revolutionize your visual content creation? Start your journey today and experience the extraordinary possibilities of AI image generation.`,
-    image: "/images/blog/ai-image-generation-tech.jpg",
+    image: "/images/blog/ai-image-generation-tech.webp",
     author: "Alexzo Team",
     publishedAt: "2024-01-15",
     readTime: "15 min read",
@@ -1183,7 +1183,7 @@ The future of education is here, and it's more personalized, effective, and acce
 Join the thousands of educators, students, and institutions who have already discovered the transformative power of AI-powered personalized learning. The revolution in education has begun – and with LearnFlow, you're not just witnessing it, you're leading it.
 
 Ready to transform education for every learner? Start your LearnFlow journey today and experience the future of learning.`,
-    image: "/images/blog/learnflow-education.jpg",
+    image: "/images/blog/learnflow-education.webp",
     author: "Alexzo Education Team",
     publishedAt: "2024-01-10",
     readTime: "18 min read",
