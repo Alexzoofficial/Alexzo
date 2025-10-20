@@ -11,25 +11,6 @@ export async function GET(request: Request) {
   const currentDate = new Date().toISOString()
   
   const imageData = {
-    blog: [
-      { file: 'ai-accessibility.png', title: 'AI Accessibility Features', caption: 'Making AI technology accessible to everyone' },
-      { file: 'ai-cognitive-enhancement.png', title: 'AI Cognitive Enhancement', caption: 'Enhance your cognitive abilities with AI' },
-      { file: 'ai-image-generation-tech.jpg', title: 'AI Image Generation Technology', caption: 'Advanced AI image generation technology' },
-      { file: 'ai-image-generation.png', title: 'AI Image Generation', caption: 'Create stunning images with AI' },
-      { file: 'alexzo-ai-revolution.jpg', title: 'Alexzo AI Revolution', caption: 'Revolutionizing human enhancement with AI' },
-      { file: 'learnflow-2.0.png', title: 'LearnFlow 2.0', caption: 'Next generation adaptive learning platform' },
-      { file: 'learnflow-education.jpg', title: 'LearnFlow Education', caption: 'Personalized education powered by AI' },
-      { file: 'neural-networks.png', title: 'Neural Networks', caption: 'Advanced neural network architecture' },
-      { file: 'zyfoox-community.png', title: 'Zyfoox Community', caption: 'Join the Zyfoox AI creator community' },
-      { file: 'zyfoox-comprehensive.png', title: 'Zyfoox Comprehensive Features', caption: 'Complete AI image generation toolkit' },
-      { file: 'zyfoox-examples.png', title: 'Zyfoox Examples', caption: 'Amazing creations made with Zyfoox AI' },
-      { file: 'zyfoox-features.png', title: 'Zyfoox Features', caption: 'Powerful AI image generation features' },
-      { file: 'zyfoox-hero.png', title: 'Zyfoox AI Generator', caption: 'Transform ideas into stunning visuals' },
-      { file: 'zyfoox-impact.png', title: 'Zyfoox Impact', caption: 'The impact of AI on creativity' },
-      { file: 'zyfoox-marketing.png', title: 'Zyfoox Marketing', caption: 'AI-powered marketing content creation' },
-      { file: 'zyfoox-seo.png', title: 'Zyfoox SEO', caption: 'Optimize your content with AI-generated images' },
-      { file: 'zyfoox-technology.png', title: 'Zyfoox Technology', caption: 'Cutting-edge AI technology behind Zyfoox' },
-    ],
     products: [
       { file: 'alexis-ai.png', title: 'Alexis AI Assistant', caption: 'Your intelligent AI assistant for enhanced productivity' },
       { file: 'image-generator.png', title: 'AI Image Generator', caption: 'Generate stunning images with AI technology' },
@@ -54,8 +35,8 @@ export async function GET(request: Request) {
       priority: '0.9', 
       changefreq: 'weekly', 
       lastmod: currentDate,
-      images: imageData.blog.filter(img => img.file.includes('zyfoox')).map(img => ({
-        loc: `/images/blog/${img.file}`,
+      images: imageData.products.filter(img => img.file.includes('zyfoox')).map(img => ({
+        loc: `/images/products/${img.file}`,
         title: img.title,
         caption: img.caption
       }))
@@ -65,8 +46,8 @@ export async function GET(request: Request) {
       priority: '0.9', 
       changefreq: 'weekly', 
       lastmod: currentDate,
-      images: imageData.blog.filter(img => img.file.includes('learnflow')).map(img => ({
-        loc: `/images/blog/${img.file}`,
+      images: imageData.products.slice(0, 2).map(img => ({
+        loc: `/images/products/${img.file}`,
         title: img.title,
         caption: img.caption
       }))
@@ -75,12 +56,7 @@ export async function GET(request: Request) {
       url: '/blog', 
       priority: '0.8', 
       changefreq: 'weekly', 
-      lastmod: currentDate,
-      images: imageData.blog.map(img => ({
-        loc: `/images/blog/${img.file}`,
-        title: img.title,
-        caption: img.caption
-      }))
+      lastmod: currentDate
     },
     { 
       url: '/products', 
@@ -93,21 +69,9 @@ export async function GET(request: Request) {
         caption: img.caption
       }))
     },
-    { 
-      url: '/showcase', 
-      priority: '0.7', 
-      changefreq: 'weekly', 
-      lastmod: currentDate,
-      images: imageData.products.map(img => ({
-        loc: `/images/products/${img.file}`,
-        title: img.title,
-        caption: img.caption
-      }))
-    },
     { url: '/about', priority: '0.6', changefreq: 'monthly', lastmod: currentDate },
     { url: '/contact', priority: '0.6', changefreq: 'monthly', lastmod: currentDate },
     { url: '/waitlist', priority: '0.6', changefreq: 'weekly', lastmod: currentDate },
-    { url: '/dashboard', priority: '0.5', changefreq: 'weekly', lastmod: currentDate },
     { url: '/docs', priority: '0.7', changefreq: 'monthly', lastmod: currentDate },
     { url: '/privacy', priority: '0.5', changefreq: 'monthly', lastmod: currentDate },
     { url: '/terms', priority: '0.5', changefreq: 'monthly', lastmod: currentDate },
@@ -120,13 +84,7 @@ export async function GET(request: Request) {
     priority: '0.7',
     changefreq: 'monthly',
     lastmod: post.publishedAt,
-    images: post.image ? [
-      { 
-        loc: post.image, 
-        title: post.title,
-        caption: post.excerpt 
-      }
-    ] : []
+    images: []
   }))
 
   const allPages = [...staticPages, ...blogPages]

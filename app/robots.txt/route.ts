@@ -21,7 +21,6 @@ Allow: /api/waitlist
 Disallow: /api/keys
 Disallow: /api/user/delete
 Disallow: /api/auth
-Disallow: /dashboard
 
 # Specific permissions for major search engines
 User-agent: Googlebot
@@ -67,7 +66,6 @@ Allow: /
 # Allow public assets and images for indexing
 Allow: /_next/static/
 Allow: /images/
-Allow: /images/blog/
 Allow: /images/products/
 Allow: /favicon.ico
 Allow: /favicon.png

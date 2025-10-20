@@ -112,7 +112,7 @@ export default function AuthCallbackPage() {
             >
               <CheckCircle className="w-8 h-8 text-green-400" />
             </motion.div>
-            <p className="text-gray-400">Redirecting you to your dashboard...</p>
+            <p className="text-gray-400">Redirecting you to home screen...</p>
           </>
         )}
 
