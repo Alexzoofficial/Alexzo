@@ -10,7 +10,6 @@ export async function GET(request: Request) {
 
   const currentDate = new Date().toISOString()
   
-  // All images with metadata for SEO
   const imageData = {
     blog: [
       { file: 'ai-accessibility.png', title: 'AI Accessibility Features', caption: 'Making AI technology accessible to everyone' },
@@ -37,23 +36,6 @@ export async function GET(request: Request) {
       { file: 'video-generator.png', title: 'AI Video Generator', caption: 'Create engaging videos with AI' },
       { file: 'zyfoox-interface.png', title: 'Zyfoox Interface', caption: 'Intuitive interface for AI image generation' },
     ],
-    press: [
-      { file: 'ai-breakthrough.png', title: 'AI Breakthrough Announcement', caption: 'Latest AI technology breakthrough' },
-      { file: 'partnership.png', title: 'Strategic Partnership', caption: 'New partnerships in AI innovation' },
-      { file: 'series-a-funding.png', title: 'Series A Funding', caption: 'Funding announcement for AI platform growth' },
-    ],
-    showcase: [
-      { file: 'ai-interface.png', title: 'AI Interface Showcase', caption: 'Modern AI interface design' },
-      { file: 'alexis-ai-demo.png', title: 'Alexis AI Demo', caption: 'Live demonstration of Alexis AI capabilities' },
-      { file: 'neural-analysis.png', title: 'Neural Analysis', caption: 'Advanced neural network analysis visualization' },
-    ],
-    avatars: [
-      { file: 'user-1.png', title: 'User Avatar 1', caption: 'Alexzo community member avatar' },
-      { file: 'user-2.png', title: 'User Avatar 2', caption: 'Alexzo community member avatar' },
-      { file: 'user-3.png', title: 'User Avatar 3', caption: 'Alexzo community member avatar' },
-      { file: 'user-4.png', title: 'User Avatar 4', caption: 'Alexzo community member avatar' },
-      { file: 'user-5.png', title: 'User Avatar 5', caption: 'Alexzo community member avatar' },
-    ]
   }
   
   const staticPages = [
@@ -116,8 +98,8 @@ export async function GET(request: Request) {
       priority: '0.7', 
       changefreq: 'weekly', 
       lastmod: currentDate,
-      images: imageData.showcase.map(img => ({
-        loc: `/images/showcase/${img.file}`,
+      images: imageData.products.map(img => ({
+        loc: `/images/products/${img.file}`,
         title: img.title,
         caption: img.caption
       }))
@@ -126,20 +108,7 @@ export async function GET(request: Request) {
     { url: '/contact', priority: '0.6', changefreq: 'monthly', lastmod: currentDate },
     { url: '/waitlist', priority: '0.6', changefreq: 'weekly', lastmod: currentDate },
     { url: '/dashboard', priority: '0.5', changefreq: 'weekly', lastmod: currentDate },
-    { 
-      url: '/press', 
-      priority: '0.6', 
-      changefreq: 'monthly', 
-      lastmod: currentDate,
-      images: imageData.press.map(img => ({
-        loc: `/images/press/${img.file}`,
-        title: img.title,
-        caption: img.caption
-      }))
-    },
     { url: '/docs', priority: '0.7', changefreq: 'monthly', lastmod: currentDate },
-    { url: '/playground', priority: '0.7', changefreq: 'weekly', lastmod: currentDate },
-    { url: '/passport', priority: '0.6', changefreq: 'monthly', lastmod: currentDate },
     { url: '/privacy', priority: '0.5', changefreq: 'monthly', lastmod: currentDate },
     { url: '/terms', priority: '0.5', changefreq: 'monthly', lastmod: currentDate },
     { url: '/disclaimer', priority: '0.5', changefreq: 'monthly', lastmod: currentDate },
@@ -160,31 +129,7 @@ export async function GET(request: Request) {
     ] : []
   }))
 
-  const pressPages = [
-    { 
-      url: '/press/1', 
-      priority: '0.6', 
-      changefreq: 'monthly', 
-      lastmod: currentDate,
-      images: [{ loc: '/images/press/ai-breakthrough.png', title: 'AI Breakthrough', caption: 'Latest AI technology breakthrough announcement' }]
-    },
-    { 
-      url: '/press/2', 
-      priority: '0.6', 
-      changefreq: 'monthly', 
-      lastmod: currentDate,
-      images: [{ loc: '/images/press/partnership.png', title: 'Partnership News', caption: 'Strategic partnerships in AI innovation' }]
-    },
-    { 
-      url: '/press/3', 
-      priority: '0.6', 
-      changefreq: 'monthly', 
-      lastmod: currentDate,
-      images: [{ loc: '/images/press/series-a-funding.png', title: 'Funding Announcement', caption: 'Series A funding for platform growth' }]
-    },
-  ]
-
-  const allPages = [...staticPages, ...blogPages, ...pressPages]
+  const allPages = [...staticPages, ...blogPages]
 
   const generateImageTags = (images: Array<{ loc: string, title: string, caption: string }>) => {
     if (!images || images.length === 0) return ''

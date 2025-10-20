@@ -69,9 +69,6 @@ Allow: /_next/static/
 Allow: /images/
 Allow: /images/blog/
 Allow: /images/products/
-Allow: /images/press/
-Allow: /images/showcase/
-Allow: /images/avatars/
 Allow: /favicon.ico
 Allow: /favicon.png
 Allow: /logo.png
