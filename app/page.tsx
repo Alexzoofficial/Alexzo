@@ -13,6 +13,7 @@ import { AuthModal } from "@/components/auth-modal"
 import { UserAvatar } from "@/components/user-avatar"
 import { SafeImage } from "@/components/safe-image"
 import { useAuth } from "@/lib/auth-context"
+import { getSiteUrl } from "@/lib/site-url"
 import Script from "next/script"
 
 export default function HomePage() {
@@ -73,10 +74,7 @@ export default function HomePage() {
 
   const siteUrl = typeof window !== 'undefined' 
     ? window.location.origin 
-    : process.env.NEXT_PUBLIC_SITE_URL || 
-      (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 
-      (process.env.REPLIT_DEV_DOMAIN ? `https://${process.env.REPLIT_DEV_DOMAIN}` : 
-      'https://alexzo.vercel.app'))
+    : getSiteUrl()
 
   const structuredData = {
     "@context": "https://schema.org",
@@ -246,7 +244,7 @@ export default function HomePage() {
         >
           <div className="w-16 h-16 flex items-center justify-center">
             <SafeImage
-              src="https://alexzo.vercel.app/logo.png"
+              src={`${siteUrl}/logo.png`}
               alt="Alexzo Logo"
               width={64}
               height={64}
@@ -582,7 +580,7 @@ export default function HomePage() {
               <div className="flex items-center mb-4">
                 <div className="w-12 h-12 flex items-center justify-center">
                   <SafeImage
-                    src="https://alexzo.vercel.app/logo.png"
+                    src={`${siteUrl}/logo.png`}
                     alt="Alexzo Logo"
                     width={48}
                     height={48}
