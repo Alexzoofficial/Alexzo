@@ -122,7 +122,7 @@ export default function LearnFlowPage() {
           <div className="flex items-center space-x-4">
             <div className="w-16 h-16 flex items-center justify-center">
               <Image
-                src="https://alexzo.vercel.app/logo.png"
+                src="/logo.png"
                 alt="Alexzo Logo"
                 width={64}
                 height={64}

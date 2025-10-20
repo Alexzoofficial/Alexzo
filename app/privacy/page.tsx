@@ -41,7 +41,7 @@ const jsonLd = {
     "@type": "Organization",
     name: "Alexzo",
     url: "https://alexzo.vercel.app",
-    logo: "https://alexzo.vercel.app/logo.png",
+    logo: "/logo.png",
   },
   dateModified: "2025-01-27",
   inLanguage: "en-US",
@@ -66,7 +66,7 @@ export default function PrivacyPolicyPage() {
               <div className="flex items-center space-x-4">
                 <div className="w-16 h-16 flex items-center justify-center">
                   <Image
-                    src="https://alexzo.vercel.app/logo.png"
+                    src="/logo.png"
                     alt="Alexzo Logo"
                     width={64}
                     height={64}
@@ -773,7 +773,7 @@ export default function PrivacyPolicyPage() {
           <footer className="container mx-auto py-8 px-6 border-t border-gray-800">
             <div className="flex flex-col md:flex-row justify-between items-center">
               <div className="flex items-center space-x-3 mb-4 md:mb-0">
-                <Image src="https://alexzo.vercel.app/logo.png" alt="Alexzo Logo" width={32} height={32} className="w-8 h-8" />
+                <Image src="/logo.png" alt="Alexzo Logo" width={32} height={32} className="w-8 h-8" />
                 <span className="text-lg font-semibold text-white">Alexzo</span>
               </div>
               <div className="flex space-x-6 text-sm text-gray-400">
