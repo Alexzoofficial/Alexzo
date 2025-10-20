@@ -8,8 +8,11 @@ import { Toaster } from "sonner"
 import { Analytics } from "@/components/analytics"
 import Script from "next/script"
 import { Suspense } from "react"
+import { getSiteUrl } from "@/lib/site-url"
 
 const inter = Inter({ subsets: ["latin"] })
+
+const siteUrl = getSiteUrl()
 
 export const metadata: Metadata = {
   title: {
@@ -27,7 +30,7 @@ export const metadata: Metadata = {
     address: false,
     telephone: false,
   },
-  metadataBase: new URL("https://alexzo.vercel.app"),
+  metadataBase: new URL(siteUrl),
   alternates: {
     canonical: "/",
   },
@@ -43,11 +46,11 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Alexzo - AI-Powered Human Enhancement Platform | Zyfoox & LearnFlow",
     description: "Transform your ideas with cutting-edge AI technology. Create stunning images with Zyfoox AI Generator & master learning with LearnFlow 2.0. Join 75K+ users experiencing the future of AI.",
-    url: "https://alexzo.vercel.app",
+    url: siteUrl,
     siteName: "Alexzo",
     images: [
       {
-        url: "https://alexzo.vercel.app/logo.png",
+        url: `${siteUrl}/logo.png`,
         width: 1200,
         height: 630,
         alt: "Alexzo - AI-Powered Human Enhancement Platform",
@@ -61,7 +64,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Alexzo - AI-Powered Human Enhancement Platform | Zyfoox & LearnFlow",
     description: "Transform your ideas with cutting-edge AI technology. Create stunning images with Zyfoox AI Generator & master learning with LearnFlow 2.0. Join 75K+ users experiencing the future of AI.",
-    images: ["https://alexzo.vercel.app/logo.png"],
+    images: [`${siteUrl}/logo.png`],
     creator: "@alexzo",
   },
   robots: {

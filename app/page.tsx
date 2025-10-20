@@ -71,17 +71,24 @@ export default function HomePage() {
     }
   }
 
+  const siteUrl = typeof window !== 'undefined' 
+    ? window.location.origin 
+    : process.env.NEXT_PUBLIC_SITE_URL || 
+      (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 
+      (process.env.REPLIT_DEV_DOMAIN ? `https://${process.env.REPLIT_DEV_DOMAIN}` : 
+      'https://alexzo.vercel.app'))
+
   const structuredData = {
     "@context": "https://schema.org",
     "@graph": [
       {
         "@type": "Organization",
-        "@id": "https://alexzo.vercel.app/#organization",
+        "@id": `${siteUrl}/#organization`,
         name: "Alexzo",
-        url: "https://alexzo.vercel.app",
+        url: siteUrl,
         logo: {
           "@type": "ImageObject",
-          url: "https://alexzo.vercel.app/logo.png",
+          url: `${siteUrl}/logo.png`,
           width: 512,
           height: 512,
         },
@@ -100,7 +107,7 @@ export default function HomePage() {
           contactType: "customer service",
         },
         sameAs: [
-          "https://alexzo.vercel.app",
+          siteUrl,
         ],
         aggregateRating: {
           "@type": "AggregateRating",
@@ -115,19 +122,19 @@ export default function HomePage() {
       },
       {
         "@type": "WebSite",
-        "@id": "https://alexzo.vercel.app/#website",
-        url: "https://alexzo.vercel.app",
+        "@id": `${siteUrl}/#website`,
+        url: siteUrl,
         name: "Alexzo - AI-Powered Human Enhancement Platform",
         description: "Alexzo – Unlock creativity, master learning, and enhance cognition with AI tools like Zyfoox and LearnFlow.",
         publisher: {
-          "@id": "https://alexzo.vercel.app/#organization",
+          "@id": `${siteUrl}/#organization`,
         },
         potentialAction: [
           {
             "@type": "SearchAction",
             target: {
               "@type": "EntryPoint",
-              urlTemplate: "https://alexzo.vercel.app/blog?search={search_term_string}",
+              urlTemplate: `${siteUrl}/blog?search={search_term_string}`,
             },
             "query-input": "required name=search_term_string",
           },
@@ -135,12 +142,12 @@ export default function HomePage() {
         inLanguage: "en-US",
         copyrightYear: "2025",
         copyrightHolder: {
-          "@id": "https://alexzo.vercel.app/#organization"
+          "@id": `${siteUrl}/#organization`
         }
       },
       {
         "@type": "SoftwareApplication",
-        "@id": "https://alexzo.vercel.app/#zyfoox",
+        "@id": `${siteUrl}/#zyfoox`,
         name: "Zyfoox AI Image Generator",
         description: "Revolutionary AI-powered image generation tool that transforms creative ideas into stunning visuals instantly.",
         applicationCategory: "MultimediaApplication",
@@ -152,9 +159,9 @@ export default function HomePage() {
           availability: "https://schema.org/InStock"
         },
         publisher: {
-          "@id": "https://alexzo.vercel.app/#organization"
+          "@id": `${siteUrl}/#organization`
         },
-        url: "https://alexzo.vercel.app/try/zyfoox",
+        url: `${siteUrl}/try/zyfoox`,
         aggregateRating: {
           "@type": "AggregateRating",
           ratingValue: "4.8",
@@ -164,7 +171,7 @@ export default function HomePage() {
       },
       {
         "@type": "MobileApplication",
-        "@id": "https://alexzo.vercel.app/#learnflow",
+        "@id": `${siteUrl}/#learnflow`,
         name: "LearnFlow 2.0",
         description: "Revolutionary AI-powered educational app that transforms learning through personalized content and adaptive lessons.",
         applicationCategory: "EducationalApplication",
@@ -176,9 +183,9 @@ export default function HomePage() {
           availability: "https://schema.org/InStock"
         },
         publisher: {
-          "@id": "https://alexzo.vercel.app/#organization"
+          "@id": `${siteUrl}/#organization`
         },
-        url: "https://alexzo.vercel.app/LearnFlow",
+        url: `${siteUrl}/LearnFlow`,
         aggregateRating: {
           "@type": "AggregateRating",
           ratingValue: "4.9",

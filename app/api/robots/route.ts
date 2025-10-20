@@ -1,11 +1,21 @@
 import { NextResponse } from "next/server"
 
-export async function GET() {
+export async function GET(request: Request) {
+  const { origin } = new URL(request.url)
+  
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 
+                  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 
+                  (process.env.REPLIT_DEV_DOMAIN ? `https://${process.env.REPLIT_DEV_DOMAIN}` : origin))
+
   const robots = `# Robots.txt for Alexzo - AI-Powered Human Enhancement Platform
-# All crawlers are welcome to index our content
+# Public content is welcome to be indexed by search engines
 
 User-agent: *
 Allow: /
+Disallow: /api/keys
+Disallow: /api/user/delete
+Disallow: /api/custom-apis
+Disallow: /dashboard
 
 # Specific permissions for major search engines
 User-agent: Googlebot
@@ -32,6 +42,7 @@ User-agent: YandexBot
 Allow: /
 Crawl-delay: 2
 
+# Social media crawlers
 User-agent: facebookexternalhit
 Allow: /
 
@@ -47,23 +58,23 @@ Allow: /
 User-agent: TelegramBot
 Allow: /
 
-# Allow all API endpoints for proper functionality
-Allow: /api/
-Allow: /_next/
+# Allow public assets
+Allow: /_next/static/
 Allow: /images/
 Allow: /favicon.ico
 Allow: /logo.png
+Allow: /manifest.json
 
 # Sitemap location
-Sitemap: https://alexzo.vercel.app/sitemap.xml
+Sitemap: ${baseUrl}/sitemap.xml
 
 # Host directive
-Host: https://alexzo.vercel.app`
+Host: ${baseUrl}`
 
   return new NextResponse(robots, {
     headers: {
       "Content-Type": "text/plain",
-      "Cache-Control": "s-maxage=86400, stale-while-revalidate",
+      "Cache-Control": "public, s-maxage=86400, stale-while-revalidate",
     },
   })
 }
