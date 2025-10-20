@@ -5,6 +5,18 @@ Alexzo is an AI-powered platform built with Next.js, designed to transform ideas
 
 ## Recent Changes
 
+### October 20, 2025 - Blog Images & WebP Conversion
+- **Blog Image Restoration**: Generated and added 3 missing blog images in WebP format for optimal performance and SEO.
+  - Created ai-image-generation-tech.webp for AI technology blog post
+  - Created alexzo-ai-revolution.webp for company story blog post
+  - Created learnflow-education.webp for education platform blog post
+- **WebP Optimization**: All blog images now use WebP format (90% quality) for better compression and faster loading.
+- **Image Format Support**: Updated lib/blog-data.ts to reference .webp files instead of .jpg extensions.
+- **Footer Enhancement**: Added "Showcase" link to Company section in footer for better navigation.
+- **Next.js Optimization**: Added sizes prop to blog images to eliminate performance warnings and improve responsive image loading.
+- **Fallback System**: Created public/placeholder.svg for graceful image fallback handling.
+- **Right-Click Support**: All images support standard browser context menu (right-click, long-press, share functionality).
+
 ### October 20, 2025 - Major Cleanup & Optimization
 - **Route Cleanup**: Permanently removed /dashboard page and all references to it from sitemap, robots.txt, and documentation.
 - **Image Optimization**: Removed all unused blog images (17 files) from public/images/blog/ directory. Retained only 4 essential product images: alexis-ai.png, image-generator.png, video-generator.png, and zyfoox-interface.png.
