@@ -5,6 +5,12 @@ Alexzo is an AI-powered platform built with Next.js, designed to transform ideas
 
 ## Recent Changes
 
+### October 20, 2025 - Logo Loading Fix
+- **Logo Path Optimization**: Replaced all external logo URLs (https://alexzo.vercel.app/logo.png) with local path (/logo.png) across 16 app pages.
+- **Performance Improvement**: Logo now loads from local public folder instead of external source, improving page load speed and reliability.
+- **Affected Pages**: Updated logo references in docs, waitlist, products, disclaimer, privacy, contact, not-found, blog, terms, try/zyfoox, api, try, auth/reset-password, LearnFlowprivacypolicy, about, and LearnFlow pages.
+- **Structured Data**: JSON-LD schema now uses relative logo path, which is accepted by schema.org and search engines.
+
 ### October 20, 2025 - Blog Images & WebP Conversion
 - **Blog Image Restoration**: Generated and added 3 missing blog images in WebP format for optimal performance and SEO.
   - Created ai-image-generation-tech.webp for AI technology blog post
