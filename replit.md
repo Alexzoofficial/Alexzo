@@ -5,10 +5,17 @@ Alexzo is an AI-powered platform built with Next.js, designed to transform ideas
 
 ## Recent Changes
 
-### October 20, 2025 - Production Optimization & SEO Enhancement
-- **Dynamic Sitemap**: Implemented fully dynamic sitemap with automatic URL detection supporting Replit, Vercel, and custom domains. Automatically includes all blog posts from blog-data.ts. Removed X-Robots-Tag: noindex header that was preventing search engine indexing.
-- **Dynamic robots.txt**: Updated with environment-aware domain detection and secure API endpoint blocking (/api/keys, /api/user/delete, /api/custom-apis, /dashboard).
-- **SEO Improvements**: All hardcoded URLs replaced with dynamic detection. Created lib/site-url.ts utility for consistent URL generation across the application. Updated metadata, OpenGraph tags, and JSON-LD structured data.
+### October 20, 2025 - Comprehensive SEO Enhancement & Image Indexing
+- **Image Sitemap Implementation**: Enhanced sitemap.xml with Google Image Sitemap schema. Added all 29+ images from blog, products, press, showcase, and avatar directories with proper image:image tags including image:loc, image:title, and image:caption metadata for optimal Google image search indexing.
+- **Robots.txt Optimization**: Relocated robots.txt from /api/robots to standard /robots.txt route. Added explicit Allow directives for all image directories (/images/blog/, /images/products/, etc.) and public API endpoints. Configured crawler-specific directives for all major search engines (Google, Bing, Yandex, Baidu) and social media crawlers (Facebook, Twitter, LinkedIn, WhatsApp).
+- **Enhanced Metadata**: Updated layout.tsx with additional Open Graph images, richer keywords (AI image generator, generative AI, deep learning, computer vision), permissive robots directives (noimageindex: false), and multiple social media image tags with alt text.
+- **Codebase Cleanup**: Removed obsolete /api/sitemap and /api/robots routes to maintain clean architecture and prevent duplicate sitemaps.
+- **SEO Configuration**: All URLs now use dynamic domain detection (works seamlessly with localhost, Replit dev domain, Vercel, and custom production domains). Sitemap automatically updates with all blog posts from blog-data.ts.
+
+### October 20, 2025 - Production Optimization & Initial SEO Setup
+- **Dynamic Sitemap**: Implemented fully dynamic sitemap with automatic URL detection supporting Replit, Vercel, and custom domains. Automatically includes all blog posts from blog-data.ts.
+- **Dynamic robots.txt**: Created with environment-aware domain detection and secure API endpoint blocking (/api/keys, /api/user/delete, /api/custom-apis, /dashboard).
+- **SEO Foundation**: All hardcoded URLs replaced with dynamic detection. Created lib/site-url.ts utility for consistent URL generation across the application. Updated metadata, OpenGraph tags, and JSON-LD structured data.
 - **Deployment Configuration**: Configured autoscale deployment for production with proper build and run commands.
 - **Firebase Setup**: Prepared environment for Firebase secrets integration via Replit secrets manager.
 
