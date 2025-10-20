@@ -153,6 +153,7 @@ export default function BlogPage() {
                     src={post.image}
                     alt={post.title}
                     fill
+                    sizes="(max-width: 1024px) 100vw, 50vw"
                     className="object-cover group-hover:scale-105 transition-transform duration-300"
                     fallbackSrc="/placeholder.svg?height=400&width=800&text=Blog+Image"
                     fallbackText="Blog Image"
