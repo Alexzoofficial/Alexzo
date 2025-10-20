@@ -12,9 +12,15 @@ export async function GET(request: Request) {
 
 User-agent: *
 Allow: /
+Allow: /api/generate
+Allow: /api/custom-apis
+Allow: /api/analytics
+Allow: /api/contact
+Allow: /api/newsletter
+Allow: /api/waitlist
 Disallow: /api/keys
 Disallow: /api/user/delete
-Disallow: /api/custom-apis
+Disallow: /api/auth
 Disallow: /dashboard
 
 # Specific permissions for major search engines
@@ -42,7 +48,7 @@ User-agent: YandexBot
 Allow: /
 Crawl-delay: 2
 
-# Social media crawlers
+# Social media crawlers for Open Graph and meta tags
 User-agent: facebookexternalhit
 Allow: /
 
@@ -58,10 +64,16 @@ Allow: /
 User-agent: TelegramBot
 Allow: /
 
-# Allow public assets
+# Allow public assets and images for indexing
 Allow: /_next/static/
 Allow: /images/
+Allow: /images/blog/
+Allow: /images/products/
+Allow: /images/press/
+Allow: /images/showcase/
+Allow: /images/avatars/
 Allow: /favicon.ico
+Allow: /favicon.png
 Allow: /logo.png
 Allow: /manifest.json
 
@@ -72,8 +84,9 @@ Sitemap: ${baseUrl}/sitemap.xml
 Host: ${baseUrl}`
 
   return new NextResponse(robots, {
+    status: 200,
     headers: {
-      "Content-Type": "text/plain",
+      "Content-Type": "text/plain; charset=utf-8",
       "Cache-Control": "public, s-maxage=86400, stale-while-revalidate",
     },
   })

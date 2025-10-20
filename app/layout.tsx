@@ -21,10 +21,11 @@ export const metadata: Metadata = {
   },
   description:
     "Transform your ideas with cutting-edge AI technology. Create stunning images with Zyfoox AI Generator & master learning with LearnFlow 2.0. Join 75K+ users experiencing the future of AI-powered human enhancement.",
-  keywords: "AI platform, artificial intelligence, machine learning, AI image generation, Zyfoox, LearnFlow, AI education, cognitive enhancement, AI tools, automation, technology innovation, neural enhancement, AI learning platform, personalized education, adaptive learning",
+  keywords: "AI platform, artificial intelligence, machine learning, AI image generation, Zyfoox, LearnFlow, AI education, cognitive enhancement, AI tools, automation, technology innovation, neural enhancement, AI learning platform, personalized education, adaptive learning, AI image generator, AI art, generative AI, deep learning, computer vision, natural language processing",
   authors: [{ name: "Alexzo Team" }],
   creator: "Alexzo",
   publisher: "Alexzo",
+  applicationName: "Alexzo Platform",
   formatDetection: {
     email: false,
     address: false,
@@ -53,7 +54,15 @@ export const metadata: Metadata = {
         url: `${siteUrl}/logo.png`,
         width: 1200,
         height: 630,
-        alt: "Alexzo - AI-Powered Human Enhancement Platform",
+        alt: "Alexzo - AI-Powered Human Enhancement Platform Logo",
+        type: "image/png",
+      },
+      {
+        url: `${siteUrl}/images/products/zyfoox-interface.png`,
+        width: 1200,
+        height: 630,
+        alt: "Zyfoox AI Image Generator Interface",
+        type: "image/png",
       },
     ],
     locale: "en_US",
@@ -64,15 +73,23 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Alexzo - AI-Powered Human Enhancement Platform | Zyfoox & LearnFlow",
     description: "Transform your ideas with cutting-edge AI technology. Create stunning images with Zyfoox AI Generator & master learning with LearnFlow 2.0. Join 75K+ users experiencing the future of AI.",
-    images: [`${siteUrl}/logo.png`],
+    images: [
+      {
+        url: `${siteUrl}/logo.png`,
+        alt: "Alexzo - AI-Powered Human Enhancement Platform",
+      }
+    ],
     creator: "@alexzo",
+    site: "@alexzo",
   },
   robots: {
     index: true,
     follow: true,
+    nocache: false,
     googleBot: {
       index: true,
       follow: true,
+      noimageindex: false,
       "max-video-preview": -1,
       "max-image-preview": "large",
       "max-snippet": -1,
@@ -83,7 +100,10 @@ export const metadata: Metadata = {
   },
   referrer: "origin-when-cross-origin",
   category: "Technology",
-    generator: 'v0.dev'
+  generator: 'v0.dev',
+  other: {
+    "google": "notranslate",
+  }
 }
 
 export function generateViewport() {
