@@ -236,23 +236,19 @@ export default function HomePage() {
 
       {/* Header */}
       <header className="relative z-50 p-6 flex justify-between items-center">
-        <motion.div
-          initial={{ opacity: 0, x: -50 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.8 }}
-          className="flex items-center"
-        >
+        <div className="flex items-center">
           <div className="w-16 h-16 flex items-center justify-center">
             <SafeImage
-              src={`${siteUrl}/logo.png`}
+              src="/logo.png"
               alt="Alexzo Logo"
               width={64}
               height={64}
               className="w-full h-full object-contain"
               fallbackText="Alexzo"
+              priority
             />
           </div>
-        </motion.div>
+        </div>
 
         <nav className="hidden md:flex space-x-8">
           <button onClick={scrollToProducts} className="hover:text-purple-400 transition-colors">
@@ -580,7 +576,7 @@ export default function HomePage() {
               <div className="flex items-center mb-4">
                 <div className="w-12 h-12 flex items-center justify-center">
                   <SafeImage
-                    src={`${siteUrl}/logo.png`}
+                    src="/logo.png"
                     alt="Alexzo Logo"
                     width={48}
                     height={48}
