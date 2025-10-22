@@ -1,8 +1,9 @@
 {
   "name": "Alexzo - AI-Powered Human Enhancement Platform",
   "short_name": "Alexzo",
+  "version": "2.0.0",
   "description": "Alexzo – Unlock creativity, master learning, and enhance cognition with AI tools like Zyfoox and LearnFlow.",
-  "start_url": "/",
+  "start_url": "/?v=2.0.0",
   "display": "standalone",
   "background_color": "#000000",
   "theme_color": "#8b5cf6",
