@@ -1,30 +1,48 @@
-# Dark theme website
-
-*Automatically synced with your [v0.dev](https://v0.dev) deployments*
+# Alexzo - AI-Powered Human Enhancement Platform
 
 [![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://vercel.com/alexzoofficials-projects/v0-dark-theme-website)
-[![Built with v0](https://img.shields.io/badge/Built%20with-v0.dev-black?style=for-the-badge)](https://v0.dev/chat/projects/5hTn2W11qWf)
 
 ## Overview
 
-This repository will stay in sync with your deployed chats on [v0.dev](https://v0.dev).
-Any changes you make to your deployed app will be automatically pushed to this repository from [v0.dev](https://v0.dev).
+Alexzo is an AI-powered human enhancement platform featuring cutting-edge AI tools like Zyfoox AI Image Generator and LearnFlow 2.0 learning platform.
+
+## Features
+
+- **Zyfoox AI Image Generator**: Revolutionary AI-powered image generation tool
+- **LearnFlow 2.0**: Advanced AI-powered learning platform
+- **Modern UI/UX**: Built with Next.js, React, and Tailwind CSS
+- **Dark Theme**: Beautiful dark theme design
+- **Authentication**: Secure user authentication with Firebase
+- **Responsive Design**: Works seamlessly on all devices
+
+## Tech Stack
+
+- **Framework**: Next.js 15.2.4
+- **UI Library**: React 19
+- **Styling**: Tailwind CSS
+- **Authentication**: Firebase
+- **Deployment**: Vercel
+- **Components**: Radix UI, Framer Motion
+
+## Getting Started
+
+1. Install dependencies:
+```bash
+npm install
+```
+
+2. Run the development server:
+```bash
+npm run dev
+```
+
+3. Open [http://localhost:5000](http://localhost:5000) in your browser
 
 ## Deployment
 
-Your project is live at:
-
+The project is deployed on Vercel and accessible at:
 **[https://vercel.com/alexzoofficials-projects/v0-dark-theme-website](https://vercel.com/alexzoofficials-projects/v0-dark-theme-website)**
 
-## Build your app
+## License
 
-Continue building your app on:
-
-**[https://v0.dev/chat/projects/5hTn2W11qWf](https://v0.dev/chat/projects/5hTn2W11qWf)**
-
-## How It Works
-
-1. Create and modify your project using [v0.dev](https://v0.dev)
-2. Deploy your chats from the v0 interface
-3. Changes are automatically pushed to this repository
-4. Vercel deploys the latest version from this repository
+All rights reserved - Alexzo Platform
