@@ -100,7 +100,7 @@ export const metadata: Metadata = {
   },
   referrer: "origin-when-cross-origin",
   category: "Technology",
-  generator: 'v0.dev',
+  generator: 'Alexzo',
   other: {
     "google": "notranslate",
   }
