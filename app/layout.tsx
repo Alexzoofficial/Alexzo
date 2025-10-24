@@ -9,6 +9,7 @@ import { Analytics } from "@/components/analytics"
 import Script from "next/script"
 import { Suspense } from "react"
 import { getSiteUrl } from "@/lib/site-url"
+import { verificationCodes } from "@/lib/verification-codes"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -96,7 +97,7 @@ export const metadata: Metadata = {
     },
   },
   verification: {
-    google: "google7cb025440a4403af",
+    google: verificationCodes.google[0],
   },
   referrer: "origin-when-cross-origin",
   category: "Technology",
@@ -131,6 +132,9 @@ export default function RootLayout({
         <meta httpEquiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
         <meta httpEquiv="Pragma" content="no-cache" />
         <meta httpEquiv="Expires" content="0" />
+        
+        {/* Google Search Console Verification - Additional codes */}
+        <meta name="google-site-verification" content="LciVAzACk6a_cqUyi_rfYQqgsrX5AUuiWbsCLg5mOs0" />
         {/* Google Analytics */}
         <Script src="https://www.googletagmanager.com/gtag/js?id=G-CRDQVE5LF3" strategy="afterInteractive" />
         <Script id="google-analytics" strategy="afterInteractive">
