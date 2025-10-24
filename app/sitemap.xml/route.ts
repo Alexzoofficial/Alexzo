@@ -2,11 +2,7 @@ import { NextResponse } from "next/server"
 import { blogPosts } from "@/lib/blog-data"
 
 export async function GET(request: Request) {
-  const { origin } = new URL(request.url)
-  
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 
-                  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 
-                  (process.env.REPLIT_DEV_DOMAIN ? `https://${process.env.REPLIT_DEV_DOMAIN}` : origin))
+  const baseUrl = 'https://alexzo.vercel.app'
 
   const currentDate = new Date().toISOString()
   

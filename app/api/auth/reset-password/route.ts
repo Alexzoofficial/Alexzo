@@ -95,7 +95,7 @@ export async function POST(request: NextRequest) {
 
         // Generate password reset link
         const actionCodeSettings = {
-          url: `${process.env.NEXT_PUBLIC_SITE_URL || "https://alexzo.vercel.app"}/auth/reset-password`,
+          url: "https://alexzo.vercel.app/auth/reset-password",
           handleCodeInApp: true,
         }
 

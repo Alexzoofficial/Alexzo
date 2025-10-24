@@ -149,7 +149,7 @@ async function handleChatCompletions(body: any): Promise<NextResponse> {
 // Track API usage in background (non-blocking)
 async function trackUsage(apiKey: string, endpoint: string) {
   try {
-    await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:5000'}/api/keys/track`, {
+    await fetch('https://alexzo.vercel.app/api/keys/track', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ apiKey, endpoint }),
