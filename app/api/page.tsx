@@ -24,7 +24,6 @@ import { useAuth } from "@/lib/auth-context"
 import { toast } from "sonner"
 import Link from "next/link"
 import Image from "next/image"
-import { getSiteUrl } from "@/lib/site-url"
 
 interface APIKey {
   id: string
@@ -35,7 +34,6 @@ interface APIKey {
 }
 
 export default function APIPage() {
-  const siteUrl = getSiteUrl()
   const { user } = useAuth()
   const [apiKeys, setApiKeys] = useState<APIKey[]>([])
   const [showCreateKey, setShowCreateKey] = useState(false)
@@ -131,7 +129,7 @@ export default function APIPage() {
 
 
   const codeExample = `// AI Image Generation - Free Use
-const response = await fetch('${siteUrl}/api/generate', {
+const response = await fetch('https://alexzo.vercel.app/api/generate', {
   method: 'POST',
   headers: {
     'Authorization': 'Bearer ${apiKeys[0]?.key || "alexzo_your_api_key_here"}',
@@ -514,7 +512,7 @@ console.log(data.data[0].url);`
             \`;
             
             try {
-                const response = await fetch('${siteUrl}/api/generate', {
+                const response = await fetch('https://alexzo.vercel.app/api/generate', {
                     method: 'POST',
                     headers: {
                         'Authorization': \`Bearer \${API_KEY}\`,

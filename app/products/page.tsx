@@ -8,10 +8,8 @@ import { Badge } from "@/components/ui/badge"
 import Link from "next/link"
 import Image from "next/image"
 import Script from "next/script"
-import { getSiteUrl } from "@/lib/site-url"
 
 export default function ProductsPage() {
-  const siteUrl = getSiteUrl()
   const products = [
     {
       id: "zyfoox",
@@ -59,7 +57,7 @@ export default function ProductsPage() {
     name: "Alexzo AI Products - Zyfoox Image Generator",
     description:
       "Revolutionary AI-powered image generation tool Zyfoox using advanced neural networks for professional image creation",
-    url: `${siteUrl}/products`,
+    url: "https://alexzo.netlify.app/products",
     numberOfItems: products.length,
     itemListElement: products.map((product, index) => ({
       "@type": "ListItem",

@@ -17,12 +17,12 @@ const siteUrl = getSiteUrl()
 
 export const metadata: Metadata = {
   title: {
-    default: "Alexzo - Free AI Image Generator & Learning Platform | Zyfoox AI & LearnFlow",
+    default: "Alexzo - AI-Powered Human Enhancement Platform | Zyfoox & LearnFlow",
     template: "%s | Alexzo - AI-Powered Platform"
   },
   description:
-    "Free AI image generator & learning platform. Create stunning images instantly with Zyfoox AI image generator. Master any skill with LearnFlow 2.0 AI learning app. Join 75K+ users using advanced AI tools for creativity, education & productivity. No credit card required.",
-  keywords: "free AI image generator, AI image generator free, text to image AI, best AI image generator, AI art generator, AI learning platform, AI education app, personalized learning AI, adaptive learning platform, LearnFlow app, Zyfoox AI, generative AI free, AI tools online free",
+    "Transform your ideas with cutting-edge AI technology. Create stunning images with Zyfoox AI Generator & master learning with LearnFlow 2.0. Join 75K+ users experiencing the future of AI-powered human enhancement.",
+  keywords: "AI platform, artificial intelligence, machine learning, AI image generation, Zyfoox, LearnFlow, AI education, cognitive enhancement, AI tools, automation, technology innovation, neural enhancement, AI learning platform, personalized education, adaptive learning, AI image generator, AI art, generative AI, deep learning, computer vision, natural language processing",
   authors: [{ name: "Alexzo Team" }],
   creator: "Alexzo",
   publisher: "Alexzo",
@@ -46,10 +46,10 @@ export const metadata: Metadata = {
   },
   manifest: "/manifest.json",
   openGraph: {
-    title: "Free AI Image Generator & Learning Platform - Alexzo | Zyfoox AI & LearnFlow",
-    description: "🎨 Free AI Image Generator | 📚 AI Learning Platform | Create stunning AI images instantly with Zyfoox. Master any skill with LearnFlow AI. 75K+ users. 100% Free. No credit card needed.",
+    title: "Alexzo - AI-Powered Human Enhancement Platform | Zyfoox & LearnFlow",
+    description: "Transform your ideas with cutting-edge AI technology. Create stunning images with Zyfoox AI Generator & master learning with LearnFlow 2.0. Join 75K+ users experiencing the future of AI.",
     url: siteUrl,
-    siteName: "Alexzo - Free AI Tools",
+    siteName: "Alexzo",
     images: [
       {
         url: `${siteUrl}/logo.png`,
@@ -72,8 +72,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Free AI Image Generator & Learning Platform - Alexzo",
-    description: "🚀 Create stunning AI images FREE with Zyfoox AI Generator | 📖 Master any skill with LearnFlow AI learning platform | 75K+ users | Zero cost. Start now →",
+    title: "Alexzo - AI-Powered Human Enhancement Platform | Zyfoox & LearnFlow",
+    description: "Transform your ideas with cutting-edge AI technology. Create stunning images with Zyfoox AI Generator & master learning with LearnFlow 2.0. Join 75K+ users experiencing the future of AI.",
     images: [
       {
         url: `${siteUrl}/logo.png`,
@@ -104,16 +104,7 @@ export const metadata: Metadata = {
   generator: 'Alexzo',
   other: {
     "google": "notranslate",
-    "google-adsense-account": "ca-pub-xxxxxxxxxxxxxx",
-    "apple-mobile-web-app-capable": "yes",
-    "apple-mobile-web-app-status-bar-style": "black-translucent",
-    "mobile-web-app-capable": "yes",
-    "msapplication-TileColor": "#000000",
-    "msapplication-config": "/browserconfig.xml",
-    "theme-color": "#000000"
-  },
-  abstract: "Free AI image generator and learning platform. Create unlimited AI images with Zyfoox. Learn anything with LearnFlow AI. Join 75K+ users.",
-  classification: "AI Tools, Educational Technology, Image Generation, Machine Learning"
+  }
 }
 
 export function generateViewport() {
@@ -144,21 +135,6 @@ export default function RootLayout({
         
         {/* Google Search Console Verification - Additional codes */}
         <meta name="google-site-verification" content="LciVAzACk6a_cqUyi_rfYQqgsrX5AUuiWbsCLg5mOs0" />
-        
-        {/* Additional SEO Meta Tags */}
-        <meta name="language" content="English" />
-        <meta name="revisit-after" content="1 days" />
-        <meta name="distribution" content="global" />
-        <meta name="rating" content="general" />
-        <meta name="HandheldFriendly" content="True" />
-        <meta name="MobileOptimized" content="320" />
-        <meta name="apple-mobile-web-app-title" content="Alexzo AI" />
-        <meta name="application-name" content="Alexzo AI Platform" />
-        
-        {/* Preconnect to external domains for performance */}
-        <link rel="preconnect" href="https://www.googletagmanager.com" />
-        <link rel="preconnect" href="https://www.google-analytics.com" />
-        <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
         {/* Google Analytics */}
         <Script src="https://www.googletagmanager.com/gtag/js?id=G-CRDQVE5LF3" strategy="afterInteractive" />
         <Script id="google-analytics" strategy="afterInteractive">

@@ -1,7 +1,4 @@
 import type { Metadata } from "next"
-import { getSiteUrl } from "@/lib/site-url"
-
-const siteUrl = getSiteUrl()
 
 export const metadata: Metadata = {
   title: "LearnFlow 2.0 - AI-Powered Learning Platform | Download Free App | Alexzo",
@@ -14,7 +11,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "LearnFlow 2.0 - AI-Powered Learning Platform | Download Free App",
     description: "Revolutionary AI-powered learning platform with advanced personalization and adaptive content delivery. Join 75K+ learners. Free download available.",
-    url: `${siteUrl}/LearnFlow`,
+    url: "https://alexzo.vercel.app/LearnFlow",
     siteName: "Alexzo",
     images: [
       {
@@ -35,7 +32,7 @@ export const metadata: Metadata = {
     creator: "@alexzo",
   },
   alternates: {
-    canonical: `${siteUrl}/LearnFlow`,
+    canonical: "https://alexzo.vercel.app/LearnFlow",
   },
   robots: {
     index: true,

@@ -1,5 +1,4 @@
 import type { Metadata } from "next"
-import { getSiteUrl } from "./site-url"
 
 export function generateSEOMetadata({
   title,
@@ -16,9 +15,9 @@ export function generateSEOMetadata({
   url?: string
   type?: string
 }): Metadata {
-  const baseUrl = getSiteUrl()
+  const baseUrl = "https://alexzo.vercel.app"
   const fullUrl = url ? `${baseUrl}${url}` : baseUrl
-  const imageUrl = image ? `${baseUrl}${image}` : `${baseUrl}/logo.png`
+  const imageUrl = image ? `${baseUrl}${image}` : `https://alexzo.vercel.app/logo.png`
 
   return {
     title,

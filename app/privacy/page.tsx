@@ -2,9 +2,6 @@ import type { Metadata } from "next"
 import Image from "next/image"
 import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
-import { getSiteUrl } from "@/lib/site-url"
-
-const siteUrl = getSiteUrl()
 
 export const metadata: Metadata = {
   title: "Privacy Policy | Alexzo - Protecting Your Data & Privacy Rights",
@@ -17,7 +14,7 @@ export const metadata: Metadata = {
     description:
       "Read Alexzo's comprehensive privacy policy. Learn how we collect, use, protect, and manage your personal data when using our AI-powered services.",
     type: "article",
-    url: `${siteUrl}/privacy`,
+    url: "https://alexzo.vercel.app/privacy",
   },
   twitter: {
     card: "summary_large_image",
@@ -26,7 +23,7 @@ export const metadata: Metadata = {
       "Read Alexzo's comprehensive privacy policy. Learn how we collect, use, protect, and manage your personal data.",
   },
   alternates: {
-    canonical: `${siteUrl}/privacy`,
+    canonical: "https://alexzo.vercel.app/privacy",
   },
   robots: {
     index: true,
@@ -39,11 +36,11 @@ const jsonLd = {
   "@type": "WebPage",
   name: "Privacy Policy - Alexzo",
   description: "Comprehensive privacy policy for Alexzo's AI-powered services including Zyfoox and LearnFlow",
-  url: `${siteUrl}/privacy`,
+  url: "https://alexzo.vercel.app/privacy",
   publisher: {
     "@type": "Organization",
     name: "Alexzo",
-    url: siteUrl,
+    url: "https://alexzo.vercel.app",
     logo: "/logo.png",
   },
   dateModified: "2025-01-27",
@@ -673,8 +670,8 @@ export default function PrivacyPolicyPage() {
                       </p>
                       <p>
                         <strong>Website:</strong>{" "}
-                        <a href={siteUrl} className="text-blue-400 hover:text-blue-300">
-                          {siteUrl}
+                        <a href="https://alexzo.vercel.app" className="text-blue-400 hover:text-blue-300">
+                          https://alexzo.vercel.app
                         </a>
                       </p>
                       <p>

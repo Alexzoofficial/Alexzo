@@ -10,10 +10,8 @@ import { Badge } from "@/components/ui/badge"
 import Link from "next/link"
 import { toast } from "sonner"
 import Image from "next/image"
-import { getSiteUrl } from "@/lib/site-url"
 
 export default function DocsPage() {
-  const siteUrl = getSiteUrl()
   const [copiedCode, setCopiedCode] = useState<string | null>(null)
 
   const copyToClipboard = (code: string, id: string) => {
@@ -24,7 +22,7 @@ export default function DocsPage() {
   }
 
   const apiExample = `// AI Image Generation - Free Use
-const response = await fetch('${siteUrl}/api/generate', {
+const response = await fetch('https://alexzo.vercel.app/api/generate', {
   method: 'POST',
   headers: {
     'Authorization': 'Bearer alexzo_your_api_key_here',
@@ -45,7 +43,7 @@ import json
 
 # AI Image Generation with Python
 def generate_image(prompt, api_key, width=512, height=512):
-    url = "${siteUrl}/api/generate"
+    url = "https://alexzo.vercel.app/api/generate"
     
     headers = {
         "Authorization": f"Bearer {api_key}",
@@ -81,7 +79,7 @@ if image_url:
     print("Image saved as generated_image.png")`
 
   const curlExample = `# AI Image Generation with cURL
-curl -X POST "${siteUrl}/api/generate" \\
+curl -X POST "https://alexzo.vercel.app/api/generate" \\
   -H "Authorization: Bearer alexzo_your_api_key_here" \\
   -H "Content-Type: application/json" \\
   -d '{
@@ -206,7 +204,7 @@ curl -X POST "${siteUrl}/api/generate" \\
                     <div className="bg-gray-800/50 rounded-xl p-4 md:p-6 border border-gray-700">
                       <h4 className="font-semibold mb-3 text-purple-300 text-base md:text-lg">Base URL</h4>
                       <code className="text-green-400 bg-gray-900 px-3 py-2 rounded-lg text-xs md:text-sm font-mono break-all">
-                        {siteUrl}/api
+                        https://alexzo.vercel.app/api
                       </code>
                     </div>
                     
@@ -283,7 +281,7 @@ curl -X POST "${siteUrl}/api/generate" \\
                   
                   <div className="bg-gray-800/50 rounded-xl p-3 md:p-4 font-mono text-sm md:text-base border border-gray-700 overflow-x-auto">
                     <span className="text-purple-400 font-bold">POST</span>{" "}
-                    <span className="text-white break-all">{siteUrl}/api/generate</span>
+                    <span className="text-white break-all">https://alexzo.vercel.app/api/generate</span>
                   </div>
                   
                   <div className="space-y-4">
