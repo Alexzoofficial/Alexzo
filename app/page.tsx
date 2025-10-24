@@ -15,6 +15,7 @@ import { SafeImage } from "@/components/safe-image"
 import { useAuth } from "@/lib/auth-context"
 import { getSiteUrl } from "@/lib/site-url"
 import Script from "next/script"
+import { FAQSchema, HowToSchema } from "@/components/seo-schemas"
 
 export default function HomePage() {
   const [email, setEmail] = useState("")
@@ -202,6 +203,8 @@ export default function HomePage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
+      <FAQSchema />
+      <HowToSchema />
 
       {/* Animated Background */}
       <div className="fixed inset-0 z-0">
@@ -284,11 +287,11 @@ export default function HomePage() {
       <section className="relative z-10 min-h-screen flex items-center justify-center px-6">
         <div className="text-center max-w-4xl mx-auto">
           <AdaptiveAnimation>
-            <h1 className="text-6xl md:text-8xl font-bold mb-6 bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent">
-              Alexzo
+            <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent leading-tight">
+              Free AI Image Generator & Learning Platform - Alexzo
             </h1>
             <p className="text-xl md:text-2xl text-gray-300 mb-8">
-              Pioneering the Future of AI-Powered Human Enhancement
+              Create Stunning AI Images Instantly with Zyfoox | Master Any Skill with LearnFlow AI - 100% Free, No Credit Card Required
             </p>
           </AdaptiveAnimation>
 
@@ -332,9 +335,9 @@ export default function HomePage() {
         <div className="max-w-6xl mx-auto">
           <AdaptiveAnimation>
             <div className="text-center mb-16">
-              <h2 className="text-4xl md:text-5xl font-bold mb-6">Revolutionary AI Features</h2>
+              <h2 className="text-4xl md:text-5xl font-bold mb-6">AI-Powered Tools for Creativity & Learning</h2>
               <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-                Experience the future of human enhancement with our cutting-edge AI technology
+                Free AI image generation, personalized AI learning platform, and advanced neural enhancement technology - all in one place
               </p>
             </div>
           </AdaptiveAnimation>
@@ -385,9 +388,9 @@ export default function HomePage() {
         <div className="max-w-6xl mx-auto">
           <AdaptiveAnimation>
             <div className="text-center mb-16">
-              <h2 className="text-4xl md:text-5xl font-bold mb-6">Our AI Products</h2>
+              <h2 className="text-4xl md:text-5xl font-bold mb-6">Zyfoox AI Image Generator & LearnFlow Learning Platform</h2>
               <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-                Discover our revolutionary AI-powered solutions designed to enhance creativity and learning
+                Free AI-powered image generation and personalized learning tools - Create unlimited AI images and master any skill with our advanced AI technology
               </p>
             </div>
           </AdaptiveAnimation>
@@ -401,10 +404,9 @@ export default function HomePage() {
                     <span className="inline-block px-3 py-1 rounded-full text-xs font-medium bg-purple-500/20 text-purple-300 border border-purple-500/30 backdrop-blur-sm mb-4">
                       Featured Product
                     </span>
-                    <h3 className="text-3xl font-bold mb-4 text-white">Zyfoox</h3>
+                    <h3 className="text-3xl font-bold mb-4 text-white">Zyfoox - Free AI Image Generator</h3>
                     <p className="text-gray-200 text-lg mb-6 leading-relaxed">
-                      Revolutionary AI-powered image generation tool that transforms your creative ideas into stunning
-                      visuals. Generate professional-quality images instantly from text descriptions.
+                      Free AI image generator that transforms text to stunning images instantly. Create professional AI-generated images, AI art, and visuals without watermarks. Best free AI image generator for creators, designers, and businesses.
                     </p>
                   </div>
 
@@ -461,11 +463,10 @@ export default function HomePage() {
                         className="rounded-2xl shadow-xl"
                         fallbackText="LF"
                       />
-                      <h3 className="text-3xl font-bold text-white">LearnFlow</h3>
+                      <h3 className="text-3xl font-bold text-white">LearnFlow - AI Learning Platform</h3>
                     </div>
                     <p className="text-gray-200 text-lg mb-6 leading-relaxed">
-                      Revolutionary AI-powered educational app that transforms learning through personalized content,
-                      adaptive lessons, and intelligent progress tracking.
+                      Free AI learning platform with personalized education, adaptive lessons, and smart progress tracking. Master any skill with AI-powered tutoring. Download free learning app for Android, iOS, Windows & macOS.
                     </p>
                   </div>
 
