@@ -131,7 +131,7 @@ export function AuthModal({ isOpen, onClose, initialMode = "signin", defaultMode
             <div className="flex items-center space-x-3 mb-6">
               <div className="w-10 h-10 flex items-center justify-center">
                 <SafeImage
-                  src="https://alexzo.vercel.app/logo.png"
+                  src="/logo.png"
                   alt="Alexzo Logo"
                   width={40}
                   height={40}

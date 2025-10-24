@@ -8,8 +8,11 @@ import { Badge } from "@/components/ui/badge"
 import Link from "next/link"
 import Image from "next/image"
 import Script from "next/script"
+import { getSiteUrl } from "@/lib/site-url"
 
 export default function LearnFlowPage() {
+  const siteUrl = getSiteUrl()
+
   const handleDownload = () => {
     window.open("https://rb.gy/sap9gf", "_blank")
   }
@@ -75,7 +78,7 @@ export default function LearnFlowPage() {
     author: {
       "@type": "Organization",
       name: "Alexzo",
-      url: "https://alexzo.vercel.app"
+      url: siteUrl
     }
   }
 
