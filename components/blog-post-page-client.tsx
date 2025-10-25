@@ -182,6 +182,10 @@ export default function BlogPostPageClient({ id }: { id: string }) {
                     const parts = paragraph.split(': ')
                     const title = parts[0].replace(/\*\*/g, '')
                     const content = parts.slice(1).join(': ')
+                    // Skip "About the Author" as it's rendered separately below
+                    if (title === "About the Author") {
+                      return null
+                    }
                     return (
                       <div key={index} className="mb-4">
                         <h4 className="text-lg font-bold text-purple-300 mb-2">{title}</h4>
@@ -265,8 +269,15 @@ export default function BlogPostPageClient({ id }: { id: string }) {
                 </h3>
                 <div className="flex flex-col md:flex-row gap-6 items-start">
                   <div className="flex-shrink-0">
-                    <div className="w-20 h-20 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center text-white text-2xl font-bold">
-                      {post.author.charAt(0)}
+                    <div className="w-20 h-20 rounded-full bg-gradient-to-br from-purple-500/20 to-blue-500/20 flex items-center justify-center p-3 border border-purple-500/30">
+                      <SafeImage
+                        src="/logo.png"
+                        alt="Alexzo Logo"
+                        width={80}
+                        height={80}
+                        className="w-full h-full object-contain"
+                        fallbackText="A"
+                      />
                     </div>
                   </div>
                   <div className="flex-1">
