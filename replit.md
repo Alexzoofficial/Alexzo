@@ -5,6 +5,13 @@ Alexzo is an AI-powered platform built with Next.js, designed to transform ideas
 
 ## Recent Changes
 
+### October 25, 2025 - IP-Based Rate Limiting Fix
+- **User IP Tracking**: Implemented user IP detection across all API endpoints to enable per-user rate limiting instead of server-wide limits.
+- **Pollinations AI Integration**: Modified both `/api/generate` and `/api/proxy/[...path]` endpoints to capture user's real IP address from proxy headers (x-forwarded-for, x-real-ip, cf-connecting-ip).
+- **Rate Limit Optimization**: Image generation requests now return direct Pollinations AI URLs, allowing client browsers to fetch images from their own IP addresses. This ensures Pollinations' rate limits apply per user instead of the entire server.
+- **Response Enhancement**: Added `meta` object to API responses containing user IP and explanatory notes about the rate limiting approach.
+- **Permanent Solution**: This change is permanent and documented in the codebase with clear comments explaining the rate limiting strategy.
+
 ### October 20, 2025 - Logo Loading Fix
 - **Logo Path Optimization**: Replaced all external logo URLs (https://alexzo.vercel.app/logo.png) with local path (/logo.png) across 16 app pages.
 - **Performance Improvement**: Logo now loads from local public folder instead of external source, improving page load speed and reliability.
@@ -61,6 +68,10 @@ The `/api/generate` endpoint is designed for unlimited requests with minimal dat
 - **No tracking**: Prompts, dimensions, or generation details are NOT stored
 - **Lightweight validation**: API keys are validated against Firestore but no usage data is persisted
 - **Unlimited requests**: Users can make unlimited API calls without database writes
+- **User IP-Based Rate Limiting**: Rate limits are applied per user IP address, not per server. This is achieved by:
+  - Extracting user's real IP from request headers (x-forwarded-for, x-real-ip, cf-connecting-ip)
+  - Returning direct Pollinations AI URLs so client browsers fetch images from their own IP
+  - Ensuring Pollinations AI rate limits apply individually per user, not collectively on the server
 
 ### User Data Management
 When a user deletes their account:

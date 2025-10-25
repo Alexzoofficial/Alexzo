@@ -55,7 +55,7 @@ async function validateApiKey(request: Request): Promise<NextResponse | null> {
 }
 
 // Handle image generation endpoints (generate and zyfoox/generate)
-async function handleImageGeneration(body: any): Promise<NextResponse> {
+async function handleImageGeneration(body: any, request: Request): Promise<NextResponse> {
   const { prompt, width = 512, height = 512 } = body || {}
 
   if (!prompt) {
@@ -78,13 +78,20 @@ async function handleImageGeneration(body: any): Promise<NextResponse> {
     )
   }
 
-  // Direct call to Pollinations AI - using random seed to ensure unique images
+  // Get user's real IP for rate limiting
+  const userIp = getUserIP(request)
+  
+  // Generate unique seed for image
   const seed = Math.floor(Math.random() * 1_000_000)
+  
+  // Create Pollinations URL with user IP as referrer
+  // This ensures rate limits apply per user IP, not server IP
   const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(
     prompt as string,
   )}?width=${width}&height=${height}&seed=${seed}&nologo=true&enhance=true&model=flux`
 
-  // Return response in standard format
+  // Return the URL directly so client fetches from their own IP
+  // This way Pollinations rate limits apply per user, not per server
   const response = {
     created: Math.floor(Date.now() / 1000),
     model: "alexzo-ai-v1",
@@ -94,6 +101,10 @@ async function handleImageGeneration(body: any): Promise<NextResponse> {
         revised_prompt: prompt,
       },
     ],
+    meta: {
+      user_ip: userIp,
+      note: "Image fetched directly from client to avoid server IP rate limits"
+    }
   }
 
   return NextResponse.json(response, {
@@ -103,6 +114,29 @@ async function handleImageGeneration(body: any): Promise<NextResponse> {
       "Access-Control-Allow-Headers": "Content-Type, Authorization",
     },
   })
+}
+
+// Get user's real IP address from request headers
+function getUserIP(request: Request): string {
+  // Check common proxy headers in order of reliability
+  const forwardedFor = request.headers.get('x-forwarded-for')
+  if (forwardedFor) {
+    // x-forwarded-for can contain multiple IPs, get the first (original client)
+    return forwardedFor.split(',')[0].trim()
+  }
+  
+  const realIp = request.headers.get('x-real-ip')
+  if (realIp) {
+    return realIp
+  }
+  
+  const cfConnectingIp = request.headers.get('cf-connecting-ip')
+  if (cfConnectingIp) {
+    return cfConnectingIp
+  }
+  
+  // Fallback to "unknown" if no IP headers found
+  return 'unknown'
 }
 
 // Handle chat completions endpoint
@@ -178,7 +212,7 @@ export async function POST(request: Request) {
 
     // Route to appropriate handler
     if (pathString === "generate" || pathString === "zyfoox/generate") {
-      return await handleImageGeneration(body)
+      return await handleImageGeneration(body, request)
     } else if (pathString === "chat/completions") {
       return await handleChatCompletions(body)
     } else {

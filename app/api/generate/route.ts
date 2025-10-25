@@ -1,6 +1,29 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getAdminFirestore } from '@/lib/firebase/admin'
 
+// Get user's real IP address from request headers
+function getUserIP(request: NextRequest): string {
+  // Check common proxy headers in order of reliability
+  const forwardedFor = request.headers.get('x-forwarded-for')
+  if (forwardedFor) {
+    // x-forwarded-for can contain multiple IPs, get the first (original client)
+    return forwardedFor.split(',')[0].trim()
+  }
+  
+  const realIp = request.headers.get('x-real-ip')
+  if (realIp) {
+    return realIp
+  }
+  
+  const cfConnectingIp = request.headers.get('cf-connecting-ip')
+  if (cfConnectingIp) {
+    return cfConnectingIp
+  }
+  
+  // Fallback to "unknown" if no IP headers found
+  return 'unknown'
+}
+
 // Validate API key against Firestore
 async function validateApiKey(apiKey: string): Promise<boolean> {
   try {
@@ -72,12 +95,16 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Get user's real IP for rate limiting
+    const userIp = getUserIP(request)
+    
     // Direct call to Pollinations AI - no database, no IP blocking
     // Using random seed to ensure unique images
     const seed = Math.floor(Math.random() * 1000000)
     const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=${width}&height=${height}&seed=${seed}&nologo=true&enhance=true&model=flux`
 
-    // Return response in standard format
+    // Return the URL directly so client fetches from their own IP
+    // This way Pollinations rate limits apply per user, not per server
     const response = {
       created: Math.floor(Date.now() / 1000),
       model: "alexzo-ai-v1",
@@ -86,7 +113,11 @@ export async function POST(request: NextRequest) {
           url: imageUrl,
           revised_prompt: prompt
         }
-      ]
+      ],
+      meta: {
+        user_ip: userIp,
+        note: "Image fetched directly from client to avoid server IP rate limits"
+      }
     }
 
     return NextResponse.json(response, {
