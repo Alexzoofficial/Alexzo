@@ -2,7 +2,7 @@
 
 import React from "react"
 import { motion } from "framer-motion"
-import { ArrowLeft, Calendar, Clock, User, Tag, Share2, ArrowRight } from "lucide-react"
+import { ArrowLeft, Calendar, Clock, User, Tag, Share2, ArrowRight, Github, Youtube, Instagram, Twitter } from "lucide-react"
 import Link from "next/link"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
@@ -16,6 +16,10 @@ import { blogPosts } from "@/lib/blog-data"
 export default function BlogPostPageClient({ id }: { id: string }) {
   const post = blogPosts.find((p) => p.id === id)
   const relatedPost = post ? blogPosts.find((p) => p.id !== id) : null
+
+  // Extract "About the Author" section from content if it exists
+  const aboutAuthorMatch = post?.content.match(/\*\*About the Author\*\*:([\s\S]+?)(?=\n\n|$)/)
+  const aboutAuthorText = aboutAuthorMatch ? aboutAuthorMatch[1].trim() : null
 
   const sharePost = () => {
     if (navigator.share && post) {
@@ -245,6 +249,73 @@ export default function BlogPostPageClient({ id }: { id: string }) {
             </CardContent>
           </Card>
         </motion.div>
+
+        {/* About the Author Section */}
+        {aboutAuthorText && (
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.3 }}
+            className="mb-12"
+          >
+            <Card className="bg-gradient-to-br from-purple-900/20 to-gray-900/50 border-purple-500/30 backdrop-blur-sm">
+              <CardContent className="p-6 md:p-8">
+                <h3 className="text-2xl md:text-3xl font-bold text-transparent bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text mb-4">
+                  About the Author
+                </h3>
+                <div className="flex flex-col md:flex-row gap-6 items-start">
+                  <div className="flex-shrink-0">
+                    <div className="w-20 h-20 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center text-white text-2xl font-bold">
+                      {post.author.charAt(0)}
+                    </div>
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="text-xl font-semibold text-white mb-2">{post.author}</h4>
+                    <p className="text-gray-300 leading-relaxed mb-4">{aboutAuthorText}</p>
+                    <div className="flex items-center gap-4">
+                      <Link 
+                        href="https://github.com/Alexzoofficial" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-gray-400 hover:text-purple-400 transition-colors"
+                        aria-label="GitHub"
+                      >
+                        <Github className="h-5 w-5" />
+                      </Link>
+                      <Link 
+                        href="https://youtube.com/@alexzoofficial" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-gray-400 hover:text-purple-400 transition-colors"
+                        aria-label="YouTube"
+                      >
+                        <Youtube className="h-5 w-5" />
+                      </Link>
+                      <Link 
+                        href="https://www.instagram.com/alexzoofficial" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-gray-400 hover:text-purple-400 transition-colors"
+                        aria-label="Instagram"
+                      >
+                        <Instagram className="h-5 w-5" />
+                      </Link>
+                      <Link 
+                        href="https://x.com/Alexzoofficial" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-gray-400 hover:text-purple-400 transition-colors"
+                        aria-label="X (Twitter)"
+                      >
+                        <Twitter className="h-5 w-5" />
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
 
         {/* Related Post */}
         {relatedPost && (
