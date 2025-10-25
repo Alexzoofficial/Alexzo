@@ -3,7 +3,7 @@
 import type React from "react"
 import { useState } from "react"
 import { motion, useScroll, useTransform } from "framer-motion"
-import { ChevronDown, Brain, Zap, Target, ArrowRight, Sparkles, Play } from 'lucide-react'
+import { ChevronDown, Brain, Zap, Target, ArrowRight, Sparkles, Play, Github, Youtube, Instagram, Twitter } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
@@ -586,6 +586,44 @@ export default function HomePage() {
                 </div>
               </div>
               <p className="text-gray-400">Pioneering the future of AI-powered human enhancement</p>
+              <div className="flex items-center gap-4 mt-4">
+                <Link 
+                  href="https://github.com/Alexzoofficial" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-gray-400 hover:text-white transition-colors"
+                  aria-label="GitHub"
+                >
+                  <Github className="h-5 w-5" />
+                </Link>
+                <Link 
+                  href="https://youtube.com/@alexzoofficial" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-gray-400 hover:text-white transition-colors"
+                  aria-label="YouTube"
+                >
+                  <Youtube className="h-5 w-5" />
+                </Link>
+                <Link 
+                  href="https://www.instagram.com/alexzoofficial" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-gray-400 hover:text-white transition-colors"
+                  aria-label="Instagram"
+                >
+                  <Instagram className="h-5 w-5" />
+                </Link>
+                <Link 
+                  href="https://x.com/Alexzoofficial" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-gray-400 hover:text-white transition-colors"
+                  aria-label="X (Twitter)"
+                >
+                  <Twitter className="h-5 w-5" />
+                </Link>
+              </div>
             </div>
 
             <div>
