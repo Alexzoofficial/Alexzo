@@ -24,7 +24,6 @@ interface API {
   description: string
   endpoint: string
   method: string
-  model?: string
   userName?: string
   userEmail?: string
   status: "active" | "inactive"
@@ -55,8 +54,7 @@ export default function APICreatePage() {
 
   // Form state
   const [formData, setFormData] = useState({
-    name: "",
-    model: "",
+    name: ""
   })
 
   useEffect(() => {
@@ -126,15 +124,14 @@ export default function APICreatePage() {
         body: JSON.stringify({
           userName: user.displayName || 'Unknown User',
           userEmail: user.email || '',
-          name: formData.name,
-          model: formData.model || 'Not Specified'
+          name: formData.name
         })
       })
 
       if (response.ok) {
         const data = await response.json()
         setApis([...apis, data.api])
-        setFormData({ name: "", model: "" })
+        setFormData({ name: "" })
         setShowCreateDialog(false)
         toast.success("API created successfully!")
       } else {
@@ -413,16 +410,6 @@ export default function APICreatePage() {
                         placeholder="My Awesome API"
                       />
                     </div>
-                    <div>
-                      <Label htmlFor="model">AI Model</Label>
-                      <Input
-                        id="model"
-                        value={formData.model}
-                        onChange={(e) => setFormData({ ...formData, model: e.target.value })}
-                        className="bg-gray-800 border-gray-700"
-                        placeholder="e.g., GPT-4, Claude, Gemini"
-                      />
-                    </div>
                     <Button onClick={createAPI} className="w-full bg-purple-600 hover:bg-purple-700">
                       Create API
                     </Button>
@@ -452,7 +439,6 @@ export default function APICreatePage() {
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <CardTitle className="text-white text-lg mb-1">{api.name}</CardTitle>
-                          {api.model && <p className="text-gray-400 text-sm">Model: {api.model}</p>}
                         </div>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>

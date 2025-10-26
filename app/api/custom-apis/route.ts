@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const data = await request.json()
-    const { userName, userEmail, name, model } = data
+    const { userName, userEmail, name } = data
 
     if (!name) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
@@ -57,7 +57,6 @@ export async function POST(request: NextRequest) {
       userName: userName || 'Unknown User',
       userEmail: userEmail || '',
       name,
-      model: model || 'Not Specified',
       status: 'active',
       createdAt: new Date().toISOString(),
       apiKey,
