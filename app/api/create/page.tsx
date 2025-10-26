@@ -24,6 +24,9 @@ interface API {
   description: string
   endpoint: string
   method: string
+  model?: string
+  userName?: string
+  userEmail?: string
   status: "active" | "inactive"
   successRate: number
   createdAt: string
@@ -56,6 +59,7 @@ export default function APICreatePage() {
     description: "",
     endpoint: "",
     method: "GET",
+    model: "",
   })
 
   useEffect(() => {
@@ -124,17 +128,20 @@ export default function APICreatePage() {
         },
         body: JSON.stringify({
           userId: user.uid,
+          userName: user.displayName || 'Unknown User',
+          userEmail: user.email || '',
           name: formData.name,
           description: formData.description,
           endpoint: formData.endpoint,
-          method: formData.method
+          method: formData.method,
+          model: formData.model
         })
       })
 
       if (response.ok) {
         const data = await response.json()
         setApis([...apis, data.api])
-        setFormData({ name: "", description: "", endpoint: "", method: "GET" })
+        setFormData({ name: "", description: "", endpoint: "", method: "GET", model: "" })
         setShowCreateDialog(false)
         toast.success("API created successfully!")
       } else {
@@ -450,6 +457,16 @@ export default function APICreatePage() {
                           <SelectItem value="PATCH">PATCH</SelectItem>
                         </SelectContent>
                       </Select>
+                    </div>
+                    <div>
+                      <Label htmlFor="model">AI Model (Optional)</Label>
+                      <Input
+                        id="model"
+                        value={formData.model}
+                        onChange={(e) => setFormData({ ...formData, model: e.target.value })}
+                        className="bg-gray-800 border-gray-700"
+                        placeholder="e.g., GPT-4, Claude, Gemini"
+                      />
                     </div>
                     <Button onClick={createAPI} className="w-full bg-purple-600 hover:bg-purple-700">
                       Create API

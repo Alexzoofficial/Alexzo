@@ -32,6 +32,7 @@ next-env.d.ts
 firebase-service-account*.json
 *firebase*adminsdk*.json
 serviceAccountKey.json
+lib/firebase/credentials/
 
 # Attached assets (user uploads, screenshots, etc)
 attached_assets/

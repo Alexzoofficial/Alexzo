@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const data = await request.json()
-    const { userId, name, description, endpoint, method } = data
+    const { userId, userName, userEmail, name, description, endpoint, method, model } = data
 
     if (!userId || !name || !description || !endpoint) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
@@ -55,10 +55,13 @@ export async function POST(request: NextRequest) {
 
     const newAPI = {
       userId,
+      userName: userName || 'Unknown User',
+      userEmail: userEmail || '',
       name,
       description,
       endpoint,
       method: method || 'GET',
+      model: model || 'Not Specified',
       status: 'active',
       successRate: 100,
       createdAt: new Date().toISOString(),

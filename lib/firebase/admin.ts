@@ -2,6 +2,8 @@
 import { initializeApp, getApps, cert } from 'firebase-admin/app'
 import { getFirestore } from 'firebase-admin/firestore'
 import { getAuth } from 'firebase-admin/auth'
+import * as path from 'path'
+import * as fs from 'fs'
 
 let adminApp: any = null
 
@@ -18,6 +20,22 @@ export function getFirebaseAdmin() {
   }
 
   try {
+    // Try to load from service account file first
+    const serviceAccountPath = path.join(process.cwd(), 'lib', 'firebase', 'credentials', 'service-account.json')
+    
+    if (fs.existsSync(serviceAccountPath)) {
+      const serviceAccount = JSON.parse(fs.readFileSync(serviceAccountPath, 'utf8'))
+      
+      adminApp = initializeApp({
+        credential: cert(serviceAccount),
+        databaseURL: `https://${serviceAccount.project_id}-default-rtdb.firebaseio.com`,
+      })
+      
+      console.log('Firebase Admin initialized with service account file')
+      return adminApp
+    }
+    
+    // Fallback to environment variables
     const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n')
     const clientEmail = process.env.FIREBASE_CLIENT_EMAIL
     const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID
