@@ -56,9 +56,6 @@ export default function APICreatePage() {
   // Form state
   const [formData, setFormData] = useState({
     name: "",
-    description: "",
-    endpoint: "",
-    method: "GET",
     model: "",
   })
 
@@ -113,8 +110,8 @@ export default function APICreatePage() {
   }
 
   const createAPI = async () => {
-    if (!formData.name || !formData.description || !formData.endpoint) {
-      toast.error("Please fill in all fields")
+    if (!formData.name) {
+      toast.error("Please enter API name")
       return
     }
 
@@ -131,17 +128,14 @@ export default function APICreatePage() {
           userName: user.displayName || 'Unknown User',
           userEmail: user.email || '',
           name: formData.name,
-          description: formData.description,
-          endpoint: formData.endpoint,
-          method: formData.method,
-          model: formData.model
+          model: formData.model || 'Not Specified'
         })
       })
 
       if (response.ok) {
         const data = await response.json()
         setApis([...apis, data.api])
-        setFormData({ name: "", description: "", endpoint: "", method: "GET", model: "" })
+        setFormData({ name: "", model: "" })
         setShowCreateDialog(false)
         toast.success("API created successfully!")
       } else {
@@ -421,45 +415,7 @@ export default function APICreatePage() {
                       />
                     </div>
                     <div>
-                      <Label htmlFor="description">Description</Label>
-                      <Textarea
-                        id="description"
-                        value={formData.description}
-                        onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                        className="bg-gray-800 border-gray-700"
-                        placeholder="Describe what your API does..."
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="endpoint">Endpoint Path</Label>
-                      <Input
-                        id="endpoint"
-                        value={formData.endpoint}
-                        onChange={(e) => setFormData({ ...formData, endpoint: e.target.value })}
-                        className="bg-gray-800 border-gray-700"
-                        placeholder="/api/v1/my-endpoint"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="method">HTTP Method</Label>
-                      <Select
-                        value={formData.method}
-                        onValueChange={(value) => setFormData({ ...formData, method: value })}
-                      >
-                        <SelectTrigger className="bg-gray-800 border-gray-700">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent className="bg-gray-800 border-gray-700">
-                          <SelectItem value="GET">GET</SelectItem>
-                          <SelectItem value="POST">POST</SelectItem>
-                          <SelectItem value="PUT">PUT</SelectItem>
-                          <SelectItem value="DELETE">DELETE</SelectItem>
-                          <SelectItem value="PATCH">PATCH</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <Label htmlFor="model">AI Model (Optional)</Label>
+                      <Label htmlFor="model">AI Model</Label>
                       <Input
                         id="model"
                         value={formData.model}
@@ -497,7 +453,7 @@ export default function APICreatePage() {
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <CardTitle className="text-white text-lg mb-1">{api.name}</CardTitle>
-                          <p className="text-gray-400 text-sm">{api.description}</p>
+                          {api.model && <p className="text-gray-400 text-sm">Model: {api.model}</p>}
                         </div>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
@@ -506,16 +462,6 @@ export default function APICreatePage() {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent className="bg-gray-800 border-gray-700">
-                            <DropdownMenuItem
-                              onClick={() => {
-                                setSelectedAPI(api)
-                                setShowAnalytics(true)
-                              }}
-                              className="text-gray-300 hover:text-white hover:bg-gray-700"
-                            >
-                              <Eye className="h-4 w-4 mr-2" />
-                              View Analytics
-                            </DropdownMenuItem>
                             <DropdownMenuItem
                               onClick={() => toggleAPIStatus(api.id)}
                               className="text-gray-300 hover:text-white hover:bg-gray-700"
@@ -536,16 +482,9 @@ export default function APICreatePage() {
                     </CardHeader>
                     <CardContent className="pt-0">
                       <div className="space-y-3">
-                        <div className="flex items-center justify-between">
-                          <Badge variant={api.method === "GET" ? "default" : "secondary"} className="text-xs">
-                            {api.method}
-                          </Badge>
-                          <Badge variant={api.status === "active" ? "default" : "secondary"} className="text-xs">
-                            {api.status}
-                          </Badge>
-                        </div>
-
-                        <div className="bg-gray-800 rounded p-2 text-xs font-mono text-gray-300">{api.endpoint}</div>
+                        <Badge variant={api.status === "active" ? "default" : "secondary"} className="text-xs">
+                          {api.status}
+                        </Badge>
 
                         <div className="flex items-center justify-between text-sm">
                           <span className="text-gray-400">API Key:</span>
@@ -558,11 +497,6 @@ export default function APICreatePage() {
                             <Copy className="h-3 w-3 mr-1" />
                             Copy
                           </Button>
-                        </div>
-
-                        <div className="text-sm">
-                          <p className="text-gray-400">Success Rate</p>
-                          <p className="text-white font-semibold">{api.successRate}%</p>
                         </div>
 
                         <div className="text-xs text-gray-500">Created {new Date(api.createdAt).toLocaleDateString()}</div>
