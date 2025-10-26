@@ -69,13 +69,13 @@ export default function APICreatePage() {
   }, [user])
 
   const loadUserAPIs = async () => {
-    if (!user) return
+    if (!user || !user.email) return
     
     try {
       const response = await fetch('/api/custom-apis', {
         method: 'GET',
         headers: {
-          'x-user-id': user.uid
+          'x-user-email': user.email
         }
       })
       
@@ -124,7 +124,6 @@ export default function APICreatePage() {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          userId: user.uid,
           userName: user.displayName || 'Unknown User',
           userEmail: user.email || '',
           name: formData.name,
@@ -194,13 +193,13 @@ export default function APICreatePage() {
   }
 
   const deleteAPI = async (id: string) => {
-    if (!user) return
+    if (!user || !user.email) return
 
     try {
       const response = await fetch(`/api/custom-apis?id=${id}`, {
         method: 'DELETE',
         headers: {
-          'x-user-id': user.uid
+          'x-user-email': user.email
         }
       })
 
@@ -222,7 +221,7 @@ export default function APICreatePage() {
   }
 
   const toggleAPIStatus = async (id: string) => {
-    if (!user) return
+    if (!user || !user.email) return
 
     const api = apis.find(a => a.id === id)
     if (!api) return
@@ -237,7 +236,7 @@ export default function APICreatePage() {
         },
         body: JSON.stringify({
           apiId: id,
-          userId: user.uid,
+          userEmail: user.email,
           status: newStatus
         })
       })

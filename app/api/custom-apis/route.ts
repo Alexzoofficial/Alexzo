@@ -7,10 +7,10 @@ export const dynamic = 'force-dynamic'
 // GET - Fetch user's custom APIs
 export async function GET(request: NextRequest) {
   try {
-    const userId = request.headers.get('x-user-id')
+    const userEmail = request.headers.get('x-user-email')
     
-    if (!userId) {
-      return NextResponse.json({ error: "User ID required" }, { status: 401 })
+    if (!userEmail) {
+      return NextResponse.json({ error: "User email required" }, { status: 401 })
     }
 
     const db = getAdminFirestore()
@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
 
     const apisSnapshot = await db
       .collection('custom_apis')
-      .where('userId', '==', userId)
+      .where('userEmail', '==', userEmail)
       .orderBy('createdAt', 'desc')
       .get()
 
@@ -40,9 +40,9 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const data = await request.json()
-    const { userId, userName, userEmail, name, model } = data
+    const { userName, userEmail, name, model } = data
 
-    if (!userId || !name) {
+    if (!name) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
     }
 
@@ -54,7 +54,6 @@ export async function POST(request: NextRequest) {
     const apiKey = `alexzo_${Math.random().toString(36).substring(2, 15)}${Math.random().toString(36).substring(2, 15)}`
 
     const newAPI = {
-      userId,
       userName: userName || 'Unknown User',
       userEmail: userEmail || '',
       name,
@@ -84,10 +83,10 @@ export async function DELETE(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const apiId = searchParams.get('id')
-    const userId = request.headers.get('x-user-id')
+    const userEmail = request.headers.get('x-user-email')
 
-    if (!apiId || !userId) {
-      return NextResponse.json({ error: "API ID and User ID required" }, { status: 400 })
+    if (!apiId || !userEmail) {
+      return NextResponse.json({ error: "API ID and User email required" }, { status: 400 })
     }
 
     const db = getAdminFirestore()
@@ -101,7 +100,7 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: "API not found" }, { status: 404 })
     }
 
-    if (apiDoc.data()?.userId !== userId) {
+    if (apiDoc.data()?.userEmail !== userEmail) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 })
     }
 
@@ -118,9 +117,9 @@ export async function DELETE(request: NextRequest) {
 export async function PATCH(request: NextRequest) {
   try {
     const data = await request.json()
-    const { apiId, userId, status } = data
+    const { apiId, userEmail, status } = data
 
-    if (!apiId || !userId || !status) {
+    if (!apiId || !userEmail || !status) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
     }
 
@@ -135,7 +134,7 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: "API not found" }, { status: 404 })
     }
 
-    if (apiDoc.data()?.userId !== userId) {
+    if (apiDoc.data()?.userEmail !== userEmail) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 })
     }
 
