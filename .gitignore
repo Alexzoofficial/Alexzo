@@ -36,3 +36,7 @@ lib/firebase/credentials/
 
 # Attached assets (user uploads, screenshots, etc)
 attached_assets/
+
+# logs
+*.log
+dev.log
