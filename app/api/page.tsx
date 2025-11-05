@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { motion } from "framer-motion"
 import { ArrowLeft, Key, Copy, Trash2, Plus, TrendingUp, Code, Book, Check, AlertTriangle } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -41,18 +41,18 @@ export default function APIPage() {
   const [copiedKey, setCopiedKey] = useState<string | null>(null)
   const [deleteKeyId, setDeleteKeyId] = useState<string | null>(null)
 
-  useEffect(() => {
-    loadAPIKeys()
-  }, [user])
-
-  const loadAPIKeys = () => {
+  const loadAPIKeys = useCallback(() => {
     if (user) {
       const savedKeys = localStorage.getItem(`api_keys_${user.uid}`)
       if (savedKeys) {
         setApiKeys(JSON.parse(savedKeys))
       }
     }
-  }
+  }, [user])
+
+  useEffect(() => {
+    loadAPIKeys()
+  }, [loadAPIKeys])
 
   const generateUniqueAPIKey = (): string => {
     let newKey = ""
@@ -128,8 +128,8 @@ export default function APIPage() {
   }
 
 
-  const codeExample = `// AI Image Generation - Free Use
-const response = await fetch('https://alexzo.vercel.app/api/generate', {
+  const codeExample = `// Model: AI Image Generation
+const response = await fetch('https://alexzo.vercel.app/api/zyfoox', {
   method: 'POST',
   headers: {
     'Authorization': 'Bearer ${apiKeys[0]?.key || "alexzo_your_api_key_here"}',
@@ -144,6 +144,17 @@ const response = await fetch('https://alexzo.vercel.app/api/generate', {
 
 const data = await response.json();
 console.log(data.data[0].url);`
+
+  const webSearchExample = `// Model: Real-Time Web Search
+const response = await fetch('https://alexzo.vercel.app/api/search?q=latest+ai+news', {
+  method: 'GET',
+  headers: {
+    'Authorization': 'Bearer ${apiKeys[0]?.key || "alexzo_your_api_key_here"}',
+  }
+});
+
+const data = await response.json();
+console.log(data.results);`
 
   const fullExample = `<!DOCTYPE html>
 <html lang="en">
@@ -735,10 +746,10 @@ console.log(data.data[0].url);`
                 API Keys
               </TabsTrigger>
               <TabsTrigger
-                value="examples"
+                value="models"
                 className="data-[state=active]:bg-purple-600 data-[state=active]:text-white text-gray-300 text-sm"
               >
-                Examples
+                Models
               </TabsTrigger>
               <TabsTrigger
                 value="docs"
@@ -853,13 +864,16 @@ console.log(data.data[0].url);`
               )}
             </TabsContent>
 
-            {/* Code Examples Tab */}
-            <TabsContent value="examples" className="space-y-6">
-              <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-sm">
+            {/* Models Tab */}
+            <TabsContent value="models" className="space-y-6">
+              <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-sm hover:border-purple-500/50 transition-all duration-300">
                 <CardHeader>
-                  <CardTitle className="text-white text-lg md:text-xl">Basic API Usage</CardTitle>
+                  <CardTitle className="text-white text-lg md:text-xl">Image Generation Model</CardTitle>
                 </CardHeader>
                 <CardContent>
+                  <p className="text-gray-300 mb-4 text-sm md:text-base">
+                    Generate high-quality images from text prompts.
+                  </p>
                   <div className="bg-gray-900 rounded-lg p-4 md:p-6 overflow-x-auto border border-gray-700 mb-4">
                     <pre className="text-xs md:text-sm">
                       <code className="text-gray-300 font-mono">{codeExample}</code>
@@ -878,7 +892,33 @@ console.log(data.data[0].url);`
                 </CardContent>
               </Card>
 
-              <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-sm">
+              <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-sm hover:border-purple-500/50 transition-all duration-300">
+                <CardHeader>
+                  <CardTitle className="text-white text-lg md:text-xl">Web Search Model</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-gray-300 mb-4 text-sm md:text-base">
+                    Get real-time web search results.
+                  </p>
+                  <div className="bg-gray-900 rounded-lg p-4 md:p-6 overflow-x-auto border border-gray-700 mb-4">
+                    <pre className="text-xs md:text-sm">
+                      <code className="text-gray-300 font-mono">{webSearchExample}</code>
+                    </pre>
+                  </div>
+                  <Button
+                    onClick={() => {
+                      navigator.clipboard.writeText(webSearchExample)
+                      toast.success("Code copied to clipboard!")
+                    }}
+                    className="bg-purple-600 hover:bg-purple-700 w-full sm:w-auto"
+                  >
+                    <Copy className="h-4 w-4 mr-2" />
+                    Copy Code
+                  </Button>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-sm hover:border-purple-500/50 transition-all duration-300">
                 <CardHeader>
                   <CardTitle className="text-white text-lg md:text-xl">Complete HTML Example</CardTitle>
                 </CardHeader>
