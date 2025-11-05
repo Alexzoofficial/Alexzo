@@ -1,8 +1,8 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { motion } from "framer-motion"
-import { ArrowLeft, Key, Copy, Trash2, Plus, TrendingUp, Code, Book, Check, AlertTriangle, Loader } from "lucide-react"
+import { ArrowLeft, Key, Copy, Trash2, Plus, TrendingUp, Code, Book, Check, AlertTriangle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -24,55 +24,84 @@ import { useAuth } from "@/lib/auth-context"
 import { toast } from "sonner"
 import Link from "next/link"
 import Image from "next/image"
-import { fetchAPIKeys, createAPIKey, deleteAPIKey as deleteAPIKeyFromDB } from "@/lib/api-keys"
 
 interface APIKey {
   id: string
   name: string
   key: string
   created: string
-  lastUsed: string | null
+  lastUsed: string
 }
 
 export default function APIPage() {
   const { user } = useAuth()
   const [apiKeys, setApiKeys] = useState<APIKey[]>([])
-  const [isLoading, setIsLoading] = useState(true)
   const [showCreateKey, setShowCreateKey] = useState(false)
   const [keyName, setKeyName] = useState("")
   const [copiedKey, setCopiedKey] = useState<string | null>(null)
   const [deleteKeyId, setDeleteKeyId] = useState<string | null>(null)
 
-  useEffect(() => {
+  const loadAPIKeys = useCallback(() => {
     if (user) {
-      loadAPIKeys()
-    } else {
-      setIsLoading(false)
+      const savedKeys = localStorage.getItem(`api_keys_${user.uid}`)
+      if (savedKeys) {
+        setApiKeys(JSON.parse(savedKeys))
+      }
     }
   }, [user])
 
-  const loadAPIKeys = async () => {
-    setIsLoading(true)
-    const keys = await fetchAPIKeys()
-    setApiKeys(keys)
-    setIsLoading(false)
+  useEffect(() => {
+    loadAPIKeys()
+  }, [loadAPIKeys])
+
+  const generateUniqueAPIKey = (): string => {
+    let newKey = ""
+    let isUnique = false
+
+    while (!isUnique) {
+      newKey = `alexzo_${Math.random().toString(36).substring(2, 15)}${Math.random().toString(36).substring(2, 15)}`
+      // Check if key already exists for this user or any other user
+      isUnique = !apiKeys.some((key) => key.key === newKey)
+
+      // Also check localStorage for all users (basic uniqueness check)
+      const allKeys = Object.keys(localStorage)
+        .filter((key) => key.startsWith("api_keys_"))
+        .flatMap((key) => {
+          try {
+            return JSON.parse(localStorage.getItem(key) || "[]") as APIKey[]
+          } catch {
+            return [] as APIKey[]
+          }
+        })
+
+      isUnique = isUnique && !allKeys.some((key: APIKey) => key.key === newKey)
+    }
+
+    return newKey
   }
 
-  const handleCreateAPIKey = async () => {
+  const createAPIKey = () => {
     if (!keyName.trim()) {
       toast.error("Please enter a name for your API key")
       return
     }
 
-    const newKey = await createAPIKey(keyName)
-    if (newKey) {
-      setApiKeys([newKey, ...apiKeys])
-      setKeyName("")
-      setShowCreateKey(false)
-      toast.success("API key created successfully!")
-    } else {
-      toast.error("Failed to create API key. Please try again.")
+    const newKey: APIKey = {
+      id: Date.now().toString(),
+      name: keyName,
+      key: generateUniqueAPIKey(),
+      created: new Date().toISOString(),
+      lastUsed: "Never",
     }
+
+    const updatedKeys = [...apiKeys, newKey]
+    if (user) {
+      localStorage.setItem(`api_keys_${user.uid}`, JSON.stringify(updatedKeys))
+    }
+    setApiKeys(updatedKeys)
+    setKeyName("")
+    setShowCreateKey(false)
+    toast.success("API key created successfully!")
   }
 
   const copyAPIKey = (key: string, type: "name" | "key") => {
@@ -86,22 +115,21 @@ export default function APIPage() {
     setDeleteKeyId(id)
   }
 
-  const handleDeleteAPIKey = async () => {
+  const deleteAPIKey = () => {
     if (!deleteKeyId) return
 
-    const success = await deleteAPIKeyFromDB(deleteKeyId)
-    if (success) {
-      setApiKeys(apiKeys.filter((key) => key.id !== deleteKeyId))
-      setDeleteKeyId(null)
-      toast.success("API key deleted successfully!")
-    } else {
-      toast.error("Failed to delete API key. Please try again.")
+    const updatedKeys = apiKeys.filter((key) => key.id !== deleteKeyId)
+    if (user) {
+      localStorage.setItem(`api_keys_${user.uid}`, JSON.stringify(updatedKeys))
     }
+    setApiKeys(updatedKeys)
+    setDeleteKeyId(null)
+    toast.success("API key deleted successfully!")
   }
 
 
-  const codeExample = `// AI Image Generation - Free Use
-const response = await fetch('https://alexzo.vercel.app/api/generate', {
+  const codeExample = `// Model: AI Image Generation
+const response = await fetch('https://alexzo.vercel.app/api/zyfoox', {
   method: 'POST',
   headers: {
     'Authorization': 'Bearer ${apiKeys[0]?.key || "alexzo_your_api_key_here"}',
@@ -117,7 +145,7 @@ const response = await fetch('https://alexzo.vercel.app/api/generate', {
 const data = await response.json();
 console.log(data.data[0].url);`
 
-  const webSearchExample = `// Real-Time Web Search - Free Use
+  const webSearchExample = `// Model: Real-Time Web Search
 const response = await fetch('https://alexzo.vercel.app/api/search?q=latest+ai+news', {
   method: 'GET',
   headers: {
@@ -674,21 +702,6 @@ console.log(data.results);`
       </header>
 
       <div className="relative z-10 container mx-auto px-4 md:px-6 py-8 md:py-12">
-        {/* Title */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-12"
-        >
-          <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent">
-            API Management
-          </h1>
-          <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-            Manage your API keys, view usage examples, and access documentation.
-          </p>
-        </motion.div>
-
         {/* Analytics */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -696,7 +709,7 @@ console.log(data.results);`
           transition={{ duration: 0.6 }}
           className="mb-8 md:mb-12"
         >
-          <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-sm hover:border-purple-500/50 transition-all duration-300">
+          <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-sm">
             <CardHeader>
               <CardTitle className="text-white text-lg md:text-xl flex items-center">
                 <TrendingUp className="h-5 w-5 mr-2" />
@@ -733,10 +746,10 @@ console.log(data.results);`
                 API Keys
               </TabsTrigger>
               <TabsTrigger
-                value="examples"
+                value="models"
                 className="data-[state=active]:bg-purple-600 data-[state=active]:text-white text-gray-300 text-sm"
               >
-                Examples
+                Models
               </TabsTrigger>
               <TabsTrigger
                 value="docs"
@@ -759,12 +772,8 @@ console.log(data.results);`
                 </Button>
               </div>
 
-              {isLoading ? (
-                <div className="flex justify-center items-center p-12">
-                  <Loader className="h-8 w-8 text-purple-400 animate-spin" />
-                </div>
-              ) : apiKeys.length === 0 ? (
-                <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-sm hover:border-purple-500/50 transition-all duration-300">
+              {apiKeys.length === 0 ? (
+                <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-sm">
                   <CardContent className="p-8 md:p-12 text-center">
                     <Key className="h-12 md:h-16 w-12 md:w-16 text-gray-600 mx-auto mb-4" />
                     <h3 className="text-lg md:text-xl font-semibold text-white mb-2">No API Keys</h3>
@@ -855,13 +864,16 @@ console.log(data.results);`
               )}
             </TabsContent>
 
-            {/* Code Examples Tab */}
-            <TabsContent value="examples" className="space-y-6">
+            {/* Models Tab */}
+            <TabsContent value="models" className="space-y-6">
               <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-sm hover:border-purple-500/50 transition-all duration-300">
                 <CardHeader>
-                  <CardTitle className="text-white text-lg md:text-xl">Basic API Usage</CardTitle>
+                  <CardTitle className="text-white text-lg md:text-xl">Image Generation Model</CardTitle>
                 </CardHeader>
                 <CardContent>
+                  <p className="text-gray-300 mb-4 text-sm md:text-base">
+                    Generate high-quality images from text prompts.
+                  </p>
                   <div className="bg-gray-900 rounded-lg p-4 md:p-6 overflow-x-auto border border-gray-700 mb-4">
                     <pre className="text-xs md:text-sm">
                       <code className="text-gray-300 font-mono">{codeExample}</code>
@@ -882,9 +894,12 @@ console.log(data.results);`
 
               <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-sm hover:border-purple-500/50 transition-all duration-300">
                 <CardHeader>
-                  <CardTitle className="text-white text-lg md:text-xl">Web Search API Usage</CardTitle>
+                  <CardTitle className="text-white text-lg md:text-xl">Web Search Model</CardTitle>
                 </CardHeader>
                 <CardContent>
+                  <p className="text-gray-300 mb-4 text-sm md:text-base">
+                    Get real-time web search results.
+                  </p>
                   <div className="bg-gray-900 rounded-lg p-4 md:p-6 overflow-x-auto border border-gray-700 mb-4">
                     <pre className="text-xs md:text-sm">
                       <code className="text-gray-300 font-mono">{webSearchExample}</code>
@@ -967,7 +982,7 @@ console.log(data.results);`
 
             {/* Documentation Tab */}
             <TabsContent value="docs" className="space-y-6">
-              <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-sm hover:border-purple-500/50 transition-all duration-300">
+              <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-sm">
                 <CardHeader>
                   <CardTitle className="text-white text-lg md:text-xl">API Documentation</CardTitle>
                 </CardHeader>
@@ -1007,7 +1022,7 @@ console.log(data.results);`
                 maxLength={50}
               />
             </div>
-            <Button onClick={handleCreateAPIKey} className="w-full bg-purple-600 hover:bg-purple-700">
+            <Button onClick={createAPIKey} className="w-full bg-purple-600 hover:bg-purple-700">
               Create API Key
             </Button>
           </div>
@@ -1031,7 +1046,7 @@ console.log(data.results);`
             <AlertDialogCancel className="bg-gray-800 border-gray-700 text-gray-300 hover:bg-gray-700">
               Cancel
             </AlertDialogCancel>
-            <AlertDialogAction onClick={handleDeleteAPIKey} className="bg-red-600 hover:bg-red-700 text-white">
+            <AlertDialogAction onClick={deleteAPIKey} className="bg-red-600 hover:bg-red-700 text-white">
               Delete Key
             </AlertDialogAction>
           </AlertDialogFooter>
