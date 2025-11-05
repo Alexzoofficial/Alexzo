@@ -117,6 +117,17 @@ const response = await fetch('https://alexzo.vercel.app/api/generate', {
 const data = await response.json();
 console.log(data.data[0].url);`
 
+  const webSearchExample = `// Real-Time Web Search - Free Use
+const response = await fetch('https://alexzo.vercel.app/api/search?q=latest+ai+news', {
+  method: 'GET',
+  headers: {
+    'Authorization': 'Bearer ${apiKeys[0]?.key || "alexzo_your_api_key_here"}',
+  }
+});
+
+const data = await response.json();
+console.log(data.results);`
+
   const fullExample = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -859,6 +870,29 @@ console.log(data.data[0].url);`
                   <Button
                     onClick={() => {
                       navigator.clipboard.writeText(codeExample)
+                      toast.success("Code copied to clipboard!")
+                    }}
+                    className="bg-purple-600 hover:bg-purple-700 w-full sm:w-auto"
+                  >
+                    <Copy className="h-4 w-4 mr-2" />
+                    Copy Code
+                  </Button>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-sm hover:border-purple-500/50 transition-all duration-300">
+                <CardHeader>
+                  <CardTitle className="text-white text-lg md:text-xl">Web Search API Usage</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="bg-gray-900 rounded-lg p-4 md:p-6 overflow-x-auto border border-gray-700 mb-4">
+                    <pre className="text-xs md:text-sm">
+                      <code className="text-gray-300 font-mono">{webSearchExample}</code>
+                    </pre>
+                  </div>
+                  <Button
+                    onClick={() => {
+                      navigator.clipboard.writeText(webSearchExample)
                       toast.success("Code copied to clipboard!")
                     }}
                     className="bg-purple-600 hover:bg-purple-700 w-full sm:w-auto"
