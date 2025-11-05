@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { motion } from "framer-motion"
 import { Plus, Code, BarChart3, Settings, Trash2, Eye, MoreVertical, Copy, Globe, Zap, Dog, ImageIcon } from 'lucide-react'
 import { Button } from "@/components/ui/button"
@@ -57,16 +57,7 @@ export default function APICreatePage() {
     name: ""
   })
 
-  useEffect(() => {
-    if (!user) {
-      setShowAuthModal(true)
-    } else {
-      loadUserAPIs()
-      loadGeneratedImages()
-    }
-  }, [user])
-
-  const loadUserAPIs = async () => {
+  const loadUserAPIs = useCallback(async () => {
     if (!user || !user.email) return
     
     try {
@@ -85,7 +76,16 @@ export default function APICreatePage() {
       console.error('Error loading APIs:', error)
       toast.error('Failed to load APIs')
     }
-  }
+  }, [user])
+
+  useEffect(() => {
+    if (!user) {
+      setShowAuthModal(true)
+    } else {
+      loadUserAPIs()
+      loadGeneratedImages()
+    }
+  }, [user, loadUserAPIs])
 
   const loadGeneratedImages = () => {
     // Images are not saved - this function is now a no-op
@@ -667,7 +667,7 @@ export default function APICreatePage() {
                 <div className="bg-gray-800/50 rounded-lg p-6 backdrop-blur-sm">
                   <h3 className="text-lg font-semibold mb-4">Usage Example</h3>
                   <div className="bg-gray-900 rounded p-4 font-mono text-sm">
-                    <div className="text-gray-400 mb-2">// Example API call</div>
+                    <div className="text-gray-400 mb-2">{/* Example API call */}</div>
                     <div className="text-green-400">
                       curl -X {selectedAPI.method} \<br />
                       &nbsp;&nbsp;"https://api.alexzo.com{selectedAPI.endpoint}" \<br />
