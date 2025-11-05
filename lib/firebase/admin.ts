@@ -41,7 +41,24 @@ export function getFirebaseAdmin() {
     const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID
 
     if (!privateKey || !clientEmail || !projectId) {
-      console.warn('Firebase admin credentials not configured, server-side operations may be limited')
+      console.error(`
+        ================================================================================
+        ** FIREBASE ADMIN CREDENTIALS ERROR **
+
+        Firebase Admin SDK credentials are not configured. Server-side operations
+        like creating API keys will fail.
+
+        Please configure the following environment variables:
+        - FIREBASE_PRIVATE_KEY
+        - FIREBASE_CLIENT_EMAIL
+        - NEXT_PUBLIC_FIREBASE_PROJECT_ID
+
+        Alternatively, you can place your service account JSON file at:
+        'lib/firebase/credentials/service-account.json'
+
+        For more details, see the Firebase Admin SDK setup documentation.
+        ================================================================================
+      `);
       return null
     }
 
