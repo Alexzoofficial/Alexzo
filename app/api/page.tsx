@@ -31,7 +31,7 @@ interface APIKey {
   name: string
   key: string
   created: string
-  lastUsed: string
+  lastUsed: string | null
 }
 
 export default function APIPage() {
