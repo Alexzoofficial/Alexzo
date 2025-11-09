@@ -2,13 +2,12 @@
 
 import { useState, useEffect, useCallback } from "react"
 import { motion } from "framer-motion"
-import { Plus, Code, BarChart3, Settings, Trash2, Eye, MoreVertical, Copy, Globe, Zap, Dog, ImageIcon } from 'lucide-react'
+import { Plus, Code, Settings, Trash2, MoreVertical, Copy, Globe, Zap, Dog, ImageIcon } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
@@ -44,7 +43,6 @@ export default function APICreatePage() {
   const [showAuthModal, setShowAuthModal] = useState(false)
   const [apis, setApis] = useState<API[]>([])
   const [showCreateDialog, setShowCreateDialog] = useState(false)
-  const [selectedAPI, setSelectedAPI] = useState<API | null>(null)
   const [showAnalytics, setShowAnalytics] = useState(false)
   
   // Dogs section state
@@ -83,19 +81,8 @@ export default function APICreatePage() {
       setShowAuthModal(true)
     } else {
       loadUserAPIs()
-      loadGeneratedImages()
     }
   }, [user, loadUserAPIs])
-
-  const loadGeneratedImages = () => {
-    // Images are not saved - this function is now a no-op
-    // User requested: images should NOT be saved
-  }
-
-  const saveAPIs = (newAPIs: API[]) => {
-    // APIs are now saved to Firebase via API endpoints, not localStorage
-    setApis(newAPIs)
-  }
 
   const saveGeneratedImages = (images: GeneratedImage[]) => {
     // Images are NOT saved per user request
@@ -210,11 +197,6 @@ export default function APICreatePage() {
       console.error('Error deleting API:', error)
       toast.error("Failed to delete API")
     }
-  }
-
-  const copyAPIKey = (apiKey: string) => {
-    navigator.clipboard.writeText(apiKey)
-    toast.success("API key copied to clipboard!")
   }
 
   const toggleAPIStatus = async (id: string) => {
@@ -604,82 +586,6 @@ export default function APICreatePage() {
             </div>
           </TabsContent>
         </Tabs>
-
-        {/* Analytics Modal */}
-        <Dialog open={showAnalytics} onOpenChange={setShowAnalytics}>
-          <DialogContent className="bg-gray-900/95 border-gray-800 text-white max-w-4xl backdrop-blur-sm">
-            <DialogHeader>
-              <DialogTitle>API Analytics - {selectedAPI?.name}</DialogTitle>
-            </DialogHeader>
-            {selectedAPI && (
-              <div className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <Card className="bg-gray-800/50 border-gray-700 backdrop-blur-sm">
-                    <CardContent className="p-4">
-                      <div className="text-center">
-                        <p className="text-gray-400 text-sm">Success Rate</p>
-                        <p className="text-2xl font-bold text-green-400">{selectedAPI.successRate}%</p>
-                      </div>
-                    </CardContent>
-                  </Card>
-                  <Card className="bg-gray-800/50 border-gray-700 backdrop-blur-sm">
-                    <CardContent className="p-4">
-                      <div className="text-center">
-                        <p className="text-gray-400 text-sm">Status</p>
-                        <Badge variant={selectedAPI.status === "active" ? "default" : "secondary"}>
-                          {selectedAPI.status}
-                        </Badge>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-
-                <div className="bg-gray-800/50 rounded-lg p-6 backdrop-blur-sm">
-                  <h3 className="text-lg font-semibold mb-4">API Details</h3>
-                  <div className="space-y-3">
-                    <div className="flex justify-between">
-                      <span className="text-gray-400">Endpoint:</span>
-                      <span className="font-mono text-sm">{selectedAPI.endpoint}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-400">Method:</span>
-                      <Badge variant="outline">{selectedAPI.method}</Badge>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-400">API Key:</span>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => copyAPIKey(selectedAPI.apiKey)}
-                        className="text-gray-300 hover:text-white"
-                      >
-                        <Copy className="h-3 w-3 mr-1" />
-                        Copy Key
-                      </Button>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-400">Created:</span>
-                      <span>{new Date(selectedAPI.createdAt).toLocaleDateString()}</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-gray-800/50 rounded-lg p-6 backdrop-blur-sm">
-                  <h3 className="text-lg font-semibold mb-4">Usage Example</h3>
-                  <div className="bg-gray-900 rounded p-4 font-mono text-sm">
-                    <div className="text-gray-400 mb-2">{/* Example API call */}</div>
-                    <div className="text-green-400">
-                      curl -X {selectedAPI.method} \<br />
-                      &nbsp;&nbsp;"https://api.alexzo.com{selectedAPI.endpoint}" \<br />
-                      &nbsp;&nbsp;-H "Authorization: Bearer {selectedAPI.apiKey}" \<br />
-                      &nbsp;&nbsp;-H "Content-Type: application/json"
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-          </DialogContent>
-        </Dialog>
       </div>
     </div>
   )

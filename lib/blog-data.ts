@@ -13,6 +13,221 @@ export interface BlogPost {
 
 export const blogPosts: BlogPost[] = [
   {
+    id: "4",
+    title: "Unleashing a New Era of Creativity: Introducing the All-New Zyfoox and Search APIs",
+    excerpt: "Explore the next evolution of AI-powered creation with our completely revamped Zyfoox Image Generation and the brand-new, powerful Search API. Discover how these tools are setting a new standard for speed, quality, and creative freedom, all for free.",
+    content: `# Unleashing a New Era of Creativity: Introducing the All-New Zyfoox and Search APIs
+
+## The Next Leap Forward in AI-Powered Creation
+
+At Alexzo, our mission has always been to democratize creativity and empower individuals with powerful, intuitive AI tools. We believe that everyone, regardless of their technical skill, deserves access to technology that can bring their ideas to life. Today, we are thrilled to announce a monumental step forward in that mission: the launch of our completely revamped **Zyfoox Image Generation API** and the introduction of our brand-new, powerful **Search API**.
+
+This isn't just an update; it's a reinvention. We've gone back to the drawing board, listened to your feedback, and rebuilt our core services to deliver an experience that is faster, more powerful, and more intuitive than ever before. And we're staying true to our promise: these state-of-the-art tools remain completely **free to use**.
+
+Let's dive into what makes this update a game-changer for creators, developers, and innovators everywhere.
+
+## Zyfoox Reimagined: The Art of Instantaneous Creation
+
+Our original Zyfoox image generator was a hit, but we knew we could do better. The new Zyfoox API is the result of thousands of hours of research and development, built on a next-generation AI model that redefines the boundaries of text-to-image generation.
+
+### What's New with Zyfoox?
+
+**1. Blazing-Fast Performance:**
+We've re-architected our entire backend to slash generation times. Where you once waited, you'll now see your ideas materialize almost instantly. This speed allows for rapid iteration and a more fluid creative process, letting you explore dozens of concepts in the time it used to take to generate a single image.
+
+**2. Hyper-Realistic and Stylized Outputs:**
+The new model boasts a vastly improved understanding of textures, lighting, and composition. This translates to images with stunning photorealism and artistic depth. Whether you're aiming for a cinematic shot, a dreamy watercolor, or a crisp vector illustration, Zyfoox delivers with breathtaking accuracy.
+
+**3. Enhanced Prompt Comprehension:**
+We've supercharged our AI's ability to understand complex and nuanced prompts. You can now use more natural, descriptive language to articulate your vision. The AI is better at grasping abstract concepts, intricate details, and the subtle interplay of elements within a scene.
+
+**4. Simplified API Endpoint:**
+We've streamlined the API for a more intuitive developer experience. The new endpoint is simply \`/api/zyfoox\`. It's clean, simple, and easy to integrate.
+
+### See Zyfoox in Action: Code Examples
+
+Integrating the new Zyfoox API is incredibly straightforward. Here’s how you can get started in seconds:
+
+**JavaScript (Node.js):**
+\`\`\`javascript
+// Model: Zyfoox (AI Image Generation)
+const response = await fetch('https://alexzo.vercel.app/api/zyfoox', {
+  method: 'POST',
+  headers: {
+    'Authorization': 'Bearer ${apiKeys[0]?.key || "your_api_key_here"}',
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    prompt: 'A hyper-realistic photograph of a wolf in a neon-lit forest, misty, ethereal, 8K',
+    width: 768,
+    height: 512
+  })
+});
+
+const data = await response.json();
+console.log(data.data[0].url); // Your generated image URL
+\`\`\`
+
+**Python:**
+\`\`\`python
+import requests
+import json
+
+def generate_with_zyfoox(prompt, api_key):
+    url = "https://alexzo.vercel.app/api/zyfoox"
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
+    }
+    data = {"prompt": prompt}
+
+    response = requests.post(url, headers=headers, json=data)
+
+    if response.status_code == 200:
+        return response.json()["data"][0]["url"]
+    else:
+        print(f"Error: {response.json()}")
+        return None
+
+# Usage
+api_key = "${apiKeys[0]?.key || "your_api_key_here"}"
+prompt = "A vibrant, detailed illustration of a futuristic city built in a massive tree"
+image_url = generate_with_zyfoox(prompt, api_key)
+if image_url:
+    print(f"Image ready at: {image_url}")
+\`\`\`
+
+**cURL:**
+\`\`\`bash
+curl -X POST "https://alexzo.vercel.app/api/zyfoox" \\
+  -H "Authorization: Bearer ${apiKeys[0]?.key || "your_api_key_here"}" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "prompt": "An oil painting of a lone astronaut sitting on a crescent moon, looking at Earth"
+  }'
+\`\`\`
+
+The new Zyfoox is more than an image generator; it's your creative co-pilot, ready to turn the most ambitious visions into digital reality.
+
+## Introducing the Search API: Your Gateway to the World's Information
+
+While Zyfoox empowers visual creation, we wanted to provide a tool that harnesses the world's vast repository of information. We are incredibly excited to introduce our brand-new **Search API**, a powerful, free tool that allows you to integrate real-time web search capabilities into your applications.
+
+The Search API is designed to be a simple yet robust way to get up-to-date information on any topic, making it perfect for chatbots, research tools, content aggregators, and any application that benefits from access to the latest web data.
+
+### Key Features of the Search API:
+
+**1. Real-Time, Relevant Results:**
+Our Search API crawls the web in real-time to deliver the most current and relevant information for any query. Say goodbye to stale, cached data.
+
+**2. Simple, Developer-Friendly Interface:**
+Just like with Zyfoox, we've designed the Search API to be incredibly easy to use. A single POST request to the \`/api/search\` endpoint is all it takes.
+
+**3. Structured, Usable Data:**
+The API returns clean, structured JSON data, making it easy to parse and display in your application. No complex web scraping required.
+
+**4. Completely Free:**
+In line with our mission, the Search API is free to use, empowering developers to build sophisticated, information-rich applications without cost barriers.
+
+### Get Started with the Search API: Code Examples
+
+Here’s how you can tap into the power of our new Search API:
+
+**JavaScript (Node.js):**
+\`\`\`javascript
+// Model: Search (Web Search)
+const response = await fetch('https://alexzo.vercel.app/api/search', {
+  method: 'POST',
+  headers: {
+    'Authorization': 'Bearer ${apiKeys[0]?.key || "your_api_key_here"}',
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    query: 'What are the latest breakthroughs in renewable energy?'
+  })
+});
+
+const data = await response.json();
+console.log(data); // Structured search results
+\`\`\`
+
+**Python:**
+\`\`\`python
+import requests
+import json
+
+def perform_search(query, api_key):
+    url = "https://alexzo.vercel.app/api/search"
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
+    }
+    data = {"query": query}
+
+    response = requests.post(url, headers=headers, json=data)
+
+    if response.status_code == 200:
+        return response.json()
+    else:
+        print(f"Error: {response.json()}")
+        return None
+
+# Usage
+api_key = "${apiKeys[0]?.key || "your_api_key_here"}"
+query = "Impact of AI on modern software development"
+results = perform_search(query, api_key)
+if results:
+    print(json.dumps(results, indent=2))
+\`\`\`
+
+**cURL:**
+\`\`\`bash
+curl -X POST "https://alexzo.vercel.app/api/search" \\
+  -H "Authorization: Bearer ${apiKeys[0]?.key || "your_api_key_here"}" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "query": "Best practices for building scalable web applications"
+  }'
+\`\`\`
+
+## A Unified, Streamlined Experience
+
+Both the Zyfoox and Search APIs are designed to work together seamlessly under the unified \`/api\` endpoint structure. This makes building multi-functional applications easier than ever. Imagine creating an application that researches a topic using the Search API and then generates a stunning visual summary with the Zyfoox API—all through a consistent, simple interface.
+
+Our commitment is to provide a cohesive ecosystem of tools that feel like extensions of your own creativity and intellect.
+
+## Our Unwavering Commitment to Free and Open Access
+
+In an industry where powerful tools are often locked behind expensive paywalls, we are doubling down on our commitment to free access. We believe that innovation flourishes when barriers are removed. By providing these state-of-the-art APIs for free, we hope to empower a new wave of creators, developers, and entrepreneurs to build the next generation of amazing applications.
+
+This is made possible by our relentless focus on efficiency and our belief in the power of community. As you build with our tools, you become part of an ecosystem that pushes the boundaries of what's possible.
+
+## What's Next? The Journey is Just Beginning
+
+This launch is a major milestone, but it's far from the end of the road. We are already hard at work on the next set of features and improvements, including:
+- **Advanced image editing and inpainting capabilities for Zyfoox.**
+- **More granular controls and filter options for the Search API.**
+- **New APIs that will expand our creative and informational toolkit.**
+
+We are building Alexzo with you, for you. Your feedback, your creations, and your passion are what drive us forward.
+
+## Get Started Today!
+
+Ready to dive in? Head over to our **[API Documentation Page](https://alexzo.vercel.app/api)** to get your free API key and explore the full capabilities of the new Zyfoox and Search APIs.
+
+We cannot wait to see what you create. The future is bright, and together, we're going to build a more creative and informed world.
+
+---
+
+**The Alexzo Team**`,
+    image: "/images/blog/zyfoox-search-api-launch.webp",
+    author: "The Alexzo Team",
+    publishedAt: "2025-11-08",
+    readTime: "8 min read",
+    category: "Product Updates",
+    tags: ["API Launch", "Zyfoox", "Search API", "AI Image Generation", "Free API", "Developer Tools", "AI Technology", "Product News"]
+  },
+  {
     id: "3",
     title: "The Alexzo Intelligence Revolution: How We're Redefining Human Potential Through AI",
     excerpt: "Discover the groundbreaking story behind Alexzo's AI intelligence platform that's transforming how humans interact with technology. From our revolutionary neural architectures to democratizing AI access, learn how we're building the future of human-AI collaboration.",

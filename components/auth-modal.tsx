@@ -7,7 +7,6 @@ import { X, CheckCircle, AlertCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useAuth } from "@/lib/auth-context"
 import { SafeImage } from "@/components/safe-image"
-import Link from "next/link"
 
 interface AuthModalProps {
   isOpen: boolean
@@ -227,13 +226,13 @@ export function AuthModal({ isOpen, onClose, initialMode = "signin", defaultMode
                 <div className="text-center">
                   <p className="text-gray-400 text-xs">
                     By continuing, you agree to our{" "}
-                    <Link href="/terms" className="text-purple-400 hover:text-purple-300">
+                    <a href="/terms" className="text-purple-400 hover:text-purple-300">
                       Terms of Service
-                    </Link>{" "}
+                    </a>{" "}
                     and{" "}
-                    <Link href="/privacy" className="text-purple-400 hover:text-purple-300">
+                    <a href="/privacy" className="text-purple-400 hover:text-purple-300">
                       Privacy Policy
-                    </Link>
+                    </a>
                   </p>
                 </div>
               </div>

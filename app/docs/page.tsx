@@ -245,7 +245,7 @@ curl -X POST "https://alexzo.vercel.app/api/generate" \\
                     <h4 className="font-semibold mb-4 text-purple-300 text-base md:text-lg">API Key Format</h4>
                     <p className="text-gray-300 mb-4 text-sm md:text-base">Your API key starts with <code className="text-green-400 bg-gray-900 px-2 py-1 rounded">alexzo_</code></p>
                     <div className="bg-gray-900 rounded-lg p-3 md:p-4 font-mono text-xs md:text-sm border border-gray-700 overflow-x-auto">
-                      <div className="text-gray-400 mb-1">{/* Request Header */}</div>
+                      <div className="text-gray-400 mb-1">// Request Header</div>
                       <div className="break-all">
                         <span className="text-blue-400">Authorization:</span>{" "}
                         <span className="text-green-400">Bearer alexzo_your_api_key_here</span>
