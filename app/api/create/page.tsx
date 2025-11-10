@@ -44,6 +44,7 @@ export default function APICreatePage() {
   const [apis, setApis] = useState<API[]>([])
   const [showCreateDialog, setShowCreateDialog] = useState(false)
   const [showAnalytics, setShowAnalytics] = useState(false)
+  const [copiedKey, setCopiedKey] = useState<string | null>(null)
   
   // Dogs section state
   const [dogPrompt, setDogPrompt] = useState("")
@@ -88,6 +89,13 @@ export default function APICreatePage() {
     // Images are NOT saved per user request
     // Just update state for current session only
     setGeneratedDogImages(images)
+  }
+
+  const copyAPIKey = (key: string) => {
+    navigator.clipboard.writeText(key)
+    setCopiedKey(key)
+    toast.success("API key copied to clipboard!")
+    setTimeout(() => setCopiedKey(null), 2000)
   }
 
   const generateAPIKey = () => {
