@@ -54,7 +54,7 @@ Integrating the new Zyfoox API is incredibly straightforward. Here’s how you c
 const response = await fetch('https://alexzo.vercel.app/api/zyfoox', {
   method: 'POST',
   headers: {
-    'Authorization': 'Bearer ${apiKeys[0]?.key || "your_api_key_here"}',
+    'Authorization': 'Bearer your_api_key_here',
     'Content-Type': 'application/json'
   },
   body: JSON.stringify({
@@ -90,7 +90,7 @@ def generate_with_zyfoox(prompt, api_key):
         return None
 
 # Usage
-api_key = "${apiKeys[0]?.key || "your_api_key_here"}"
+api_key = "your_api_key_here"
 prompt = "A vibrant, detailed illustration of a futuristic city built in a massive tree"
 image_url = generate_with_zyfoox(prompt, api_key)
 if image_url:
@@ -100,7 +100,7 @@ if image_url:
 **cURL:**
 \`\`\`bash
 curl -X POST "https://alexzo.vercel.app/api/zyfoox" \\
-  -H "Authorization: Bearer ${apiKeys[0]?.key || "your_api_key_here"}" \\
+  -H "Authorization: Bearer your_api_key_here" \\
   -H "Content-Type: application/json" \\
   -d '{
     "prompt": "An oil painting of a lone astronaut sitting on a crescent moon, looking at Earth"
@@ -139,7 +139,7 @@ Here’s how you can tap into the power of our new Search API:
 const response = await fetch('https://alexzo.vercel.app/api/search', {
   method: 'POST',
   headers: {
-    'Authorization': 'Bearer ${apiKeys[0]?.key || "your_api_key_here"}',
+    'Authorization': 'Bearer your_api_key_here',
     'Content-Type': 'application/json'
   },
   body: JSON.stringify({
@@ -173,7 +173,7 @@ def perform_search(query, api_key):
         return None
 
 # Usage
-api_key = "${apiKeys[0]?.key || "your_api_key_here"}"
+api_key = "your_api_key_here"
 query = "Impact of AI on modern software development"
 results = perform_search(query, api_key)
 if results:
@@ -183,7 +183,7 @@ if results:
 **cURL:**
 \`\`\`bash
 curl -X POST "https://alexzo.vercel.app/api/search" \\
-  -H "Authorization: Bearer ${apiKeys[0]?.key || "your_api_key_here"}" \\
+  -H "Authorization: Bearer your_api_key_here" \\
   -H "Content-Type: application/json" \\
   -d '{
     "query": "Best practices for building scalable web applications"
