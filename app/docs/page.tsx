@@ -88,6 +88,61 @@ curl -X POST "https://alexzo.vercel.app/api/generate" \\
     "height": 512
   }'`
 
+  const searchApiExample = `// AI-Powered Search - Free Use
+const response = await fetch('https://alexzo.vercel.app/api/search', {
+  method: 'POST',
+  headers: {
+    'Authorization': 'Bearer alexzo_your_api_key_here',
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    query: 'What are the latest advancements in AI?'
+  })
+});
+
+const data = await response.json();
+console.log(data); // Search results`
+
+  const searchPythonExample = `import requests
+import json
+
+# AI-Powered Search with Python
+def perform_search(query, api_key):
+    url = "https://alexzo.vercel.app/api/search"
+
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
+    }
+
+    data = {
+        "query": query
+    }
+
+    response = requests.post(url, headers=headers, json=data)
+
+    if response.status_code == 200:
+        return response.json()
+    else:
+        print(f"Error: {response.json()}")
+        return None
+
+# Usage
+api_key = "alexzo_your_api_key_here"
+query = "Top AI conferences in 2024"
+search_results = perform_search(query, api_key)
+
+if search_results:
+    print(json.dumps(search_results, indent=2))`
+
+  const searchCurlExample = `# AI-Powered Search with cURL
+curl -X POST "https://alexzo.vercel.app/api/search" \\
+  -H "Authorization: Bearer alexzo_your_api_key_here" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "query": "Latest trends in machine learning"
+  }'`
+
   return (
     <div className="min-h-screen bg-black text-white overflow-hidden">
       {/* Animated Background */}
@@ -159,7 +214,7 @@ curl -X POST "https://alexzo.vercel.app/api/generate" \\
             API Documentation
           </h1>
           <p className="text-lg md:text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
-            Generate stunning, high-quality images with our advanced Alexzo AI model. Free to use with no restrictions.
+            Explore our APIs to generate stunning images and perform intelligent searches with the advanced Alexzo AI model. Free to use with no restrictions.
           </p>
         </motion.div>
 
@@ -225,6 +280,55 @@ curl -X POST "https://alexzo.vercel.app/api/generate" \\
                       <li>Make image generation requests to our endpoint</li>
                       <li>Enjoy creating amazing AI-generated images!</li>
                     </ol>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-sm mt-6">
+                <CardHeader>
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <CardTitle className="text-white text-xl md:text-2xl">AI-Powered Search</CardTitle>
+                    <Badge className="bg-purple-600 text-white px-3 py-1 w-fit">POST</Badge>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-4 md:space-y-6">
+                  <p className="text-gray-300 text-base md:text-lg">Get intelligent, real-time search results for any query.</p>
+
+                  <div className="bg-gray-800/50 rounded-xl p-3 md:p-4 font-mono text-sm md:text-base border border-gray-700 overflow-x-auto">
+                    <span className="text-purple-400 font-bold">POST</span>{" "}
+                    <span className="text-white break-all">https://alexzo.vercel.app/api/search</span>
+                  </div>
+
+                  <div className="space-y-4">
+                    <h5 className="font-semibold text-purple-300 text-base md:text-lg">Request Parameters</h5>
+                    <div className="bg-gray-800/50 rounded-xl p-4 border border-gray-700">
+                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-2">
+                        <code className="text-green-400 bg-gray-900 px-2 py-1 rounded text-xs md:text-sm font-mono">query</code>
+                        <Badge variant="outline" className="text-red-300 border-red-300 w-fit">Required</Badge>
+                      </div>
+                      <p className="text-gray-300 text-sm mb-1">The search term or question</p>
+                      <p className="text-gray-500 text-xs">Type: String</p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    <h5 className="font-semibold text-purple-300 text-base md:text-lg">Response Format</h5>
+                    <div className="bg-gray-900 rounded-xl p-3 md:p-4 border border-gray-700 overflow-x-auto">
+                      <pre className="text-xs md:text-sm text-gray-300 font-mono">
+{`{
+  "results": [
+    {
+      "title": "...",
+      "link": "...",
+      "snippet": "..."
+    }
+  ],
+  "related_searches": [
+    "..."
+  ]
+}`}
+                      </pre>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -342,24 +446,15 @@ curl -X POST "https://alexzo.vercel.app/api/generate" \\
               <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-sm">
                 <CardHeader>
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                    <CardTitle className="text-white text-xl md:text-2xl">JavaScript Example</CardTitle>
+                    <CardTitle className="text-white text-xl md:text-2xl">JavaScript Example (Image Generation)</CardTitle>
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => copyToClipboard(apiExample, 'js')}
+                      onClick={() => copyToClipboard(apiExample, 'js-image')}
                       className="border-gray-600 text-gray-300 hover:bg-gray-800 hover:text-white w-full sm:w-auto"
                     >
-                      {copiedCode === 'js' ? (
-                        <>
-                          <Check className="h-4 w-4 mr-2" />
-                          Copied!
-                        </>
-                      ) : (
-                        <>
-                          <Copy className="h-4 w-4 mr-2" />
-                          Copy Code
-                        </>
-                      )}
+                      {copiedCode === 'js-image' ? <Check className="h-4 w-4 mr-2" /> : <Copy className="h-4 w-4 mr-2" />}
+                      {copiedCode === 'js-image' ? 'Copied!' : 'Copy Code'}
                     </Button>
                   </div>
                 </CardHeader>
@@ -375,24 +470,15 @@ curl -X POST "https://alexzo.vercel.app/api/generate" \\
               <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-sm">
                 <CardHeader>
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                    <CardTitle className="text-white text-xl md:text-2xl">Python Example</CardTitle>
+                    <CardTitle className="text-white text-xl md:text-2xl">Python Example (Image Generation)</CardTitle>
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => copyToClipboard(pythonExample, 'python')}
+                      onClick={() => copyToClipboard(pythonExample, 'python-image')}
                       className="border-gray-600 text-gray-300 hover:bg-gray-800 hover:text-white w-full sm:w-auto"
                     >
-                      {copiedCode === 'python' ? (
-                        <>
-                          <Check className="h-4 w-4 mr-2" />
-                          Copied!
-                        </>
-                      ) : (
-                        <>
-                          <Copy className="h-4 w-4 mr-2" />
-                          Copy Code
-                        </>
-                      )}
+                      {copiedCode === 'python-image' ? <Check className="h-4 w-4 mr-2" /> : <Copy className="h-4 w-4 mr-2" />}
+                      {copiedCode === 'python-image' ? 'Copied!' : 'Copy Code'}
                     </Button>
                   </div>
                 </CardHeader>
@@ -408,24 +494,15 @@ curl -X POST "https://alexzo.vercel.app/api/generate" \\
               <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-sm">
                 <CardHeader>
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                    <CardTitle className="text-white text-xl md:text-2xl">cURL Example</CardTitle>
+                    <CardTitle className="text-white text-xl md:text-2xl">cURL Example (Image Generation)</CardTitle>
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => copyToClipboard(curlExample, 'curl')}
+                      onClick={() => copyToClipboard(curlExample, 'curl-image')}
                       className="border-gray-600 text-gray-300 hover:bg-gray-800 hover:text-white w-full sm:w-auto"
                     >
-                      {copiedCode === 'curl' ? (
-                        <>
-                          <Check className="h-4 w-4 mr-2" />
-                          Copied!
-                        </>
-                      ) : (
-                        <>
-                          <Copy className="h-4 w-4 mr-2" />
-                          Copy Code
-                        </>
-                      )}
+                      {copiedCode === 'curl-image' ? <Check className="h-4 w-4 mr-2" /> : <Copy className="h-4 w-4 mr-2" />}
+                      {copiedCode === 'curl-image' ? 'Copied!' : 'Copy Code'}
                     </Button>
                   </div>
                 </CardHeader>
@@ -433,6 +510,80 @@ curl -X POST "https://alexzo.vercel.app/api/generate" \\
                   <div className="bg-gray-900 rounded-xl p-4 md:p-6 overflow-x-auto border border-gray-700">
                     <pre className="text-xs md:text-sm">
                       <code className="text-gray-300 font-mono leading-relaxed">{curlExample}</code>
+                    </pre>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <div className="my-8 border-t border-dashed border-gray-700"></div>
+
+              <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-sm">
+                <CardHeader>
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <CardTitle className="text-white text-xl md:text-2xl">JavaScript Example (Search)</CardTitle>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => copyToClipboard(searchApiExample, 'js-search')}
+                      className="border-gray-600 text-gray-300 hover:bg-gray-800 hover:text-white w-full sm:w-auto"
+                    >
+                      {copiedCode === 'js-search' ? <Check className="h-4 w-4 mr-2" /> : <Copy className="h-4 w-4 mr-2" />}
+                      {copiedCode === 'js-search' ? 'Copied!' : 'Copy Code'}
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="bg-gray-900 rounded-xl p-4 md:p-6 overflow-x-auto border border-gray-700">
+                    <pre className="text-xs md:text-sm">
+                      <code className="text-gray-300 font-mono leading-relaxed">{searchApiExample}</code>
+                    </pre>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-sm">
+                <CardHeader>
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <CardTitle className="text-white text-xl md:text-2xl">Python Example (Search)</CardTitle>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => copyToClipboard(searchPythonExample, 'python-search')}
+                      className="border-gray-600 text-gray-300 hover:bg-gray-800 hover:text-white w-full sm:w-auto"
+                    >
+                      {copiedCode === 'python-search' ? <Check className="h-4 w-4 mr-2" /> : <Copy className="h-4 w-4 mr-2" />}
+                      {copiedCode === 'python-search' ? 'Copied!' : 'Copy Code'}
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="bg-gray-900 rounded-xl p-4 md:p-6 overflow-x-auto border border-gray-700">
+                    <pre className="text-xs md:text-sm">
+                      <code className="text-gray-300 font-mono leading-relaxed">{searchPythonExample}</code>
+                    </pre>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-sm">
+                <CardHeader>
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <CardTitle className="text-white text-xl md:text-2xl">cURL Example (Search)</CardTitle>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => copyToClipboard(searchCurlExample, 'curl-search')}
+                      className="border-gray-600 text-gray-300 hover:bg-gray-800 hover:text-white w-full sm:w-auto"
+                    >
+                      {copiedCode === 'curl-search' ? <Check className="h-4 w-4 mr-2" /> : <Copy className="h-4 w-4 mr-2" />}
+                      {copiedCode === 'curl-search' ? 'Copied!' : 'Copy Code'}
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="bg-gray-900 rounded-xl p-4 md:p-6 overflow-x-auto border border-gray-700">
+                    <pre className="text-xs md:text-sm">
+                      <code className="text-gray-300 font-mono leading-relaxed">{searchCurlExample}</code>
                     </pre>
                   </div>
                   <div className="mt-4 md:mt-6 p-4 bg-green-900/20 border border-green-500/30 rounded-xl">
