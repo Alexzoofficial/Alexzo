@@ -21,8 +21,6 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { useAuth } from "@/lib/auth-context"
-import { db } from "@/lib/firebase/client"
-import { collection, addDoc, getDocs, deleteDoc, doc, query, where } from "firebase/firestore"
 import { toast } from "sonner"
 import Link from "next/link"
 import Image from "next/image"
@@ -42,30 +40,19 @@ export default function APIPage() {
   const [keyName, setKeyName] = useState("")
   const [copiedKey, setCopiedKey] = useState<string | null>(null)
   const [deleteKeyId, setDeleteKeyId] = useState<string | null>(null)
-  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const loadAPIKeys = async () => {
-      if (user && db) {
-        setLoading(true)
-        try {
-          const keysCollection = collection(db, "apiKeys")
-          const q = query(keysCollection, where("userId", "==", user.uid))
-          const querySnapshot = await getDocs(q)
-          const keys = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as APIKey[]
-          setApiKeys(keys)
-        } catch (error) {
-          console.error("Error loading API keys:", error)
-          toast.error("Failed to load API keys.")
-        } finally {
-          setLoading(false)
-        }
-      } else {
-        setLoading(false)
-      }
-    }
     loadAPIKeys()
   }, [user])
+
+  const loadAPIKeys = () => {
+    if (user) {
+      const savedKeys = localStorage.getItem(`api_keys_${user.uid}`)
+      if (savedKeys) {
+        setApiKeys(JSON.parse(savedKeys))
+      }
+    }
+  }
 
   const generateUniqueAPIKey = (): string => {
     let newKey = ""
@@ -93,35 +80,28 @@ export default function APIPage() {
     return newKey
   }
 
-  const createAPIKey = async () => {
+  const createAPIKey = () => {
     if (!keyName.trim()) {
       toast.error("Please enter a name for your API key")
       return
     }
-    if (!user || !db) {
-      toast.error("You must be logged in to create an API key.")
-      return
+
+    const newKey: APIKey = {
+      id: Date.now().toString(),
+      name: keyName,
+      key: generateUniqueAPIKey(),
+      created: new Date().toISOString(),
+      lastUsed: "Never",
     }
 
-    try {
-      const keysCollection = collection(db, "apiKeys")
-      const newKeyData = {
-        name: keyName,
-        key: generateUniqueAPIKey(),
-        created: new Date().toISOString(),
-        lastUsed: "Never",
-        userId: user.uid,
-      }
-      const docRef = await addDoc(keysCollection, newKeyData)
-      const newKey = { id: docRef.id, ...newKeyData } as APIKey
-      setApiKeys([...apiKeys, newKey])
-      setKeyName("")
-      setShowCreateKey(false)
-      toast.success("API key created successfully!")
-    } catch (error) {
-      console.error("Error creating API key:", error)
-      toast.error("Failed to create API key.")
+    const updatedKeys = [...apiKeys, newKey]
+    if (user) {
+      localStorage.setItem(`api_keys_${user.uid}`, JSON.stringify(updatedKeys))
     }
+    setApiKeys(updatedKeys)
+    setKeyName("")
+    setShowCreateKey(false)
+    toast.success("API key created successfully!")
   }
 
   const copyAPIKey = (key: string, type: "name" | "key") => {
@@ -135,25 +115,21 @@ export default function APIPage() {
     setDeleteKeyId(id)
   }
 
-  const deleteAPIKey = async () => {
-    if (!deleteKeyId || !db) return
+  const deleteAPIKey = () => {
+    if (!deleteKeyId) return
 
-    try {
-      const keyDoc = doc(db, "apiKeys", deleteKeyId)
-      await deleteDoc(keyDoc)
-      const updatedKeys = apiKeys.filter((key) => key.id !== deleteKeyId)
-      setApiKeys(updatedKeys)
-      setDeleteKeyId(null)
-      toast.success("API key deleted successfully!")
-    } catch (error) {
-      console.error("Error deleting API key:", error)
-      toast.error("Failed to delete API key.")
+    const updatedKeys = apiKeys.filter((key) => key.id !== deleteKeyId)
+    if (user) {
+      localStorage.setItem(`api_keys_${user.uid}`, JSON.stringify(updatedKeys))
     }
+    setApiKeys(updatedKeys)
+    setDeleteKeyId(null)
+    toast.success("API key deleted successfully!")
   }
 
 
-  const zyfooxCodeExample = `// Model: Zyfoox (AI Image Generation)
-const response = await fetch('https://alexzo.vercel.app/api/zyfoox', {
+  const codeExample = `// AI Image Generation - Free Use
+const response = await fetch('https://alexzo.vercel.app/api/generate', {
   method: 'POST',
   headers: {
     'Authorization': 'Bearer ${apiKeys[0]?.key || "alexzo_your_api_key_here"}',
@@ -168,100 +144,6 @@ const response = await fetch('https://alexzo.vercel.app/api/zyfoox', {
 
 const data = await response.json();
 console.log(data.data[0].url);`
-
-  const pythonZyfooxExample = `import requests
-import json
-
-# Model: Zyfoox (AI Image Generation)
-def generate_image(prompt, api_key):
-    url = "https://alexzo.vercel.app/api/zyfoox"
-
-    headers = {
-        "Authorization": f"Bearer {api_key}",
-        "Content-Type": "application/json"
-    }
-
-    data = {
-        "prompt": prompt
-    }
-
-    response = requests.post(url, headers=headers, json=data)
-
-    if response.status_code == 200:
-        return response.json()["data"][0]["url"]
-    else:
-        print(f"Error: {response.json()}")
-        return None
-
-# Usage
-api_key = "${apiKeys[0]?.key || "alexzo_your_api_key_here"}"
-prompt = "A vibrant, detailed illustration of a futuristic city built in a massive tree"
-image_url = generate_image(prompt, api_key)
-if image_url:
-    print(f"Image ready at: {image_url}")`
-
-  const curlZyfooxExample = `# Model: Zyfoox (AI Image Generation)
-curl -X POST "https://alexzo.vercel.app/api/zyfoox" \\
-  -H "Authorization: Bearer ${apiKeys[0]?.key || "alexzo_your_api_key_here"}" \\
-  -H "Content-Type": "application/json" \\
-  -d '{
-    "prompt": "An oil painting of a lone astronaut sitting on a crescent moon, looking at Earth"
-  }'`
-
-  const searchCodeExample = `// Model: Search (Web Search)
-const response = await fetch('https://alexzo.vercel.app/api/search', {
-  method: 'POST',
-  headers: {
-    'Authorization': 'Bearer ${apiKeys[0]?.key || "alexzo_your_api_key_here"}',
-    'Content-Type': 'application/json'
-  },
-  body: JSON.stringify({
-    query: 'What are the latest AI trends?'
-  })
-});
-
-const data = await response.json();
-console.log(data);`
-
-  const pythonSearchExample = `import requests
-import json
-
-# Model: Search (Web Search)
-def web_search(query, api_key):
-    url = "https://alexzo.vercel.app/api/search"
-
-    headers = {
-        "Authorization": f"Bearer {api_key}",
-        "Content-Type": "application/json"
-    }
-
-    data = {
-        "query": query
-    }
-
-    response = requests.post(url, headers=headers, json=data)
-
-    if response.status_code == 200:
-        return response.json()
-    else:
-        print(f"Error: {response.json()}")
-        return None
-
-# Usage
-api_key = "${apiKeys[0]?.key || "alexzo_your_api_key_here"}"
-query = "What are the latest AI trends?"
-search_results = web_search(query, api_key)
-
-if search_results:
-    print(json.dumps(search_results, indent=2))`
-
-  const curlSearchExample = `# Model: Search (Web Search)
-curl -X POST "https://alexzo.vercel.app/api/search" \\
-  -H "Authorization: Bearer ${apiKeys[0]?.key || "alexzo_your_api_key_here"}" \\
-  -H "Content-Type": "application/json" \\
-  -d '{
-    "query": "What are the latest AI trends?"
-  }'`
 
   const fullExample = `<!DOCTYPE html>
 <html lang="en">
@@ -630,7 +512,7 @@ curl -X POST "https://alexzo.vercel.app/api/search" \\
             \`;
             
             try {
-                const response = await fetch('https://alexzo.vercel.app/api/zyfoox', {
+                const response = await fetch('https://alexzo.vercel.app/api/generate', {
                     method: 'POST',
                     headers: {
                         'Authorization': \`Bearer \${API_KEY}\`,
@@ -853,10 +735,10 @@ curl -X POST "https://alexzo.vercel.app/api/search" \\
                 API Keys
               </TabsTrigger>
               <TabsTrigger
-                value="models"
+                value="examples"
                 className="data-[state=active]:bg-purple-600 data-[state=active]:text-white text-gray-300 text-sm"
               >
-                Models
+                Examples
               </TabsTrigger>
               <TabsTrigger
                 value="docs"
@@ -879,11 +761,7 @@ curl -X POST "https://alexzo.vercel.app/api/search" \\
                 </Button>
               </div>
 
-              {loading ? (
-                <div className="flex justify-center items-center h-48">
-                  <div className="w-16 h-16 border-4 border-dashed rounded-full animate-spin border-purple-500"></div>
-                </div>
-              ) : apiKeys.length === 0 ? (
+              {apiKeys.length === 0 ? (
                 <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-sm">
                   <CardContent className="p-8 md:p-12 text-center">
                     <Key className="h-12 md:h-16 w-12 md:w-16 text-gray-600 mx-auto mb-4" />
@@ -975,158 +853,34 @@ curl -X POST "https://alexzo.vercel.app/api/search" \\
               )}
             </TabsContent>
 
-            {/* Models Tab */}
-            <TabsContent value="models" className="space-y-6">
-              {/* Zyfoox Model Card */}
+            {/* Code Examples Tab */}
+            <TabsContent value="examples" className="space-y-6">
               <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-sm">
                 <CardHeader>
-                  <CardTitle className="text-white text-lg md:text-xl">Zyfoox - AI Image Generation</CardTitle>
+                  <CardTitle className="text-white text-lg md:text-xl">Basic API Usage</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <Tabs defaultValue="js" className="w-full">
-                    <TabsList className="grid w-full grid-cols-3 bg-gray-900/50 border-gray-800 mb-4 h-10">
-                      <TabsTrigger value="js" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white text-gray-300 text-xs">
-                        JavaScript
-                      </TabsTrigger>
-                      <TabsTrigger value="python" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white text-gray-300 text-xs">
-                        Python
-                      </TabsTrigger>
-                      <TabsTrigger value="curl" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white text-gray-300 text-xs">
-                        cURL
-                      </TabsTrigger>
-                    </TabsList>
-                    <TabsContent value="js">
-                      <div className="bg-gray-900 rounded-lg p-4 md:p-6 overflow-x-auto border border-gray-700 mb-4">
-                        <pre className="text-xs md:text-sm">
-                          <code className="text-gray-300 font-mono">{zyfooxCodeExample}</code>
-                        </pre>
-                      </div>
-                      <Button
-                        onClick={() => {
-                          navigator.clipboard.writeText(zyfooxCodeExample)
-                          toast.success("Code copied to clipboard!")
-                        }}
-                        className="bg-purple-600 hover:bg-purple-700 w-full sm:w-auto"
-                      >
-                        <Copy className="h-4 w-4 mr-2" />
-                        Copy Code
-                      </Button>
-                    </TabsContent>
-                    <TabsContent value="python">
-                      <div className="bg-gray-900 rounded-lg p-4 md:p-6 overflow-x-auto border border-gray-700 mb-4">
-                        <pre className="text-xs md:text-sm">
-                          <code className="text-gray-300 font-mono">{pythonZyfooxExample}</code>
-                        </pre>
-                      </div>
-                      <Button
-                        onClick={() => {
-                          navigator.clipboard.writeText(pythonZyfooxExample)
-                          toast.success("Code copied to clipboard!")
-                        }}
-                        className="bg-purple-600 hover:bg-purple-700 w-full sm:w-auto"
-                      >
-                        <Copy className="h-4 w-4 mr-2" />
-                        Copy Code
-                      </Button>
-                    </TabsContent>
-                    <TabsContent value="curl">
-                      <div className="bg-gray-900 rounded-lg p-4 md:p-6 overflow-x-auto border border-gray-700 mb-4">
-                        <pre className="text-xs md:text-sm">
-                          <code className="text-gray-300 font-mono">{curlZyfooxExample}</code>
-                        </pre>
-                      </div>
-                      <Button
-                        onClick={() => {
-                          navigator.clipboard.writeText(curlZyfooxExample)
-                          toast.success("Code copied to clipboard!")
-                        }}
-                        className="bg-purple-600 hover:bg-purple-700 w-full sm:w-auto"
-                      >
-                        <Copy className="h-4 w-4 mr-2" />
-                        Copy Code
-                      </Button>
-                    </TabsContent>
-                  </Tabs>
-                </CardContent>
-              </Card>
-              <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-sm">
-                <CardHeader>
-                  <CardTitle className="text-white text-lg md:text-xl">Search - Web Search</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-300 mb-4 text-sm md:text-base">
-                    This model is for performing web searches and get the latest information.
-                  </p>
-                  <Tabs defaultValue="js" className="w-full">
-                    <TabsList className="grid w-full grid-cols-3 bg-gray-900/50 border-gray-800 mb-4 h-10">
-                      <TabsTrigger value="js" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white text-gray-300 text-xs">
-                        JavaScript
-                      </TabsTrigger>
-                      <TabsTrigger value="python" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white text-gray-300 text-xs">
-                        Python
-                      </TabsTrigger>
-                      <TabsTrigger value="curl" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white text-gray-300 text-xs">
-                        cURL
-                      </TabsTrigger>
-                    </TabsList>
-                    <TabsContent value="js">
-                      <div className="bg-gray-900 rounded-lg p-4 md:p-6 overflow-x-auto border border-gray-700 mb-4">
-                        <pre className="text-xs md:text-sm">
-                          <code className="text-gray-300 font-mono">{searchCodeExample}</code>
-                        </pre>
-                      </div>
-                      <Button
-                        onClick={() => {
-                          navigator.clipboard.writeText(searchCodeExample)
-                          toast.success("Code copied to clipboard!")
-                        }}
-                        className="bg-purple-600 hover:bg-purple-700 w-full sm:w-auto"
-                      >
-                        <Copy className="h-4 w-4 mr-2" />
-                        Copy Code
-                      </Button>
-                    </TabsContent>
-                    <TabsContent value="python">
-                      <div className="bg-gray-900 rounded-lg p-4 md:p-6 overflow-x-auto border border-gray-700 mb-4">
-                        <pre className="text-xs md:text-sm">
-                          <code className="text-gray-300 font-mono">{pythonSearchExample}</code>
-                        </pre>
-                      </div>
-                      <Button
-                        onClick={() => {
-                          navigator.clipboard.writeText(pythonSearchExample)
-                          toast.success("Code copied to clipboard!")
-                        }}
-                        className="bg-purple-600 hover:bg-purple-700 w-full sm:w-auto"
-                      >
-                        <Copy className="h-4 w-4 mr-2" />
-                        Copy Code
-                      </Button>
-                    </TabsContent>
-                    <TabsContent value="curl">
-                      <div className="bg-gray-900 rounded-lg p-4 md:p-6 overflow-x-auto border border-gray-700 mb-4">
-                        <pre className="text-xs md:text-sm">
-                          <code className="text-gray-300 font-mono">{curlSearchExample}</code>
-                        </pre>
-                      </div>
-                      <Button
-                        onClick={() => {
-                          navigator.clipboard.writeText(curlSearchExample)
-                          toast.success("Code copied to clipboard!")
-                        }}
-                        className="bg-purple-600 hover:bg-purple-700 w-full sm:w-auto"
-                      >
-                        <Copy className="h-4 w-4 mr-2" />
-                        Copy Code
-                      </Button>
-                    </TabsContent>
-                  </Tabs>
+                  <div className="bg-gray-900 rounded-lg p-4 md:p-6 overflow-x-auto border border-gray-700 mb-4">
+                    <pre className="text-xs md:text-sm">
+                      <code className="text-gray-300 font-mono">{codeExample}</code>
+                    </pre>
+                  </div>
+                  <Button
+                    onClick={() => {
+                      navigator.clipboard.writeText(codeExample)
+                      toast.success("Code copied to clipboard!")
+                    }}
+                    className="bg-purple-600 hover:bg-purple-700 w-full sm:w-auto"
+                  >
+                    <Copy className="h-4 w-4 mr-2" />
+                    Copy Code
+                  </Button>
                 </CardContent>
               </Card>
 
               <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-sm">
                 <CardHeader>
-                  <CardTitle className="text-white text-lg md:text-xl">Complete HTML Example (Zyfoox)</CardTitle>
+                  <CardTitle className="text-white text-lg md:text-xl">Complete HTML Example</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="text-gray-300 mb-4 text-sm md:text-base">

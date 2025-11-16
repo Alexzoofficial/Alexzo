@@ -22,7 +22,7 @@ export default function DocsPage() {
   }
 
   const apiExample = `// AI Image Generation - Free Use
-const response = await fetch('https://alexzo.vercel.app/api/generate', {
+const response = await fetch('https://alexzo.vercel.app/api/zyfoox', {
   method: 'POST',
   headers: {
     'Authorization': 'Bearer alexzo_your_api_key_here',
@@ -43,7 +43,7 @@ import json
 
 # AI Image Generation with Python
 def generate_image(prompt, api_key, width=512, height=512):
-    url = "https://alexzo.vercel.app/api/generate"
+    url = "https://alexzo.vercel.app/api/zyfoox"
     
     headers = {
         "Authorization": f"Bearer {api_key}",
@@ -79,7 +79,7 @@ if image_url:
     print("Image saved as generated_image.png")`
 
   const curlExample = `# AI Image Generation with cURL
-curl -X POST "https://alexzo.vercel.app/api/generate" \\
+curl -X POST "https://alexzo.vercel.app/api/zyfoox" \\
   -H "Authorization: Bearer alexzo_your_api_key_here" \\
   -H "Content-Type: application/json" \\
   -d '{
