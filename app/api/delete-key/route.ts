@@ -1,12 +1,12 @@
 
 import { NextResponse } from 'next/server'
-import { admin } from '@/lib/firebase/admin'
+import { getAdminFirestore } from '@/lib/firebase/admin'
 import { headers } from 'next/headers'
 
 export async function POST(request: Request) {
   try {
     const { keyId } = await request.json()
-    const headersList = headers()
+    const headersList = await headers()
     const userId = headersList.get('x-user-id')
 
     if (!userId) {
@@ -17,7 +17,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'API key ID is required' }, { status: 400 })
     }
 
-    const keyDocRef = admin.firestore().collection('apiKeys').doc(keyId)
+    const db = getAdminFirestore()
+    if (!db) {
+      return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
+    }
+
+    const keyDocRef = db.collection('apiKeys').doc(keyId)
     const keyDoc = await keyDocRef.get()
 
     if (!keyDoc.exists) {
