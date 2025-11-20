@@ -228,6 +228,13 @@ export default function BlogPostPageClient({ id }: { id: string }) {
                         ))}
                       </ol>
                     )
+                  } else if (paragraph.startsWith("```") && paragraph.endsWith("```")) {
+                    const code = paragraph.slice(3, -3).trim()
+                    return (
+                      <pre key={index} className="bg-gray-800 p-4 rounded-md overflow-x-auto mb-6">
+                        <code className="text-white font-mono">{code}</code>
+                      </pre>
+                    )
                   } else if (paragraph.trim().length > 0) {
                     // Handle inline bold and italic formatting
                     const renderFormattedText = (text: string) => {
