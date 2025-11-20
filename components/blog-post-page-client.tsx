@@ -228,14 +228,6 @@ export default function BlogPostPageClient({ id }: { id: string }) {
                         ))}
                       </ol>
                     )
-                  } else if (paragraph.startsWith("```") && paragraph.endsWith("```")) {
-                    // This will now correctly handle code blocks that are not separated by newlines
-                    const code = paragraph.substring(paragraph.indexOf("```") + 3, paragraph.lastIndexOf("```")).trim();
-                    return (
-                      <pre key={index} className="bg-gray-800 p-4 rounded-md overflow-x-auto mb-6">
-                        <code className="text-white font-mono">{code}</code>
-                      </pre>
-                    );
                   } else if (paragraph.trim().length > 0) {
                     // Handle inline bold and italic formatting
                     const renderFormattedText = (text: string) => {
