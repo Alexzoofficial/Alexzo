@@ -10,6 +10,8 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { SafeImage } from "@/components/safe-image"
 import { blogPosts } from "@/lib/blog-data"
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 
 // Using centralized blog data from lib/blog-data.ts
 
@@ -154,101 +156,7 @@ export default function BlogPostPageClient({ id }: { id: string }) {
           <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-sm mb-12">
             <CardContent className="p-6 md:p-8">
               <div className="prose prose-invert prose-lg max-w-none">
-                {post.content.split("\n\n").map((paragraph: string, index: number) => {
-                  if (paragraph.startsWith("# ")) {
-                    // Skip the first H1 if it matches the post title to avoid duplication
-                    const heading = paragraph.replace("# ", "")
-                    if (heading === post.title) {
-                      return null
-                    }
-                    return (
-                      <h1 key={index} className="text-3xl md:text-4xl font-bold text-white mt-8 mb-6 first:mt-0">
-                        {heading}
-                      </h1>
-                    )
-                  } else if (paragraph.startsWith("## ")) {
-                    return (
-                      <h2 key={index} className="text-2xl md:text-3xl font-bold text-white mt-8 mb-4 first:mt-0">
-                        {paragraph.replace("## ", "")}
-                      </h2>
-                    )
-                  } else if (paragraph.startsWith("### ")) {
-                    return (
-                      <h3 key={index} className="text-xl md:text-2xl font-bold text-white mt-6 mb-3">
-                        {paragraph.replace("### ", "")}
-                      </h3>
-                    )
-                  } else if (paragraph.startsWith("**") && paragraph.includes(":")) {
-                    const parts = paragraph.split(': ')
-                    const title = parts[0].replace(/\*\*/g, '')
-                    const content = parts.slice(1).join(': ')
-                    // Skip "About the Author" as it's rendered separately below
-                    if (title === "About the Author") {
-                      return null
-                    }
-                    return (
-                      <div key={index} className="mb-4">
-                        <h4 className="text-lg font-bold text-purple-300 mb-2">{title}</h4>
-                        <p className="text-gray-300 leading-relaxed">{content}</p>
-                      </div>
-                    )
-                  } else if (paragraph.startsWith("- ")) {
-                    const items = paragraph.split("\n").filter((item) => item.startsWith("- "))
-                    return (
-                      <ul key={index} className="list-disc list-inside space-y-2 mb-6 text-gray-300">
-                        {items.map((item, itemIndex) => {
-                          const content = item.replace("- ", "")
-                          const parts = content.split(': ')
-                          if (parts.length > 1 && parts[0].includes('**')) {
-                            const title = parts[0].replace(/\*\*/g, '')
-                            const desc = parts.slice(1).join(': ')
-                            return (
-                              <li key={itemIndex} className="leading-relaxed">
-                                <span className="font-semibold text-purple-300">{title}</span>: {desc}
-                              </li>
-                            )
-                          } else {
-                            return (
-                              <li key={itemIndex} className="leading-relaxed">
-                                {content}
-                              </li>
-                            )
-                          }
-                        })}
-                      </ul>
-                    )
-                  } else if (paragraph.match(/^\d+\. /)) {
-                    const items = paragraph.split("\n").filter((item) => item.match(/^\d+\. /))
-                    return (
-                      <ol key={index} className="list-decimal list-inside space-y-2 mb-6 text-gray-300">
-                        {items.map((item, itemIndex) => (
-                          <li key={itemIndex} className="leading-relaxed">
-                            {item.replace(/^\d+\. /, "")}
-                          </li>
-                        ))}
-                      </ol>
-                    )
-                  } else if (paragraph.trim().length > 0) {
-                    // Handle inline bold and italic formatting
-                    const renderFormattedText = (text: string) => {
-                      const parts = text.split(/(\*\*.*?\*\*|\*.*?\*)/g)
-                      return parts.map((part, i) => {
-                        if (part.startsWith('**') && part.endsWith('**')) {
-                          return <strong key={i} className="font-bold text-white">{part.slice(2, -2)}</strong>
-                        } else if (part.startsWith('*') && part.endsWith('*')) {
-                          return <em key={i} className="italic">{part.slice(1, -1)}</em>
-                        }
-                        return part
-                      })
-                    }
-                    return (
-                      <p key={index} className="text-gray-300 leading-relaxed mb-6">
-                        {renderFormattedText(paragraph)}
-                      </p>
-                    )
-                  }
-                  return null
-                })}
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>{post.content}</ReactMarkdown>
               </div>
             </CardContent>
           </Card>
