@@ -330,6 +330,23 @@ curl -X POST "https://alexzo.vercel.app/api/search" \\
                       </pre>
                     </div>
                   </div>
+
+                  <div className="space-y-4">
+                    <h5 className="font-semibold text-purple-300 text-base md:text-lg">Example Request (JavaScript)</h5>
+                    <div className="bg-gray-900 rounded-xl p-3 md:p-4 border border-gray-700 overflow-x-auto relative">
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => copyToClipboard(searchApiExample, 'gs-js-search')}
+                        className="absolute top-2 right-2 border-gray-600 text-gray-300 hover:bg-gray-800 hover:text-white h-8 w-8"
+                      >
+                        {copiedCode === 'gs-js-search' ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                      </Button>
+                      <pre className="text-xs md:text-sm text-gray-300 font-mono pr-10">
+                        {searchApiExample}
+                      </pre>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             </TabsContent>
