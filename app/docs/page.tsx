@@ -463,22 +463,22 @@ curl -X POST "https://alexzo.vercel.app/api/search" \\
               <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-sm">
                 <CardHeader>
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                    <CardTitle className="text-white text-xl md:text-2xl">JavaScript Example (Image Generation)</CardTitle>
+                    <CardTitle className="text-white text-xl md:text-2xl">JavaScript Example (Search)</CardTitle>
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => copyToClipboard(apiExample, 'js-image')}
+                      onClick={() => copyToClipboard(searchApiExample, 'js-search-main')}
                       className="border-gray-600 text-gray-300 hover:bg-gray-800 hover:text-white w-full sm:w-auto"
                     >
-                      {copiedCode === 'js-image' ? <Check className="h-4 w-4 mr-2" /> : <Copy className="h-4 w-4 mr-2" />}
-                      {copiedCode === 'js-image' ? 'Copied!' : 'Copy Code'}
+                      {copiedCode === 'js-search-main' ? <Check className="h-4 w-4 mr-2" /> : <Copy className="h-4 w-4 mr-2" />}
+                      {copiedCode === 'js-search-main' ? 'Copied!' : 'Copy Code'}
                     </Button>
                   </div>
                 </CardHeader>
                 <CardContent>
                   <div className="bg-gray-900 rounded-xl p-4 md:p-6 overflow-x-auto border border-gray-700">
                     <pre className="text-xs md:text-sm">
-                      <code className="text-gray-300 font-mono leading-relaxed">{apiExample}</code>
+                      <code className="text-gray-300 font-mono leading-relaxed">{searchApiExample}</code>
                     </pre>
                   </div>
                 </CardContent>
