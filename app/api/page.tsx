@@ -129,7 +129,7 @@ export default function APIPage() {
 
 
   const codeExample = `// AI Image Generation - Free Use
-const response = await fetch('https://alexzo.vercel.app/api/generate', {
+const response = await fetch('https://alexzo.vercel.app/api/zyfoox', {
   method: 'POST',
   headers: {
     'Authorization': 'Bearer ${apiKeys[0]?.key || "alexzo_your_api_key_here"}',
@@ -857,7 +857,7 @@ console.log(data.data[0].url);`
             <TabsContent value="examples" className="space-y-6">
               <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-sm">
                 <CardHeader>
-                  <CardTitle className="text-white text-lg md:text-xl">Basic API Usage</CardTitle>
+                  <CardTitle className="text-white text-lg md:text-xl">Zyfoox Basic API Usage</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="bg-gray-900 rounded-lg p-4 md:p-6 overflow-x-auto border border-gray-700 mb-4">
@@ -880,64 +880,53 @@ console.log(data.data[0].url);`
 
               <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-sm">
                 <CardHeader>
-                  <CardTitle className="text-white text-lg md:text-xl">Complete HTML Example</CardTitle>
+                  <CardTitle className="text-white text-lg md:text-xl">Search Basic API Usage</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-gray-300 mb-4 text-sm md:text-base">
-                    Replace <code className="text-purple-400 bg-gray-800 px-2 py-1 rounded">alexzo_your_api_key_here</code> with your actual API key in the code below:
-                  </p>
-                  <div className="relative">
-                    <Button
-                      onClick={() => {
-                        const blob = new Blob([fullExample], { type: "text/html" })
-                        const url = URL.createObjectURL(blob)
-                        window.open(url, "_blank")
-                        toast.success("Preview opened in new tab!")
-                        setTimeout(() => URL.revokeObjectURL(url), 1000)
-                      }}
-                      size="sm"
-                      className="absolute top-2 right-2 z-10 bg-gray-800/90 hover:bg-gray-700 border border-gray-600 text-gray-300 backdrop-blur-sm"
-                    >
-                      <Code className="h-3 w-3 mr-1" />
-                      Preview
-                    </Button>
-                    <div className="bg-gray-900 rounded-lg p-4 md:p-6 overflow-x-auto border border-gray-700 mb-4 max-h-96">
-                      <pre className="text-xs">
-                        <code className="text-gray-300 font-mono">{fullExample}</code>
-                      </pre>
-                    </div>
+                  <div className="bg-gray-900 rounded-lg p-4 md:p-6 overflow-x-auto border border-gray-700 mb-4">
+                    <pre className="text-xs md:text-sm">
+                      <code className="text-gray-300 font-mono">{`// AI-Powered Search - Free Use
+const response = await fetch('https://alexzo.vercel.app/api/search', {
+  method: 'POST',
+  headers: {
+    'Authorization': 'Bearer ${apiKeys[0]?.key || "alexzo_your_api_key_here"}',
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    query: 'What are the latest advancements in AI?'
+  })
+});
+
+const data = await response.json();
+console.log(data); // Search results`}</code>
+                    </pre>
                   </div>
-                  <div className="flex flex-col sm:flex-row gap-2">
-                    <Button
-                      onClick={() => {
-                        navigator.clipboard.writeText(fullExample)
-                        toast.success("Full HTML code copied to clipboard!")
-                      }}
-                      className="bg-purple-600 hover:bg-purple-700"
-                    >
-                      <Copy className="h-4 w-4 mr-2" />
-                      Copy Full Code
-                    </Button>
-                    <Button
-                      onClick={() => {
-                        const blob = new Blob([fullExample], { type: "text/html" })
-                        const url = URL.createObjectURL(blob)
-                        const a = document.createElement("a")
-                        a.href = url
-                        a.download = "ai-image-generator.html"
-                        a.click()
-                        URL.revokeObjectURL(url)
-                        toast.success("HTML file downloaded!")
-                      }}
-                      variant="outline"
-                      className="border-gray-600 text-gray-300 hover:bg-gray-800 hover:text-white"
-                    >
-                      <Code className="h-4 w-4 mr-2" />
-                      Download HTML
-                    </Button>
-                  </div>
+                  <Button
+                    onClick={() => {
+                      navigator.clipboard.writeText(`// AI-Powered Search - Free Use
+const response = await fetch('https://alexzo.vercel.app/api/search', {
+  method: 'POST',
+  headers: {
+    'Authorization': 'Bearer ${apiKeys[0]?.key || "alexzo_your_api_key_here"}',
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    query: 'What are the latest advancements in AI?'
+  })
+});
+
+const data = await response.json();
+console.log(data); // Search results`)
+                      toast.success("Code copied to clipboard!")
+                    }}
+                    className="bg-purple-600 hover:bg-purple-700 w-full sm:w-auto"
+                  >
+                    <Copy className="h-4 w-4 mr-2" />
+                    Copy Code
+                  </Button>
                 </CardContent>
               </Card>
+
             </TabsContent>
 
             {/* Documentation Tab */}
