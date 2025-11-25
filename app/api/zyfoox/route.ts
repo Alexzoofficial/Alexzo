@@ -25,22 +25,31 @@ function getUserIP(request: NextRequest): string {
 }
 
 // Validate API key against Firestore
-async function validateApiKey(apiKey: string): Promise<boolean> {
+async function validateApiKey(
+  apiKey: string
+): Promise<{ isValid: boolean; message: string }> {
   try {
     const db = getAdminFirestore()
     if (!db) {
-      return false
+      return { isValid: false, message: 'Database connection failed.' }
     }
 
     const keysSnapshot = await db
-      .collection('api_keys')
+      .collection('apiKeys')
       .where('key', '==', apiKey)
       .limit(1)
       .get()
 
-    return !keysSnapshot.empty
+    if (keysSnapshot.empty) {
+      return { isValid: false, message: 'API key not found.' }
+    }
+
+    return { isValid: true, message: 'API key is valid.' }
   } catch (error) {
-    return false
+    return {
+      isValid: false,
+      message: 'An unexpected error occurred during API key validation.',
+    }
   }
 }
 
@@ -60,10 +69,10 @@ export async function POST(request: NextRequest) {
     const apiKey = authHeader.replace('Bearer ', '')
     
     // Validate API key against Firestore
-    const isValid = await validateApiKey(apiKey)
-    if (!isValid) {
+    const validationResult = await validateApiKey(apiKey)
+    if (!validationResult.isValid) {
       return NextResponse.json(
-        { error: 'Invalid API key. Key not found.' },
+        { error: validationResult.message },
         { status: 401 }
       )
     }
