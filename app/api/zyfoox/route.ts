@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
   try {
     // Check authorization header first
     const authHeader = request.headers.get('authorization')
-    if (!authHeader || !authHeader.startsWith('Bearer alexzo_')) {
+    if (!authHeader || !authHeader.toLowerCase().startsWith('bearer alexzo_')) {
       return NextResponse.json(
         { error: 'Invalid API key. Please use a valid alexzo_ API key.' },
         { status: 401 }
