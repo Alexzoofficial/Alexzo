@@ -38,6 +38,10 @@ npm run dev
 
 3. Open [http://localhost:5000](http://localhost:5000) in your browser
 
+## Configuration
+
+Server-side features require Firebase Admin credentials. Please see the [Environment Setup Guide](ENVIRONMENT_SETUP.md) for instructions on how to configure your local environment.
+
 ## Deployment
 
 The project is deployed on Vercel and accessible at:
