@@ -41,7 +41,7 @@ export function getFirebaseAdmin() {
     const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID
 
     if (!privateKey || !clientEmail || !projectId) {
-      console.warn('Firebase admin credentials not configured, server-side operations may be limited')
+      console.warn('Firebase admin credentials not configured. Server-side operations will be disabled. See ENVIRONMENT_SETUP.md for instructions.')
       return null
     }
 
@@ -64,11 +64,17 @@ export function getFirebaseAdmin() {
 // Get Firestore instance
 export function getAdminFirestore() {
   const app = getFirebaseAdmin()
-  return app ? getFirestore(app) : null
+  if (!app) {
+    throw new Error('Firebase Admin SDK not initialized. Firestore cannot be accessed.')
+  }
+  return getFirestore(app)
 }
 
 // Get Auth instance
 export function getAdminAuth() {
   const app = getFirebaseAdmin()
-  return app ? getAuth(app) : null
+  if (!app) {
+    throw new Error('Firebase Admin SDK not initialized. Auth cannot be accessed.')
+  }
+  return getAuth(app)
 }
