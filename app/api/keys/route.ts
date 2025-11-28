@@ -49,9 +49,12 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  console.log("Received POST request to /api/keys");
   try {
     const authHeader = request.headers.get('authorization')
+    console.log("Auth header:", authHeader);
     if (!authHeader?.startsWith('Bearer ')) {
+      console.log("Unauthorized: Missing or invalid Bearer token");
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
     
@@ -67,11 +70,14 @@ export async function POST(request: NextRequest) {
       const decodedToken = await auth.verifyIdToken(idToken)
       userId = decodedToken.uid
       userDisplayName = decodedToken.name || decodedToken.email || 'User'
+      console.log(`Authenticated user: ${userId} (${userDisplayName})`);
     } catch (error) {
+      console.log("Token verification failed:", error);
       return NextResponse.json({ error: "Invalid authentication token" }, { status: 401 })
     }
 
     const data = await request.json()
+    console.log("Request body:", data);
     const { name } = data
 
     if (!name) {
@@ -94,7 +100,9 @@ export async function POST(request: NextRequest) {
       lastUsed: null,
     }
 
+    console.log("Creating new API key:", newKey);
     const docRef = await db.collection('api_keys').add(newKey)
+    console.log("Successfully created API key with ID:", docRef.id);
 
     return NextResponse.json({
       success: true,

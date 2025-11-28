@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Settings, LogOut, Key, Copy, Trash2, Plus, BarChart3 } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import {
@@ -26,7 +26,7 @@ interface APIKey {
   name: string
   key: string
   created: string
-  lastUsed: string
+  lastUsed: string | null
   requests: number
 }
 
@@ -39,42 +39,58 @@ export function UserAvatar() {
   const [apiKeys, setApiKeys] = useState<APIKey[]>([])
   const [fullName, setFullName] = useState(user?.displayName || "")
 
-  const loadAPIKeys = () => {
-    if (user) {
-      const savedKeys = localStorage.getItem(`api_keys_${user.uid}`)
-      if (savedKeys) {
-        setApiKeys(JSON.parse(savedKeys))
+  const getAuthHeader = async () => {
+    if (!user) return null
+    const idToken = await user.getIdToken()
+    return { 'Authorization': `Bearer ${idToken}` }
+  }
+
+  const loadAPIKeys = async () => {
+    if (!user) return
+    const headers = await getAuthHeader()
+    if (!headers) return
+
+    try {
+      const response = await fetch('/api/keys', { headers })
+      if (response.ok) {
+        const data = await response.json()
+        setApiKeys(data.keys)
+      } else {
+        toast.error("Failed to load API keys.")
       }
+    } catch (error) {
+      toast.error("An error occurred while fetching API keys.")
     }
   }
 
-  const generateAPIKey = () => {
-    return `alexzo_${Math.random().toString(36).substring(2, 15)}${Math.random().toString(36).substring(2, 15)}`
-  }
-
-  const createAPIKey = () => {
+  const createAPIKey = async () => {
     if (!keyName.trim()) {
       toast.error("Please enter a name for your API key")
       return
     }
+    const headers = await getAuthHeader()
+    if (!headers) return
 
-    const newKey: APIKey = {
-      id: Date.now().toString(),
-      name: keyName,
-      key: generateAPIKey(),
-      created: new Date().toISOString(),
-      lastUsed: "Never",
-      requests: 0,
-    }
+    try {
+      const response = await fetch('/api/keys', {
+        method: 'POST',
+        headers: { ...headers, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: keyName }),
+      })
 
-    const updatedKeys = [...apiKeys, newKey]
-    if (user) {
-      localStorage.setItem(`api_keys_${user.uid}`, JSON.stringify(updatedKeys))
+      if (response.ok) {
+        const data = await response.json()
+        setApiKeys([data.key, ...apiKeys])
+        setKeyName("")
+        setShowCreateKey(false)
+        toast.success("API key created successfully!")
+      } else {
+        const errorData = await response.json()
+        toast.error(errorData.error || "Failed to create API key.")
+      }
+    } catch (error) {
+      toast.error("An error occurred while creating the API key.")
     }
-    setApiKeys(updatedKeys)
-    setKeyName("")
-    setShowCreateKey(false)
-    toast.success("API key created successfully!")
   }
 
   const copyAPIKey = (key: string) => {
@@ -82,14 +98,33 @@ export function UserAvatar() {
     toast.success("API key copied to clipboard!")
   }
 
-  const deleteAPIKey = (id: string) => {
-    const updatedKeys = apiKeys.filter((key) => key.id !== id)
-    if (user) {
-      localStorage.setItem(`api_keys_${user.uid}`, JSON.stringify(updatedKeys))
+  const deleteAPIKey = async (id: string) => {
+    const headers = await getAuthHeader()
+    if (!headers) return
+
+    try {
+      const response = await fetch(`/api/keys?id=${id}`, {
+        method: 'DELETE',
+        headers,
+      })
+
+      if (response.ok) {
+        setApiKeys(apiKeys.filter((key) => key.id !== id))
+        toast.success("API key deleted successfully!")
+      } else {
+        toast.error("Failed to delete API key.")
+      }
+    } catch (error) {
+      toast.error("An error occurred while deleting the API key.")
     }
-    setApiKeys(updatedKeys)
-    toast.success("API key deleted successfully!")
   }
+
+  useEffect(() => {
+    if (user && showSettings) {
+      loadAPIKeys()
+    }
+  }, [user, showSettings])
+
 
   const handleUpdateProfile = async () => {
     const result = await updateProfile({ full_name: fullName })
@@ -161,30 +196,94 @@ export function UserAvatar() {
         </DropdownMenuContent>
       </DropdownMenu>
 
-      {/* Profile Settings Dialog - Only Profile Info */}
+      {/* Profile Settings and API Keys Dialog */}
       <Dialog open={showSettings} onOpenChange={setShowSettings}>
-        <DialogContent className="bg-gray-900 border-gray-800 text-white max-w-md">
+        <DialogContent className="bg-gray-900 border-gray-800 text-white max-w-2xl">
           <DialogHeader>
-            <DialogTitle>Profile Settings</DialogTitle>
+            <DialogTitle>Settings</DialogTitle>
           </DialogHeader>
           
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* Profile Settings */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold">Profile</h3>
+              <div>
+                <Label htmlFor="fullName">Full Name</Label>
+                <Input
+                  id="fullName"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  className="bg-gray-800 border-gray-700 mt-2"
+                  placeholder="Enter your full name"
+                />
+              </div>
+              <div>
+                <Label>Email</Label>
+                <Input value={user.email || ""} disabled className="bg-gray-800 border-gray-700 mt-2 opacity-50" />
+              </div>
+              <Button onClick={handleUpdateProfile} className="w-full bg-purple-600 hover:bg-purple-700">
+                Update Profile
+              </Button>
+            </div>
+
+            {/* API Key Management */}
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <h3 className="text-lg font-semibold">API Keys</h3>
+                <Button onClick={() => setShowCreateKey(true)} size="sm" className="bg-green-600 hover:bg-green-700">
+                  <Plus className="h-4 w-4 mr-2" />
+                  New Key
+                </Button>
+              </div>
+
+              <div className="space-y-2 max-h-60 overflow-y-auto">
+                {apiKeys.length === 0 ? (
+                  <p className="text-gray-400 text-sm">No API keys found.</p>
+                ) : (
+                  apiKeys.map(apiKey => (
+                    <Card key={apiKey.id} className="bg-gray-800 border-gray-700">
+                      <CardContent className="p-3 flex justify-between items-center">
+                        <div>
+                          <p className="font-semibold">{apiKey.name}</p>
+                          <p className="text-xs text-gray-400 font-mono truncate">{apiKey.key}</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Button variant="ghost" size="icon" onClick={() => copyAPIKey(apiKey.key)}>
+                            <Copy className="h-4 w-4" />
+                          </Button>
+                          <Button variant="ghost" size="icon" onClick={() => deleteAPIKey(apiKey.id)}>
+                            <Trash2 className="h-4 w-4 text-red-500" />
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))
+                )}
+              </div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Create API Key Dialog */}
+      <Dialog open={showCreateKey} onOpenChange={setShowCreateKey}>
+        <DialogContent className="bg-gray-900 border-gray-800 text-white">
+          <DialogHeader>
+            <DialogTitle>Create New API Key</DialogTitle>
+          </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label htmlFor="fullName">Full Name</Label>
+              <Label htmlFor="keyName">Key Name</Label>
               <Input
-                id="fullName"
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
+                id="keyName"
+                value={keyName}
+                onChange={(e) => setKeyName(e.target.value)}
                 className="bg-gray-800 border-gray-700 mt-2"
-                placeholder="Enter your full name"
+                placeholder="e.g., My App"
               />
             </div>
-            <div>
-              <Label>Email</Label>
-              <Input value={user.email || ""} disabled className="bg-gray-800 border-gray-700 mt-2 opacity-50" />
-            </div>
-            <Button onClick={handleUpdateProfile} className="w-full bg-purple-600 hover:bg-purple-700">
-              Update Profile
+            <Button onClick={createAPIKey} className="w-full bg-purple-600 hover:bg-purple-700">
+              Create Key
             </Button>
           </div>
         </DialogContent>

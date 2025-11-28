@@ -81,9 +81,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
           console.log("Firebase auth state changed:", firebaseUser?.email || 'no user')
 
-          if (firebaseUser) {
+          if (firebaseUser && auth.currentUser) {
             console.log("Setting user data:", firebaseUser.email)
-            setUser(firebaseUser)
+            setUser(auth.currentUser)
 
             // Clear any stored redirect errors
             if (typeof window !== 'undefined') {
@@ -91,7 +91,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             }
 
             // Load or create user profile
-            await loadUserProfile(firebaseUser)
+            await loadUserProfile(auth.currentUser)
           } else {
             console.log("User signed out, clearing data")
             setUser(null)
