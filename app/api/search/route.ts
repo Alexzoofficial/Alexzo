@@ -4,8 +4,8 @@ export async function POST(req: Request) {
   try {
     const { query } = await req.json();
 
-    if (!query || typeof query !== 'string') {
-      return new NextResponse('Query is required and must be a string', { status: 400 });
+    if (!query) {
+      return new NextResponse('Query is required', { status: 400 });
     }
 
     const searchUrl = `https://whoogle-bbso.onrender.com/search?q=${encodeURIComponent(query)}`;
