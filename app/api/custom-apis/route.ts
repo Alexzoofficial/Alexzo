@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
     const data = await request.json()
     const { userName, userEmail, name } = data
 
-    if (!name) {
+    if (!name || !userEmail) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
     }
 
