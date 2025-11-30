@@ -31,99 +31,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<FirebaseUser | null>(null)
   const [userAvatar, setUserAvatar] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
-  const [initialized, setInitialized] = useState(false)
 
   useEffect(() => {
-    const initializeAuth = () => {
-      try {
-        if (typeof window === "undefined") {
-          setLoading(false)
-          return
-        }
+    if (!isFirebaseConfigured || typeof window === 'undefined' || !auth) {
+      setLoading(false)
+      return
+    }
 
-        console.log('Firebase configuration check:', {
-          isConfigured: isFirebaseConfigured,
-          hasAuth: !!auth
-        })
-
-        if (!isFirebaseConfigured || !auth) {
-          console.log("Firebase not configured - authentication unavailable")
-          setUser(null)
-          setLoading(false)
-          setInitialized(true)
-          return
-        }
-
-        // Check for redirect result first (for users returning from redirect)
-        const checkRedirectResult = async () => {
-          try {
-            if (!auth) return
-            const result = await getRedirectResult(auth)
-            if (result) {
-              console.log("Redirect sign-in successful:", result.user.email)
-              // The auth state listener will handle the user data
-            }
-          } catch (error: any) {
-            console.error("Redirect sign-in error:", error)
-            // Store error for UI to display
-            if (typeof window !== 'undefined') {
-              sessionStorage.setItem('auth_redirect_error', error.message || 'Redirect authentication failed')
-            }
-          }
-        }
-
-        // Set up Firebase auth state listener
-        if (!auth) {
-          setLoading(false)
-          setInitialized(true)
-          return
-        }
-        const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-          console.log("Firebase auth state changed:", firebaseUser?.email || 'no user')
-
-          if (firebaseUser && auth && auth.currentUser) {
-            console.log("Setting user data:", firebaseUser.email)
-            setUser(auth.currentUser)
-
-            // Clear any stored redirect errors
-            if (typeof window !== 'undefined') {
-              sessionStorage.removeItem('auth_redirect_error')
-            }
-
-            // Load or create user profile
-            await loadUserProfile(auth.currentUser)
-          } else {
-            console.log("User signed out, clearing data")
-            setUser(null)
-            setUserAvatar(null)
-          }
-
-          // Set loading to false after first auth state event
-          if (!initialized) {
-            setLoading(false)
-            setInitialized(true)
-          }
-        })
-
-        // Check for redirect result on initialization
-        checkRedirectResult()
-
-        console.log("Firebase auth state listener set up successfully")
-        
-        // Return cleanup function
-        return unsubscribe
-      } catch (error) {
-        console.warn("Firebase auth initialization failed:", error)
-        setLoading(false)
-        setInitialized(true)
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (firebaseUser) {
+        setUser(firebaseUser)
+        await loadUserProfile(firebaseUser)
+      } else {
+        setUser(null)
+        setUserAvatar(null)
       }
-    }
+      setLoading(false)
+    })
 
-    if (!initialized) {
-      const cleanup = initializeAuth()
-      return cleanup
-    }
-  }, [initialized])
+    return () => unsubscribe()
+  }, [])
 
   const loadUserProfile = async (firebaseUser: FirebaseUser) => {
     try {

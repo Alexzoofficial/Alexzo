@@ -2,7 +2,6 @@ import { NextResponse } from "next/server"
 import { getAdminFirestore } from "@/lib/firebase/admin"
 import { z } from "zod"
 import { headers } from "next/headers"
-import { validateApiKey } from "@/app/api/zyfoox/route"
 
 async function getAuthenticatedUser(requestHeaders: Headers) {
   const authorization = requestHeaders.get("Authorization")
@@ -11,11 +10,11 @@ async function getAuthenticatedUser(requestHeaders: Headers) {
   }
   const idToken = authorization.split("Bearer ")[1]
 
-  const { getAuth } = await import("firebase-admin/auth")
-  const { adminAuth } = await import("@/lib/firebase/admin")
+  const { getAdminAuth } = await import("@/lib/firebase/admin")
 
   try {
-    const decodedToken = await getAuth(adminAuth).verifyIdToken(idToken)
+    const adminAuth = getAdminAuth()
+    const decodedToken = await adminAuth.verifyIdToken(idToken)
     return decodedToken
   } catch (error) {
     console.error("Error verifying ID token:", error)
@@ -25,7 +24,7 @@ async function getAuthenticatedUser(requestHeaders: Headers) {
 
 // GET /api/api-keys - Fetch user's API keys
 export async function GET(request: Request) {
-  const user = await getAuthenticatedUser(headers())
+  const user = await getAuthenticatedUser(await headers())
   if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
@@ -58,7 +57,7 @@ function generateUniqueAPIKey(): string {
 
 // POST /api/api-keys - Create a new API key
 export async function POST(request: Request) {
-  const user = await getAuthenticatedUser(headers())
+  const user = await getAuthenticatedUser(await headers())
   if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
@@ -101,7 +100,7 @@ const deleteKeySchema = z.object({
 
 // DELETE /api/api-keys - Delete an API key
 export async function DELETE(request: Request) {
-  const user = await getAuthenticatedUser(headers())
+  const user = await getAuthenticatedUser(await headers())
   if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
