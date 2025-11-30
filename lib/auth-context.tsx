@@ -81,7 +81,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
           console.log("Firebase auth state changed:", firebaseUser?.email || 'no user')
 
-          if (firebaseUser && auth.currentUser) {
+          if (firebaseUser && auth && auth.currentUser) {
             console.log("Setting user data:", firebaseUser.email)
             setUser(auth.currentUser)
 
