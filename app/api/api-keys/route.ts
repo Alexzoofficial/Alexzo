@@ -2,30 +2,43 @@ import { NextResponse } from "next/server"
 import { getAdminFirestore } from "@/lib/firebase/admin"
 import { z } from "zod"
 import { headers } from "next/headers"
+import type { DecodedIdToken } from "firebase-admin/auth"
 
-async function getAuthenticatedUser(requestHeaders: Headers) {
+type AuthResult = { user: DecodedIdToken; error: null } | { user: null; error: "unauthorized" | "unconfigured" }
+
+async function getAuthenticatedUser(requestHeaders: Headers): Promise<AuthResult> {
   const authorization = requestHeaders.get("Authorization")
   if (!authorization || !authorization.startsWith("Bearer ")) {
-    return null
+    return { user: null, error: "unauthorized" }
   }
   const idToken = authorization.split("Bearer ")[1]
 
-  const { getAdminAuth } = await import("@/lib/firebase/admin")
-
   try {
+    const { getAdminAuth } = await import("@/lib/firebase/admin")
     const adminAuth = getAdminAuth()
     const decodedToken = await adminAuth.verifyIdToken(idToken)
-    return decodedToken
-  } catch (error) {
-    console.error("Error verifying ID token:", error)
-    return null
+    return { user: decodedToken, error: null }
+  } catch (error: any) {
+    console.error("Error verifying ID token:", error.message)
+    if (error.message.includes("Firebase Admin SDK not initialized")) {
+      return { user: null, error: "unconfigured" }
+    }
+    return { user: null, error: "unauthorized" }
   }
 }
 
 // GET /api/api-keys - Fetch user's API keys
 export async function GET(request: Request) {
-  const user = await getAuthenticatedUser(await headers())
-  if (!user) {
+  const { user, error } = await getAuthenticatedUser(await headers())
+
+  if (error === "unconfigured") {
+    return NextResponse.json(
+      { error: "Authentication service is not configured on the server." },
+      { status: 503 }
+    )
+  }
+
+  if (error === "unauthorized" || !user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 
@@ -57,8 +70,16 @@ function generateUniqueAPIKey(): string {
 
 // POST /api/api-keys - Create a new API key
 export async function POST(request: Request) {
-  const user = await getAuthenticatedUser(await headers())
-  if (!user) {
+  const { user, error } = await getAuthenticatedUser(await headers())
+
+  if (error === "unconfigured") {
+    return NextResponse.json(
+      { error: "Authentication service is not configured on the server." },
+      { status: 503 }
+    )
+  }
+
+  if (error === "unauthorized" || !user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 
@@ -100,8 +121,16 @@ const deleteKeySchema = z.object({
 
 // DELETE /api/api-keys - Delete an API key
 export async function DELETE(request: Request) {
-  const user = await getAuthenticatedUser(await headers())
-  if (!user) {
+  const { user, error } = await getAuthenticatedUser(await headers())
+
+  if (error === "unconfigured") {
+    return NextResponse.json(
+      { error: "Authentication service is not configured on the server." },
+      { status: 503 }
+    )
+  }
+
+  if (error === "unauthorized" || !user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 
