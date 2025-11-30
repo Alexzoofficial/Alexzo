@@ -33,7 +33,7 @@ export async function GET(request: Request) {
 
   if (error === "unconfigured") {
     return NextResponse.json(
-      { error: "Authentication service is not configured on the server." },
+      { error: "Authentication service is not configured on the server. Please see ENVIRONMENT_SETUP.md for instructions." },
       { status: 503 }
     )
   }
@@ -74,7 +74,7 @@ export async function POST(request: Request) {
 
   if (error === "unconfigured") {
     return NextResponse.json(
-      { error: "Authentication service is not configured on the server." },
+      { error: "Authentication service is not configured on the server. Please see ENVIRONMENT_SETUP.md for instructions." },
       { status: 503 }
     )
   }
@@ -125,7 +125,7 @@ export async function DELETE(request: Request) {
 
   if (error === "unconfigured") {
     return NextResponse.json(
-      { error: "Authentication service is not configured on the server." },
+      { error: "Authentication service is not configured on the server. Please see ENVIRONMENT_SETUP.md for instructions." },
       { status: 503 }
     )
   }
