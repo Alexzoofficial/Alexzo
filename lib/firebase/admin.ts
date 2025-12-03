@@ -43,12 +43,18 @@ export function getFirebaseAdmin() {
     }
 
     // Fallback to environment variables
-    const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n')
+    const privateKey = process.env.FIREBASE_PRIVATE_KEY
+      ? JSON.parse(`"${process.env.FIREBASE_PRIVATE_KEY}"`)
+      : undefined;
     const clientEmail = process.env.FIREBASE_CLIENT_EMAIL
     const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID
 
     if (!privateKey || !clientEmail || !projectId) {
-      console.warn('Firebase admin credentials not configured. Server-side operations will be disabled. See ENVIRONMENT_SETUP.md for instructions.')
+      console.warn('Firebase admin credentials not configured. Server-side operations will be disabled.')
+      if (!projectId) console.warn('- NEXT_PUBLIC_FIREBASE_PROJECT_ID is missing.')
+      if (!clientEmail) console.warn('- FIREBASE_CLIENT_EMAIL is missing.')
+      if (!privateKey) console.warn('- FIREBASE_PRIVATE_KEY is missing.')
+      console.warn('See ENVIRONMENT_SETUP.md for instructions.')
       return null
     }
 
