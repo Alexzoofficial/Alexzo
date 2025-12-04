@@ -24,54 +24,8 @@ function getUserIP(request: NextRequest): string {
   return 'unknown'
 }
 
-// Validate API key against Firestore
-async function validateApiKey(apiKey: string): Promise<{ isValid: boolean; message: string }> {
-  try {
-    const db = getAdminFirestore()
-    if (!db) {
-      return { isValid: false, message: 'Firebase admin not configured. Check server logs.' }
-    }
-
-    const keysSnapshot = await db
-      .collection('api_keys')
-      .where('key', '==', apiKey)
-      .limit(1)
-      .get()
-
-    if (keysSnapshot.empty) {
-        return { isValid: false, message: 'Invalid API key. Key not found.' }
-    }
-
-    return { isValid: true, message: 'API key is valid.' }
-  } catch (error) {
-    return { isValid: false, message: 'Error validating API key. Check server logs.' }
-  }
-}
-
-
 export async function POST(request: NextRequest) {
   try {
-    // Check authorization header first
-    const authHeader = request.headers.get('authorization')
-    if (!authHeader || !authHeader.toLowerCase().startsWith('bearer alexzo_')) {
-      return NextResponse.json(
-        { error: 'Invalid API key. Please use a valid alexzo_ API key.' },
-        { status: 401 }
-      )
-    }
-
-    // Extract API key
-    const apiKey = authHeader.replace('Bearer ', '')
-    
-    // Validate API key against Firestore
-    const validationResult = await validateApiKey(apiKey)
-    if (!validationResult.isValid) {
-      return NextResponse.json(
-        { error: validationResult.message },
-        { status: 401 }
-      )
-    }
-
     // Parse request body
     const body = await request.json()
     const { prompt, width = 512, height = 512 } = body
