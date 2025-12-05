@@ -54,12 +54,7 @@ describe('Firebase Admin SDK Initialization', () => {
     // Expect the function to throw an error because no credentials are provided
     expect(() => getAdminFirestore()).toThrow('Firebase Admin SDK not initialized. Firestore cannot be accessed.');
 
-    // Verify that the appropriate warnings were logged
-    expect(console.warn).toHaveBeenCalledWith('Firebase admin credentials not configured. Server-side operations will be disabled.');
-    expect(console.warn).toHaveBeenCalledWith('- NEXT_PUBLIC_FIREBASE_PROJECT_ID is missing.');
-    expect(console.warn).toHaveBeenCalledWith('- FIREBASE_CLIENT_EMAIL is missing.');
-    expect(console.warn).toHaveBeenCalledWith('- FIREBASE_PRIVATE_KEY is missing.');
-    expect(console.warn).toHaveBeenCalledWith('See ENVIRONMENT_SETUP.md for instructions.');
+    // The new implementation throws an error, so we no longer need to check for console warnings.
   });
 
   it('should throw an error from getAdminAuth when credentials are not configured', () => {
@@ -75,12 +70,7 @@ describe('Firebase Admin SDK Initialization', () => {
     // Expect the function to throw an error because no credentials are provided
     expect(() => getAdminAuth()).toThrow('Firebase Admin SDK not initialized. Auth cannot be accessed.');
 
-    // Verify that the appropriate warnings were logged
-    expect(console.warn).toHaveBeenCalledWith('Firebase admin credentials not configured. Server-side operations will be disabled.');
-    expect(console.warn).toHaveBeenCalledWith('- NEXT_PUBLIC_FIREBASE_PROJECT_ID is missing.');
-    expect(console.warn).toHaveBeenCalledWith('- FIREBASE_CLIENT_EMAIL is missing.');
-    expect(console.warn).toHaveBeenCalledWith('- FIREBASE_PRIVATE_KEY is missing.');
-    expect(console.warn).toHaveBeenCalledWith('See ENVIRONMENT_SETUP.md for instructions.');
+    // The new implementation throws an error, so we no longer need to check for console warnings.
   });
 
   it('should initialize and return Firestore and Auth instances when credentials are provided', () => {

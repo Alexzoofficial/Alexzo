@@ -20,7 +20,7 @@ async function getAuthenticatedUser(requestHeaders: Headers): Promise<AuthResult
     return { user: decodedToken, error: null }
   } catch (error: any) {
     console.error("Error verifying ID token:", error.message)
-    if (error.message.includes("Firebase Admin SDK not initialized")) {
+    if (error.message.includes("Firebase admin credentials not configured")) {
       return { user: null, error: "unconfigured" }
     }
     return { user: null, error: "unauthorized" }

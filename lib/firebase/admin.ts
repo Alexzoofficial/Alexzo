@@ -50,12 +50,13 @@ export function getFirebaseAdmin() {
     const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID
 
     if (!privateKey || !clientEmail || !projectId) {
-      console.warn('Firebase admin credentials not configured. Server-side operations will be disabled.')
-      if (!projectId) console.warn('- NEXT_PUBLIC_FIREBASE_PROJECT_ID is missing.')
-      if (!clientEmail) console.warn('- FIREBASE_CLIENT_EMAIL is missing.')
-      if (!privateKey) console.warn('- FIREBASE_PRIVATE_KEY is missing.')
-      console.warn('See ENVIRONMENT_SETUP.md for instructions.')
-      return null
+      // Throw an error if credentials are not configured
+      // This provides a clear failure reason instead of letting other services fail silently
+      let errorMessage = 'Firebase admin credentials not configured. Server-side operations will be disabled. See ENVIRONMENT_SETUP.md for instructions.'
+      if (!projectId) errorMessage += '\n- NEXT_PUBLIC_FIREBASE_PROJECT_ID is missing.'
+      if (!clientEmail) errorMessage += '\n- FIREBASE_CLIENT_EMAIL is missing.'
+      if (!privateKey) errorMessage += '\n- FIREBASE_PRIVATE_KEY is missing.'
+      throw new Error(errorMessage)
     }
 
     adminApp = initializeApp({
