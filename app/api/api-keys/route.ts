@@ -20,7 +20,7 @@ async function getAuthenticatedUser(requestHeaders: Headers): Promise<AuthResult
     return { user: decodedToken, error: null }
   } catch (error: any) {
     console.error("Error verifying ID token:", error.message)
-    if (error.message.includes("Firebase admin credentials not configured")) {
+    if (error.message.includes("Firebase Admin SDK not initialized")) {
       return { user: null, error: "unconfigured" }
     }
     return { user: null, error: "unauthorized" }
@@ -108,8 +108,14 @@ export async function POST(request: Request) {
     const db = getAdminFirestore()
     const docRef = await db.collection("api_keys").add(newKey)
     return NextResponse.json({ id: docRef.id, ...newKey }, { status: 201 })
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error creating API key:", error)
+    if (error.message.includes("Firebase Admin SDK not initialized")) {
+      return NextResponse.json(
+        { error: "Authentication service is not configured on the server. Please see ENVIRONMENT_SETUP.md for instructions." },
+        { status: 503 }
+      )
+    }
     return NextResponse.json({ error: "Failed to create API key" }, { status: 500 })
   }
 }
