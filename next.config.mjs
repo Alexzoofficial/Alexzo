@@ -2,9 +2,6 @@
 const replitDomain = process.env.REPLIT_DEV_DOMAIN;
 const vercelDomain = process.env.VERCEL_URL;
 const nextConfig = {
-  eslint: {
-    ignoreDuringBuilds: false,
-  },
   typescript: {
     ignoreBuildErrors: false,
   },
