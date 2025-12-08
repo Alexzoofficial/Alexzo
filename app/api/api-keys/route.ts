@@ -110,9 +110,10 @@ export async function POST(request: Request) {
     return NextResponse.json({ id: docRef.id, ...newKey }, { status: 201 })
   } catch (error: any) {
     console.error("Error creating API key:", error)
-    if (error.message.includes("Firebase Admin SDK not initialized")) {
+    // Pass through the specific error message from the Firebase Admin SDK initialization
+    if (error.message.includes("Firebase Admin SDK not initialized") || error.message.includes("Firebase admin credentials not configured")) {
       return NextResponse.json(
-        { error: "Authentication service is not configured on the server. Please see ENVIRONMENT_SETUP.md for instructions." },
+        { error: error.message },
         { status: 503 }
       )
     }

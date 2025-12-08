@@ -150,7 +150,15 @@ export function AuthModal({ isOpen, onClose, initialMode = "signin", defaultMode
 
           <div className="px-6 pb-6">
             <div className="space-y-4">
-                {error && (
+                {!isFirebaseConfigured ? (
+                  <div className="flex items-center gap-2 text-yellow-400 text-sm bg-yellow-400/10 border border-yellow-400/20 rounded-lg p-3">
+                    <AlertCircle className="h-4 w-4 flex-shrink-0" />
+                    <div>
+                      <span className="font-bold">Client-side Firebase configuration is missing.</span>
+                      <p className="text-xs mt-1">Please add the required `NEXT_PUBLIC_` variables to your environment. See the Firebase project settings for the correct values.</p>
+                    </div>
+                  </div>
+                ) : error && (
                   <motion.div
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
