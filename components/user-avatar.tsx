@@ -267,7 +267,7 @@ export function UserAvatar() {
 
       {/* Create API Key Dialog */}
       <Dialog open={showCreateKey} onOpenChange={setShowCreateKey}>
-        <DialogContent className="bg-gray-900 border-gray-800 text-white">
+        <DialogContent className="bg-gray-900 border-gray-800 text-white fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
           <DialogHeader>
             <DialogTitle>Create New API Key</DialogTitle>
           </DialogHeader>
