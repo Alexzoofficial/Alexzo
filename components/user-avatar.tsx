@@ -155,7 +155,7 @@ export function UserAvatar() {
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="relative h-8 w-8 rounded-full" data-testid="user-avatar-button">
+          <Button variant="ghost" className="relative h-8 w-8 rounded-full">
             <Avatar className="h-8 w-8">
               <AvatarImage src={user.photoURL || userAvatar || ""} alt={user.displayName || user.email || ""} />
               <AvatarFallback>

@@ -2,6 +2,10 @@
 const replitDomain = process.env.REPLIT_DEV_DOMAIN;
 const vercelDomain = process.env.VERCEL_URL;
 const nextConfig = {
+  // The `eslint` key was removed from this configuration.
+  // In Next.js 16+, the `eslint` configuration is no longer supported in `next.config.mjs`.
+  // The linter is now run as part of the build process, as defined in `package.json`.
+  // This change was made to resolve a continuous server restart loop in development.
   typescript: {
     ignoreBuildErrors: false,
   },
