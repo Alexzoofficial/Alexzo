@@ -1,6 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getAdminFirestore } from '@/lib/firebase/admin'
 
+// Define allowed origins for CORS
+const ALLOWED_ORIGINS = [
+  "https://alexzo.vercel.app", // Production Vercel deployment
+  "http://localhost:5000", // Local development
+]
+
+// Helper to generate CORS headers safely
+const getCorsHeaders = (request: NextRequest) => {
+  const origin = request.headers.get("origin") || ""
+  const allowedOrigin = ALLOWED_ORIGINS.includes(origin)
+    ? origin
+    : ALLOWED_ORIGINS[0] // Default to production URL
+
+  return {
+    "Access-Control-Allow-Origin": allowedOrigin,
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization",
+  }
+}
+
+
 // Get user's real IP address from request headers
 function getUserIP(request: NextRequest): string {
   // Check common proxy headers in order of reliability
@@ -125,11 +146,7 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json(response, {
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'POST',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-      }
+      headers: getCorsHeaders(request)
     })
 
   } catch (error) {
@@ -147,13 +164,9 @@ export async function GET() {
   )
 }
 
-export async function OPTIONS() {
+export async function OPTIONS(request: NextRequest) {
   return new NextResponse(null, {
     status: 200,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'POST',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-    }
+    headers: getCorsHeaders(request)
   })
 }

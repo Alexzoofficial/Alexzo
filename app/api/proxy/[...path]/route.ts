@@ -1,11 +1,33 @@
 import { NextResponse } from "next/server"
 import { getAdminFirestore } from "@/lib/firebase/admin"
 
+// Define allowed origins and create a helper for CORS headers
+const ALLOWED_ORIGINS = [
+  "https://alexzo.vercel.app", // Production Vercel deployment
+  "http://localhost:5000", // Local development
+]
+
+// Helper to generate CORS headers safely
+const getCorsHeaders = (request: Request) => {
+  const origin = request.headers.get("origin") || ""
+  const allowedOrigin = ALLOWED_ORIGINS.includes(origin)
+    ? origin
+    : ALLOWED_ORIGINS[0]
+
+  return {
+    "Access-Control-Allow-Origin": allowedOrigin,
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization",
+  }
+}
+
 // Helper to get the catch-all path segment as a string
 function getPathString(request: Request): string {
   const url = new URL(request.url)
   // Remove the /api/proxy/ prefix and any trailing slashes
-  const cleaned = url.pathname.replace(/^\/api\/proxy\/?/, "").replace(/\/+$/, "")
+  const cleaned = url.pathname
+    .replace(/^\/api\/proxy\/?/, "")
+    .replace(/\/+$/, "")
   return cleaned
 }
 
@@ -35,7 +57,7 @@ async function validateApiKey(request: Request): Promise<NextResponse | null> {
 
     // Query the api_keys collection
     const keyDoc = await db.collection("api_keys").doc(apiKey).get()
-    
+
     if (!keyDoc.exists) {
       return NextResponse.json(
         { error: "Invalid API key. Key not found." },
@@ -55,7 +77,10 @@ async function validateApiKey(request: Request): Promise<NextResponse | null> {
 }
 
 // Handle image generation endpoints (generate and zyfoox/generate)
-async function handleImageGeneration(body: any, request: Request): Promise<NextResponse> {
+async function handleImageGeneration(
+  body: any,
+  request: Request
+): Promise<NextResponse> {
   const { prompt, width = 512, height = 512 } = body || {}
 
   if (!prompt) {
@@ -80,14 +105,14 @@ async function handleImageGeneration(body: any, request: Request): Promise<NextR
 
   // Get user's real IP for rate limiting
   const userIp = getUserIP(request)
-  
+
   // Generate unique seed for image
   const seed = Math.floor(Math.random() * 1_000_000)
-  
+
   // Create Pollinations URL with user IP as referrer
   // This ensures rate limits apply per user IP, not server IP
   const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(
-    prompt as string,
+    prompt as string
   )}?width=${width}&height=${height}&seed=${seed}&nologo=true&enhance=true&model=flux`
 
   // Return the URL directly so client fetches from their own IP
@@ -103,48 +128,55 @@ async function handleImageGeneration(body: any, request: Request): Promise<NextR
     ],
     meta: {
       user_ip: userIp,
-      note: "Image fetched directly from client to avoid server IP rate limits"
-    }
+      note: "Image fetched directly from client to avoid server IP rate limits",
+    },
   }
 
   return NextResponse.json(response, {
-    headers: {
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "POST, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type, Authorization",
-    },
+    headers: getCorsHeaders(request),
   })
 }
 
 // Get user's real IP address from request headers
 function getUserIP(request: Request): string {
   // Check common proxy headers in order of reliability
-  const forwardedFor = request.headers.get('x-forwarded-for')
+  const forwardedFor = request.headers.get("x-forwarded-for")
   if (forwardedFor) {
     // x-forwarded-for can contain multiple IPs, get the first (original client)
-    return forwardedFor.split(',')[0].trim()
+    return forwardedFor.split(",")[0].trim()
   }
-  
-  const realIp = request.headers.get('x-real-ip')
+
+  const realIp = request.headers.get("x-real-ip")
   if (realIp) {
     return realIp
   }
-  
-  const cfConnectingIp = request.headers.get('cf-connecting-ip')
+
+  const cfConnectingIp = request.headers.get("cf-connecting-ip")
   if (cfConnectingIp) {
     return cfConnectingIp
   }
-  
+
   // Fallback to "unknown" if no IP headers found
-  return 'unknown'
+  return "unknown"
 }
 
 // Handle chat completions endpoint
-async function handleChatCompletions(body: any): Promise<NextResponse> {
-  const { messages, model = "gpt-3.5-turbo", temperature = 0.7, max_tokens = 1000 } = body || {}
+async function handleChatCompletions(
+  body: any,
+  request: Request
+): Promise<NextResponse> {
+  const {
+    messages,
+    model = "gpt-3.5-turbo",
+    temperature = 0.7,
+    max_tokens = 1000,
+  } = body || {}
 
   if (!messages || !Array.isArray(messages) || messages.length === 0) {
-    return NextResponse.json({ error: "Messages array is required" }, { status: 400 })
+    return NextResponse.json(
+      { error: "Messages array is required" },
+      { status: 400 }
+    )
   }
 
   // For now, return a simple response
@@ -159,7 +191,8 @@ async function handleChatCompletions(body: any): Promise<NextResponse> {
         index: 0,
         message: {
           role: "assistant",
-          content: "This is a demo response from the Alexzo API proxy. To enable full chat functionality, configure an LLM provider.",
+          content:
+            "This is a demo response from the Alexzo API proxy. To enable full chat functionality, configure an LLM provider.",
         },
         finish_reason: "stop",
       },
@@ -172,20 +205,16 @@ async function handleChatCompletions(body: any): Promise<NextResponse> {
   }
 
   return NextResponse.json(response, {
-    headers: {
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "POST, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type, Authorization",
-    },
+    headers: getCorsHeaders(request),
   })
 }
 
 // Track API usage in background (non-blocking)
 async function trackUsage(apiKey: string, endpoint: string) {
   try {
-    await fetch('https://alexzo.vercel.app/api/keys/track', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+    await fetch("https://alexzo.vercel.app/api/keys/track", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ apiKey, endpoint }),
     }).catch(() => {})
   } catch {}
@@ -202,7 +231,8 @@ export async function POST(request: Request) {
     }
 
     // Extract API key for tracking
-    const apiKey = request.headers.get("authorization")?.replace("Bearer ", "") || ""
+    const apiKey =
+      request.headers.get("authorization")?.replace("Bearer ", "") || ""
 
     // Parse request body
     const body = await request.json().catch(() => null)
@@ -214,38 +244,48 @@ export async function POST(request: Request) {
     if (pathString === "generate" || pathString === "zyfoox/generate") {
       return await handleImageGeneration(body, request)
     } else if (pathString === "chat/completions") {
-      return await handleChatCompletions(body)
+      return await handleChatCompletions(body, request)
     } else {
       return NextResponse.json(
-        { error: `Endpoint not found: ${pathString}. Supported endpoints: generate, zyfoox/generate, chat/completions` },
+        {
+          error: `Endpoint not found: ${pathString}. Supported endpoints: generate, zyfoox/generate, chat/completions`,
+        },
         { status: 404 }
       )
     }
   } catch (error) {
     console.error("[Proxy] API Error:", (error as Error)?.message || error)
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    )
   }
 }
 
 export async function GET() {
-  return NextResponse.json({ error: "Method not allowed. Use POST for image generation." }, { status: 405 })
+  return NextResponse.json(
+    { error: "Method not allowed. Use POST for image generation." },
+    { status: 405 }
+  )
 }
 
 export async function PUT() {
-  return NextResponse.json({ error: "Method not allowed. Use POST for image generation." }, { status: 405 })
+  return NextResponse.json(
+    { error: "Method not allowed. Use POST for image generation." },
+    { status: 405 }
+  )
 }
 
 export async function DELETE() {
-  return NextResponse.json({ error: "Method not allowed. Use POST for image generation." }, { status: 405 })
+  return NextResponse.json(
+    { error: "Method not allowed. Use POST for image generation." },
+    { status: 405 }
+  )
 }
 
-export async function OPTIONS() {
+export async function OPTIONS(request: Request) {
   return new NextResponse(null, {
     status: 200,
-    headers: {
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "POST, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type, Authorization",
-    },
+    headers: getCorsHeaders(request),
   })
 }
