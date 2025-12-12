@@ -137,28 +137,7 @@ async function handleImageGeneration(
   })
 }
 
-// Get user's real IP address from request headers
-function getUserIP(request: Request): string {
-  // Check common proxy headers in order of reliability
-  const forwardedFor = request.headers.get("x-forwarded-for")
-  if (forwardedFor) {
-    // x-forwarded-for can contain multiple IPs, get the first (original client)
-    return forwardedFor.split(",")[0].trim()
-  }
-
-  const realIp = request.headers.get("x-real-ip")
-  if (realIp) {
-    return realIp
-  }
-
-  const cfConnectingIp = request.headers.get("cf-connecting-ip")
-  if (cfConnectingIp) {
-    return cfConnectingIp
-  }
-
-  // Fallback to "unknown" if no IP headers found
-  return "unknown"
-}
+import { getUserIP } from "@/lib/ip-utils"
 
 // Handle chat completions endpoint
 async function handleChatCompletions(
