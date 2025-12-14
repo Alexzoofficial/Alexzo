@@ -1,30 +1,31 @@
 import { NextResponse } from "next/server"
 import { z } from "zod"
 import { headers } from "next/headers"
-import { db } from "@/lib/db"
-import { apiKeys } from "@shared/schema"
-import { eq, and } from "drizzle-orm"
+import { getAdminFirestore, getAdminAuth } from "@/lib/firebase/admin"
 
-type AuthResult = { userId: string; error: null } | { userId: null; error: "unauthorized" | "unconfigured" }
+type AuthResult = { userId: string; userName: string; error: null } | { userId: null; userName: null; error: "unauthorized" | "unconfigured" }
 
 async function getAuthenticatedUser(requestHeaders: Headers): Promise<AuthResult> {
   const authorization = requestHeaders.get("Authorization")
   if (!authorization || !authorization.startsWith("Bearer ")) {
-    return { userId: null, error: "unauthorized" }
+    return { userId: null, userName: null, error: "unauthorized" }
   }
   const idToken = authorization.split("Bearer ")[1]
 
   try {
-    const { getAdminAuth } = await import("@/lib/firebase/admin")
     const adminAuth = getAdminAuth()
     const decodedToken = await adminAuth.verifyIdToken(idToken)
-    return { userId: decodedToken.uid, error: null }
+    return { 
+      userId: decodedToken.uid, 
+      userName: decodedToken.name || decodedToken.email || 'User',
+      error: null 
+    }
   } catch (error: any) {
     console.error("Error verifying ID token:", error.message)
     if (error.message.includes("Firebase Admin SDK not initialized")) {
-      return { userId: null, error: "unconfigured" }
+      return { userId: null, userName: null, error: "unconfigured" }
     }
-    return { userId: null, error: "unauthorized" }
+    return { userId: null, userName: null, error: "unauthorized" }
   }
 }
 
@@ -43,17 +44,25 @@ export async function GET(request: Request) {
   }
 
   try {
-    const keys = await db.select().from(apiKeys).where(eq(apiKeys.userId, userId))
+    const db = getAdminFirestore()
+    const keysSnapshot = await db
+      .collection('api_keys')
+      .where('userId', '==', userId)
+      .orderBy('created', 'desc')
+      .get()
+
+    const keys = keysSnapshot.docs.map(doc => {
+      const data = doc.data()
+      return {
+        id: doc.id,
+        name: data.name,
+        key: data.key,
+        created: data.created,
+        lastUsed: data.lastUsed || "Never",
+      }
+    })
     
-    const formattedKeys = keys.map(key => ({
-      id: key.id.toString(),
-      name: key.name,
-      key: key.key,
-      created: key.created.toISOString(),
-      lastUsed: key.lastUsed ? key.lastUsed.toISOString() : "Never",
-    }))
-    
-    return NextResponse.json(formattedKeys, { status: 200 })
+    return NextResponse.json(keys, { status: 200 })
   } catch (error) {
     console.error("Error fetching API keys:", error)
     return NextResponse.json({ error: "Failed to fetch API keys" }, { status: 500 })
@@ -70,7 +79,7 @@ function generateUniqueAPIKey(): string {
 }
 
 export async function POST(request: Request) {
-  const { userId, error } = await getAuthenticatedUser(await headers())
+  const { userId, userName, error } = await getAuthenticatedUser(await headers())
 
   if (error === "unconfigured") {
     return NextResponse.json(
@@ -96,20 +105,26 @@ export async function POST(request: Request) {
   }
 
   const { name } = validation.data
+  const apiKey = generateUniqueAPIKey()
+  const created = new Date().toISOString()
 
   try {
-    const [newKey] = await db.insert(apiKeys).values({
+    const db = getAdminFirestore()
+    const docRef = await db.collection('api_keys').add({
       userId,
+      userName,
       name,
-      key: generateUniqueAPIKey(),
-    }).returning()
+      key: apiKey,
+      created,
+      lastUsed: null,
+    })
 
     return NextResponse.json({
-      id: newKey.id.toString(),
-      name: newKey.name,
-      key: newKey.key,
-      created: newKey.created.toISOString(),
-      lastUsed: newKey.lastUsed ? newKey.lastUsed.toISOString() : "Never",
+      id: docRef.id,
+      name,
+      key: apiKey,
+      created,
+      lastUsed: "Never",
     }, { status: 201 })
   } catch (error: any) {
     console.error("Error creating API key:", error)
@@ -148,22 +163,22 @@ export async function DELETE(request: Request) {
   }
 
   const { id } = validation.data
-  const keyId = parseInt(id, 10)
-
-  if (isNaN(keyId)) {
-    return NextResponse.json({ error: "Invalid key ID" }, { status: 400 })
-  }
 
   try {
-    const [existingKey] = await db.select().from(apiKeys).where(
-      and(eq(apiKeys.id, keyId), eq(apiKeys.userId, userId))
-    )
+    const db = getAdminFirestore()
+    const docRef = db.collection('api_keys').doc(id)
+    const doc = await docRef.get()
 
-    if (!existingKey) {
+    if (!doc.exists) {
       return NextResponse.json({ error: "API key not found" }, { status: 404 })
     }
 
-    await db.delete(apiKeys).where(eq(apiKeys.id, keyId))
+    const data = doc.data()
+    if (data?.userId !== userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 403 })
+    }
+
+    await docRef.delete()
     return NextResponse.json({ message: "API key deleted successfully" }, { status: 200 })
   } catch (error) {
     console.error("Error deleting API key:", error)

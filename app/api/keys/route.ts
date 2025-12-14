@@ -1,7 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { db } from "@/lib/db"
-import { apiKeys } from "@shared/schema"
-import { eq, and, desc } from "drizzle-orm"
+import { getAdminFirestore, getAdminAuth } from "@/lib/firebase/admin"
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -15,7 +13,6 @@ async function getAuthenticatedUser(request: NextRequest): Promise<{ userId: str
   const idToken = authHeader.replace('Bearer ', '')
 
   try {
-    const { getAdminAuth } = await import("@/lib/firebase/admin")
     const auth = getAdminAuth()
     const decodedToken = await auth.verifyIdToken(idToken)
     return {
@@ -35,20 +32,24 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const keys = await db
-      .select()
-      .from(apiKeys)
-      .where(eq(apiKeys.userId, user.userId))
-      .orderBy(desc(apiKeys.created))
+    const db = getAdminFirestore()
+    const keysSnapshot = await db
+      .collection('api_keys')
+      .where('userId', '==', user.userId)
+      .orderBy('created', 'desc')
+      .get()
 
-    const formattedKeys = keys.map(key => ({
-      id: key.id.toString(),
-      name: key.name,
-      key: key.key,
-      created: key.created.toISOString(),
-      lastUsed: key.lastUsed ? key.lastUsed.toISOString() : null,
-      requests: key.requestCount || 0
-    }))
+    const formattedKeys = keysSnapshot.docs.map(doc => {
+      const data = doc.data()
+      return {
+        id: doc.id,
+        name: data.name,
+        key: data.key,
+        created: data.created,
+        lastUsed: data.lastUsed || null,
+        requests: data.requestCount || 0
+      }
+    })
 
     return NextResponse.json({ keys: formattedKeys }, { status: 200 })
   } catch (error) {
@@ -72,21 +73,26 @@ export async function POST(request: NextRequest) {
     }
 
     const apiKey = `alexzo_${Math.random().toString(36).substring(2, 15)}${Math.random().toString(36).substring(2, 15)}`
+    const created = new Date().toISOString()
 
-    const [newKey] = await db.insert(apiKeys).values({
+    const db = getAdminFirestore()
+    const docRef = await db.collection('api_keys').add({
       userId: user.userId,
       userName: user.userName,
       name,
       key: apiKey,
-    }).returning()
+      created,
+      lastUsed: null,
+      requestCount: 0,
+    })
 
     return NextResponse.json({
       success: true,
       key: {
-        id: newKey.id.toString(),
-        name: newKey.name,
-        key: newKey.key,
-        created: newKey.created.toISOString(),
+        id: docRef.id,
+        name,
+        key: apiKey,
+        created,
         lastUsed: null,
         requests: 0
       }
@@ -111,21 +117,20 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: "Key ID required" }, { status: 400 })
     }
 
-    const numericId = parseInt(keyId, 10)
-    if (isNaN(numericId)) {
-      return NextResponse.json({ error: "Invalid key ID" }, { status: 400 })
+    const db = getAdminFirestore()
+    const docRef = db.collection('api_keys').doc(keyId)
+    const doc = await docRef.get()
+
+    if (!doc.exists) {
+      return NextResponse.json({ error: "Key not found" }, { status: 404 })
     }
 
-    const [existingKey] = await db
-      .select()
-      .from(apiKeys)
-      .where(and(eq(apiKeys.id, numericId), eq(apiKeys.userId, user.userId)))
-
-    if (!existingKey) {
+    const data = doc.data()
+    if (data?.userId !== user.userId) {
       return NextResponse.json({ error: "Key not found or unauthorized" }, { status: 404 })
     }
 
-    await db.delete(apiKeys).where(eq(apiKeys.id, numericId))
+    await docRef.delete()
 
     return NextResponse.json({ success: true }, { status: 200 })
   } catch (error) {
