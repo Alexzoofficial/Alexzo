@@ -1,7 +1,8 @@
+export const dynamic = "force-dynamic"
 import { NextResponse } from "next/server"
 import { z } from "zod"
 import { headers } from "next/headers"
-import { db } from "@/lib/db"
+import { getDb } from "@/lib/db"
 import { apiKeys } from "@shared/schema"
 import { eq, and } from "drizzle-orm"
 
@@ -43,6 +44,7 @@ export async function GET(request: Request) {
   }
 
   try {
+    const db = getDb();
     const keys = await db.select().from(apiKeys).where(eq(apiKeys.userId, userId))
     
     const formattedKeys = keys.map(key => ({
@@ -79,10 +81,6 @@ export async function POST(request: Request) {
     )
   }
 
-  if (error === "unauthorized" || !userId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-  }
-
   let body
   try {
     body = await request.json()
@@ -98,6 +96,7 @@ export async function POST(request: Request) {
   const { name } = validation.data
 
   try {
+    const db = getDb();
     const [newKey] = await db.insert(apiKeys).values({
       userId,
       name,
@@ -110,6 +109,7 @@ export async function POST(request: Request) {
       key: newKey.key,
       created: newKey.created.toISOString(),
       lastUsed: newKey.lastUsed ? newKey.lastUsed.toISOString() : "Never",
+      userId: newKey.userId,
     }, { status: 201 })
   } catch (error: any) {
     console.error("Error creating API key:", error)
@@ -155,6 +155,7 @@ export async function DELETE(request: Request) {
   }
 
   try {
+    const db = getDb();
     const [existingKey] = await db.select().from(apiKeys).where(
       and(eq(apiKeys.id, keyId), eq(apiKeys.userId, userId))
     )

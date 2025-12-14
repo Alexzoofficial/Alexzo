@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { db } from "@/lib/db"
+import { getDb } from "@/lib/db"
 import { apiKeys } from "@shared/schema"
 import { eq, and, desc } from "drizzle-orm"
 
@@ -35,6 +35,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
+    const db = getDb();
     const keys = await db
       .select()
       .from(apiKeys)
@@ -73,6 +74,7 @@ export async function POST(request: NextRequest) {
 
     const apiKey = `alexzo_${Math.random().toString(36).substring(2, 15)}${Math.random().toString(36).substring(2, 15)}`
 
+    const db = getDb();
     const [newKey] = await db.insert(apiKeys).values({
       userId: user.userId,
       userName: user.userName,
@@ -116,6 +118,7 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: "Invalid key ID" }, { status: 400 })
     }
 
+    const db = getDb();
     const [existingKey] = await db
       .select()
       .from(apiKeys)

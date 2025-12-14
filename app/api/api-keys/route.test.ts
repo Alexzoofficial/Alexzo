@@ -6,6 +6,21 @@ jest.mock('next/headers', () => ({
   headers: jest.fn(() => new Map()), // Return an empty Map for headers
 }))
 
+jest.mock('@/lib/db', () => ({
+  getDb: jest.fn(() => ({
+    insert: jest.fn().mockReturnThis(),
+    values: jest.fn().mockReturnThis(),
+    returning: jest.fn().mockResolvedValue([{
+      id: 'test-id',
+      name: 'Test Key',
+      key: 'test-key',
+      created: new Date(),
+      lastUsed: null,
+      userId: null,
+    }]),
+  })),
+}));
+
 // Mock NextRequest and other dependencies
 jest.mock('@/lib/firebase/admin', () => ({
   getAdminFirestore: () => ({
