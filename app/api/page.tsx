@@ -534,7 +534,7 @@ console.log(data); // Search results`)
 
       {/* Create API Key Dialog */}
       <Dialog open={showCreateKey} onOpenChange={setShowCreateKey}>
-        <DialogContent className="bg-gray-900 border-gray-800 text-white mx-4 max-w-md">
+        <DialogContent className="bg-gray-900 border-gray-800 text-white w-[calc(100%-2rem)] max-w-md">
           <DialogHeader>
             <DialogTitle>Create API Key</DialogTitle>
           </DialogHeader>
