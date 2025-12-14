@@ -5,6 +5,13 @@ Alexzo is an AI-powered platform built with Next.js, designed to transform ideas
 
 ## Recent Changes
 
+### December 14, 2025 - API Key Dialog Fix & PostgreSQL Migration
+- **Dialog Alignment Fix**: Fixed the "Create API Key" dialog box alignment on mobile devices. Changed `mx-4` class to `w-[calc(100%-2rem)]` for proper centering.
+- **PostgreSQL Database Setup**: Migrated API key storage from Firebase Firestore to PostgreSQL using Drizzle ORM for reliable data persistence.
+- **Database Schema**: Created `api_keys` table with fields: id, userId, userName, name, key, created, lastUsed, requestCount.
+- **API Routes Updated**: Updated `/api/api-keys` and `/api/keys` endpoints to use PostgreSQL instead of Firebase Firestore.
+- **Response Serialization**: Ensured all API responses return properly formatted data with string IDs and ISO timestamps.
+
 ### October 25, 2025 - IP-Based Rate Limiting Fix
 - **User IP Tracking**: Implemented user IP detection across all API endpoints to enable per-user rate limiting instead of server-wide limits.
 - **Pollinations AI Integration**: Modified both `/api/generate` and `/api/proxy/[...path]` endpoints to capture user's real IP address from proxy headers (x-forwarded-for, x-real-ip, cf-connecting-ip).
@@ -60,7 +67,13 @@ Alexzo is an AI-powered platform built with Next.js, designed to transform ideas
 I prefer iterative development, with a focus on clear and concise communication. Please ask before making major architectural changes or introducing new dependencies. I value detailed explanations when complex topics are discussed but prefer straightforward answers for routine tasks. Ensure all solutions are robust, scalable, and maintainable.
 
 ## System Architecture
-The application is built using Next.js 15.2.4 with TypeScript. UI components are developed with Radix UI and styled using Tailwind CSS, featuring custom theming for responsive design with dark/light modes. Firebase is the chosen backend, providing authentication via Google OAuth and utilizing Firestore as the NoSQL database for data storage. The system integrates Google Analytics for tracking and includes features like user authentication, blog functionality, contact forms, newsletter sign-ups, and an API proxy gateway. All data persistence for forms, API keys, and custom API configurations is handled by Firebase Firestore.
+The application is built using Next.js 16.0.7 with TypeScript. UI components are developed with Radix UI and styled using Tailwind CSS, featuring custom theming for responsive design with dark/light modes. Firebase provides authentication via Google OAuth. The system integrates Google Analytics for tracking and includes features like user authentication, blog functionality, contact forms, newsletter sign-ups, and an API proxy gateway.
+
+### Database Architecture
+- **PostgreSQL Database**: API keys are stored in PostgreSQL using Drizzle ORM for type-safe database operations.
+- **Database Schema**: Located in `shared/schema.ts` with the `api_keys` table.
+- **Database Connection**: Managed via `lib/db.ts` using the `DATABASE_URL` environment variable.
+- **Migrations**: Use `npm run db:push` to sync schema changes to the database.
 
 ### API Usage Policy
 The `/api/generate` endpoint is designed for unlimited requests with minimal database overhead:
