@@ -39,3 +39,16 @@ externalPort = 80
 deploymentTarget = "autoscale"
 build = ["npm", "run", "build"]
 run = ["npm", "run", "start"]
+
+[userenv]
+
+[userenv.shared]
+NEXT_PUBLIC_FIREBASE_PROJECT_ID = "alexzo"
+FIREBASE_CLIENT_EMAIL = "firebase-adminsdk-fbsvc@alexzo.iam.gserviceaccount.com"
+NEXT_PUBLIC_FIREBASE_API_KEY = "AIzaSyDAfy2fyJYLDA3WjK-VAo_zGgrYcxjkzws"
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN = "alexzo.firebaseapp.com"
+NEXT_PUBLIC_FIREBASE_DATABASE_URL = "https://alexzo-default-rtdb.firebaseio.com"
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET = "alexzo.firebasestorage.app"
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID = "685761333626"
+NEXT_PUBLIC_FIREBASE_APP_ID = "1:685761333626:web:e23150066930f804cd6ec3"
+NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID = "G-386HB7B9VJ"
