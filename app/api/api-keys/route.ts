@@ -127,7 +127,15 @@ export async function POST(request: Request) {
       lastUsed: "Never",
     }, { status: 201 })
   } catch (error: any) {
-    console.error("Error creating API key:", error)
+    console.error("Error creating API key:", error.message)
+    // If the error is due to missing Firebase credentials, return a specific 503 error.
+    if (error.message && error.message.includes("Firebase admin credentials not configured")) {
+      return NextResponse.json(
+        { error: `Database service is not configured: ${error.message}` },
+        { status: 503 }
+      )
+    }
+    // For all other errors, return a generic 500 error.
     return NextResponse.json({ error: "Failed to create API key" }, { status: 500 })
   }
 }
