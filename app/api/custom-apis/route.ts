@@ -52,17 +52,32 @@ export async function POST(request: NextRequest) {
     }
 
     const apiKey = `alexzo_${Math.random().toString(36).substring(2, 15)}${Math.random().toString(36).substring(2, 15)}`
+    const createdAt = new Date().toISOString()
 
     const newAPI = {
       userName: userName || 'Unknown User',
       userEmail: userEmail || '',
       name,
       status: 'active',
-      createdAt: new Date().toISOString(),
+      createdAt: createdAt,
       apiKey,
     }
 
+    // Save to custom_apis collection
     const docRef = await db.collection('custom_apis').add(newAPI)
+
+    // Also save to api_keys collection for validation to work
+    // This ensures the API key can be validated when used
+    await db.collection('api_keys').add({
+      userId: userEmail, // Use email as userId for custom APIs
+      userName: userName || 'Unknown User',
+      name: name,
+      key: apiKey,
+      created: createdAt,
+      lastUsed: null,
+      requestCount: 0,
+      type: 'custom_api', // Mark as custom API for reference
+    })
 
     return NextResponse.json({
       success: true,
@@ -99,11 +114,25 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: "API not found" }, { status: 404 })
     }
 
-    if (apiDoc.data()?.userEmail !== userEmail) {
+    const apiData = apiDoc.data()
+    if (apiData?.userEmail !== userEmail) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 })
     }
 
+    // Delete from custom_apis
     await apiDoc.ref.delete()
+
+    // Also delete from api_keys collection
+    if (apiData?.apiKey) {
+      const keyDocs = await db
+        .collection('api_keys')
+        .where('key', '==', apiData.apiKey)
+        .get()
+
+      for (const doc of keyDocs.docs) {
+        await doc.ref.delete()
+      }
+    }
 
     return NextResponse.json({ success: true }, { status: 200 })
   } catch (error) {
