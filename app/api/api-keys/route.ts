@@ -110,6 +110,11 @@ export async function POST(request: Request) {
 
   try {
     const db = getAdminFirestore()
+    if (!db) {
+      console.error("Firestore database not initialized")
+      return NextResponse.json({ error: "Database not configured" }, { status: 503 })
+    }
+
     const docRef = await db.collection('api_keys').add({
       userId,
       userName,
@@ -127,8 +132,8 @@ export async function POST(request: Request) {
       lastUsed: "Never",
     }, { status: 201 })
   } catch (error: any) {
-    console.error("Error creating API key:", error)
-    return NextResponse.json({ error: "Failed to create API key" }, { status: 500 })
+    console.error("Error creating API key:", error.message || error)
+    return NextResponse.json({ error: error.message || "Failed to create API key" }, { status: 500 })
   }
 }
 
