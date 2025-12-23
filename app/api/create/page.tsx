@@ -77,61 +77,18 @@ export default function APICreatePage() {
     }
   }, [user])
 
-  const loadGeneratedImages = useCallback(async () => {
-    if (!user || !user.email) return
-    
-    try {
-      const response = await fetch('/api/generated-images', {
-        method: 'GET',
-        headers: {
-          'x-user-email': user.email
-        }
-      })
-      
-      if (response.ok) {
-        const data = await response.json()
-        setGeneratedDogImages(data.images || [])
-      }
-    } catch (error) {
-      console.error('Error loading generated images:', error)
-    }
-  }, [user])
-
   useEffect(() => {
     if (!user) {
       setShowAuthModal(true)
     } else {
       loadUserAPIs()
-      loadGeneratedImages()
     }
-  }, [user, loadUserAPIs, loadGeneratedImages])
+  }, [user, loadUserAPIs])
 
-  const saveGeneratedImages = async (image: GeneratedImage) => {
-    if (!user || !user.email) return
-    
-    try {
-      const response = await fetch('/api/generated-images', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-user-email': user.email
-        },
-        body: JSON.stringify({
-          userEmail: user.email,
-          prompt: image.prompt,
-          imageUrl: image.imageUrl
-        })
-      })
-
-      if (response.ok) {
-        const data = await response.json()
-        // Update local state with the Firestore-saved image (which has the correct ID)
-        setGeneratedDogImages(prev => [data.image, ...prev])
-      }
-    } catch (error) {
-      console.error('Error saving image to Firestore:', error)
-      toast.error('Failed to save image to database')
-    }
+  const saveGeneratedImages = (images: GeneratedImage[]) => {
+    // Images are saved via API automatically
+    // Just update local state for current session display
+    setGeneratedDogImages(images)
   }
 
   const copyAPIKey = (key: string) => {
@@ -212,7 +169,8 @@ export default function APICreatePage() {
           createdAt: new Date().toISOString()
         }
 
-        await saveGeneratedImages(newImage)
+        const updatedImages = [newImage, ...generatedDogImages]
+        saveGeneratedImages(updatedImages)
         setDogPrompt("")
         toast.success("Dog image generated successfully!")
       } else {
@@ -284,27 +242,10 @@ export default function APICreatePage() {
     }
   }
 
-  const deleteGeneratedImage = async (id: string) => {
-    if (!user || !user.email) return
-
-    try {
-      const response = await fetch(`/api/generated-images?id=${id}`, {
-        method: 'DELETE',
-        headers: {
-          'x-user-email': user.email
-        }
-      })
-
-      if (response.ok) {
-        setGeneratedDogImages(generatedDogImages.filter(img => img.id !== id))
-        toast.success("Image deleted successfully!")
-      } else {
-        toast.error("Failed to delete image")
-      }
-    } catch (error) {
-      console.error('Error deleting image:', error)
-      toast.error("Failed to delete image")
-    }
+  const deleteGeneratedImage = (id: string) => {
+    const updatedImages = generatedDogImages.filter(img => img.id !== id)
+    saveGeneratedImages(updatedImages)
+    toast.success("Image deleted successfully!")
   }
 
   if (!user) {
