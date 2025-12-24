@@ -28,7 +28,6 @@ export function getFirebaseAdmin() {
       
       adminApp = initializeApp({
         credential: cert(serviceAccount),
-        databaseURL: `https://${serviceAccount.project_id}-default-rtdb.firebaseio.com`,
       })
       
       console.log('Firebase Admin initialized with service account file')
@@ -64,7 +63,6 @@ export function getFirebaseAdmin() {
         clientEmail,
         privateKey,
       }),
-      databaseURL: `https://${projectId}-default-rtdb.firebaseio.com`,
     })
 
     return adminApp
