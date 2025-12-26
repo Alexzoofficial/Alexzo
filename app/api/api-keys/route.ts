@@ -1,53 +1,23 @@
 import { NextResponse } from "next/server"
 import { z } from "zod"
 import { headers } from "next/headers"
-import { getAdminFirestore, getAdminAuth } from "@/lib/firebase/admin"
+import { getAdminFirestore } from "@/lib/firebase/admin"
 
-type AuthResult = { userId: string; userName: string; error: null } | { userId: null; userName: null; error: "unauthorized" | "unconfigured" }
-
-async function getAuthenticatedUser(requestHeaders: Headers): Promise<AuthResult> {
-  const authorization = requestHeaders.get("Authorization")
-  if (!authorization || !authorization.startsWith("Bearer ")) {
-    return { userId: null, userName: null, error: "unauthorized" }
-  }
-  const idToken = authorization.split("Bearer ")[1]
-
-  try {
-    const adminAuth = getAdminAuth()
-    const decodedToken = await adminAuth.verifyIdToken(idToken)
-    return { 
-      userId: decodedToken.uid, 
-      userName: decodedToken.name || decodedToken.email || 'User',
-      error: null 
-    }
-  } catch (error: any) {
-    console.error("Error verifying ID token:", error.message)
-    if (error.message.includes("Firebase Admin SDK not initialized")) {
-      return { userId: null, userName: null, error: "unconfigured" }
-    }
-    return { userId: null, userName: null, error: "unauthorized" }
-  }
-}
+type AuthResult = { userId: string; userName: string; email: string; error: null } | { userId: null; userName: null; email: null; error: string }
 
 export async function GET(request: Request) {
-  const { userId, error } = await getAuthenticatedUser(await headers())
-
-  if (error === "unconfigured") {
-    return NextResponse.json(
-      { error: "Authentication service is not configured on the server." },
-      { status: 503 }
-    )
-  }
-
-  if (error === "unauthorized" || !userId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  const headersList = await headers()
+  const userEmail = headersList.get("x-user-email")
+  
+  if (!userEmail) {
+    return NextResponse.json({ error: "User email required" }, { status: 400 })
   }
 
   try {
     const db = getAdminFirestore()
     const keysSnapshot = await db
       .collection('api_keys')
-      .where('userId', '==', userId)
+      .where('userId', '==', userEmail)
       .orderBy('created', 'desc')
       .get()
 
@@ -79,17 +49,12 @@ function generateUniqueAPIKey(): string {
 }
 
 export async function POST(request: Request) {
-  const { userId, userName, error } = await getAuthenticatedUser(await headers())
-
-  if (error === "unconfigured") {
-    return NextResponse.json(
-      { error: "Authentication service is not configured on the server." },
-      { status: 503 }
-    )
-  }
-
-  if (error === "unauthorized" || !userId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  const headersList = await headers()
+  const userEmail = headersList.get("x-user-email")
+  const userName = headersList.get("x-user-name") || "User"
+  
+  if (!userEmail) {
+    return NextResponse.json({ error: "User email required" }, { status: 400 })
   }
 
   let body
@@ -116,7 +81,7 @@ export async function POST(request: Request) {
     }
 
     const docRef = await db.collection('api_keys').add({
-      userId,
+      userId: userEmail,
       userName,
       name,
       key: apiKey,
@@ -142,17 +107,11 @@ const deleteKeySchema = z.object({
 })
 
 export async function DELETE(request: Request) {
-  const { userId, error } = await getAuthenticatedUser(await headers())
-
-  if (error === "unconfigured") {
-    return NextResponse.json(
-      { error: "Authentication service is not configured on the server." },
-      { status: 503 }
-    )
-  }
-
-  if (error === "unauthorized" || !userId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  const headersList = await headers()
+  const userEmail = headersList.get("x-user-email")
+  
+  if (!userEmail) {
+    return NextResponse.json({ error: "User email required" }, { status: 400 })
   }
 
   let body
@@ -179,7 +138,7 @@ export async function DELETE(request: Request) {
     }
 
     const data = doc.data()
-    if (data?.userId !== userId) {
+    if (data?.userId !== userEmail) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 })
     }
 

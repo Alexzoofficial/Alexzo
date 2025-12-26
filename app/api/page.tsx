@@ -48,10 +48,10 @@ export default function APIPage() {
 
     setIsLoading(true)
     try {
-      const idToken = await user.getIdToken()
       const response = await fetch("/api/api-keys", {
         headers: {
-          Authorization: `Bearer ${idToken}`,
+          "x-user-email": user.email || "",
+          "x-user-name": user.displayName || user.email || "User",
         },
       })
 
@@ -85,12 +85,12 @@ export default function APIPage() {
 
     setIsCreating(true)
     try {
-      const idToken = await user.getIdToken()
       const response = await fetch("/api/api-keys", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${idToken}`,
+          "x-user-email": user.email || "",
+          "x-user-name": user.displayName || user.email || "User",
         },
         body: JSON.stringify({ name: keyName }),
       })
@@ -128,12 +128,12 @@ export default function APIPage() {
     if (!deleteKeyId || !user) return
 
     try {
-      const idToken = await user.getIdToken()
       const response = await fetch('/api/api-keys', {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${idToken}`,
+          'x-user-email': user.email || "",
+          'x-user-name': user.displayName || user.email || "User",
         },
         body: JSON.stringify({ id: deleteKeyId }),
       })
