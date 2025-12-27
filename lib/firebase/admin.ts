@@ -43,7 +43,16 @@ export function getFirebaseAdmin() {
 
     // Fallback to environment variables
     // Handle both escaped \n (from .env files) and real newlines (from Vercel UI)
-    const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n');
+    let privateKey = process.env.FIREBASE_PRIVATE_KEY || '';
+    
+    // Handle multiple newline formats
+    if (privateKey) {
+      // First, handle already-escaped newlines (\\n -> \n)
+      privateKey = privateKey.replace(/\\n/g, '\n');
+      // Then handle JSON-encoded newlines (\n -> actual newline)
+      privateKey = privateKey.replace(/\\\\n/g, '\n');
+    }
+    
     const clientEmail = process.env.FIREBASE_CLIENT_EMAIL
     const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID
 
