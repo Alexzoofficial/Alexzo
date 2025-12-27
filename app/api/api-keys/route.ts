@@ -16,10 +16,16 @@ export async function GET(request: Request) {
     const keysSnapshot = await db
       .collection('api_keys')
       .where('userId', '==', userEmail)
-      .orderBy('created', 'desc')
       .get()
+    
+    // Sort by created date in descending order (client-side)
+    const docs = keysSnapshot.docs.sort((a, b) => {
+      const timeA = new Date(a.data().created).getTime()
+      const timeB = new Date(b.data().created).getTime()
+      return timeB - timeA
+    })
 
-    const keys = keysSnapshot.docs.map(doc => {
+    const keys = docs.map(doc => {
       const data = doc.data()
       return {
         id: doc.id,

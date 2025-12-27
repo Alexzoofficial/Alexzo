@@ -18,10 +18,16 @@ export async function GET(request: NextRequest) {
     const apisSnapshot = await db
       .collection('custom_apis')
       .where('userEmail', '==', userEmail)
-      .orderBy('createdAt', 'desc')
       .get()
 
-    const apis = apisSnapshot.docs.map(doc => ({
+    // Sort by createdAt date in descending order (client-side)
+    const docs = apisSnapshot.docs.sort((a, b) => {
+      const timeA = new Date(a.data().createdAt).getTime()
+      const timeB = new Date(b.data().createdAt).getTime()
+      return timeB - timeA
+    })
+
+    const apis = docs.map(doc => ({
       id: doc.id,
       ...doc.data()
     }))

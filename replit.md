@@ -5,9 +5,18 @@ Alexzo is an AI-powered platform built with Next.js, designed to transform ideas
 
 ## Recent Changes
 
+### December 27, 2025 - Firebase Storage Migration & Complete API Implementation
+- **Storage Migration**: Successfully migrated API key and custom API storage from PostgreSQL back to Firebase Firestore for seamless integration.
+- **API Keys Management**: Complete CRUD operations (Create, Read, Update, Delete) working on `/api/api-keys` endpoint with Firestore storage.
+- **Custom APIs Management**: Full CRUD operations implemented on `/api/custom-apis` endpoint supporting URL, link, status, and apiKey fields.
+- **Email-Based Authorization**: Simplified authentication using `x-user-email` and `x-user-name` headers instead of Firebase token verification.
+- **Firestore Optimization**: Removed `orderBy()` constraints to avoid composite index requirements; implemented client-side sorting for better performance.
+- **Data Persistence**: All API keys and custom APIs permanently stored in Firebase Firestore with proper field mapping (userId, userName, userEmail, name, url, link, status, apiKey, created, updatedAt).
+- **Error Handling**: Comprehensive error handling with proper HTTP status codes (201 Created, 200 OK, 404 Not Found, 403 Unauthorized).
+
 ### December 14, 2025 - API Key Dialog Fix & PostgreSQL Migration
 - **Dialog Alignment Fix**: Fixed the "Create API Key" dialog box alignment on mobile devices. Changed `mx-4` class to `w-[calc(100%-2rem)]` for proper centering.
-- **PostgreSQL Database Setup**: Migrated API key storage from Firebase Firestore to PostgreSQL using Drizzle ORM for reliable data persistence.
+- **PostgreSQL Database Setup**: Temporarily migrated API key storage from Firebase Firestore to PostgreSQL using Drizzle ORM for reliable data persistence.
 - **Database Schema**: Created `api_keys` table with fields: id, userId, userName, name, key, created, lastUsed, requestCount.
 - **API Routes Updated**: Updated `/api/api-keys` and `/api/keys` endpoints to use PostgreSQL instead of Firebase Firestore.
 - **Response Serialization**: Ensured all API responses return properly formatted data with string IDs and ISO timestamps.
@@ -70,10 +79,12 @@ I prefer iterative development, with a focus on clear and concise communication.
 The application is built using Next.js 16.0.7 with TypeScript. UI components are developed with Radix UI and styled using Tailwind CSS, featuring custom theming for responsive design with dark/light modes. Firebase provides authentication via Google OAuth. The system integrates Google Analytics for tracking and includes features like user authentication, blog functionality, contact forms, newsletter sign-ups, and an API proxy gateway.
 
 ### Database Architecture
-- **PostgreSQL Database**: API keys are stored in PostgreSQL using Drizzle ORM for type-safe database operations.
-- **Database Schema**: Located in `shared/schema.ts` with the `api_keys` table.
-- **Database Connection**: Managed via `lib/db.ts` using the `DATABASE_URL` environment variable.
-- **Migrations**: Use `npm run db:push` to sync schema changes to the database.
+- **Firebase Firestore**: Primary database for API keys and custom APIs storage.
+- **Collections**:
+  - `api_keys`: Stores user API keys with fields (userId, userName, name, key, created, lastUsed)
+  - `custom_apis`: Stores custom API configurations with fields (userEmail, userName, name, url, link, status, apiKey, createdAt, updatedAt)
+- **Authentication**: Service account initialized in `lib/firebase/admin.ts` using credentials from `lib/firebase/credentials/service-account.json`
+- **Access Control**: Email-based authorization using `x-user-email` header for all API operations.
 
 ### API Usage Policy
 The `/api/generate` endpoint is designed for unlimited requests with minimal database overhead:
