@@ -1,7 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { db } from "@/lib/db"
-import { customApis } from "@/shared/schema"
-import { eq } from "drizzle-orm"
+import { getAdminFirestore } from "@/lib/firebase/admin"
 import { z } from "zod"
 
 export const runtime = 'nodejs'
@@ -16,10 +14,17 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "User email required" }, { status: 401 })
     }
 
-    const apis = await db
-      .select()
-      .from(customApis)
-      .where(eq(customApis.userEmail, userEmail))
+    const db = getAdminFirestore()
+    const apisSnapshot = await db
+      .collection('custom_apis')
+      .where('userEmail', '==', userEmail)
+      .orderBy('createdAt', 'desc')
+      .get()
+
+    const apis = apisSnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }))
 
     return NextResponse.json({ apis }, { status: 200 })
   } catch (error) {
@@ -49,32 +54,32 @@ export async function POST(request: NextRequest) {
     const { name, userName, userEmail, url, link } = validation.data
 
     const apiKey = `alexzo_${Math.random().toString(36).substring(2, 15)}${Math.random().toString(36).substring(2, 15)}`
+    const createdAt = new Date().toISOString()
 
-    const result = await db.insert(customApis).values({
-      userId: userEmail,
+    const db = getAdminFirestore()
+    const docRef = await db.collection('custom_apis').add({
       userName: userName || 'Unknown User',
-      userEmail,
+      userEmail: userEmail || '',
       name,
-      url: url || null,
-      link: link || null,
       status: 'active',
+      createdAt: createdAt,
       apiKey,
-    }).returning()
-
-    const newApi = result[0]
+      url: url || '',
+      link: link || '',
+    })
 
     return NextResponse.json({
       success: true,
       api: {
-        id: newApi.id,
-        name: newApi.name,
-        userName: newApi.userName,
-        userEmail: newApi.userEmail,
-        url: newApi.url,
-        link: newApi.link,
-        status: newApi.status,
-        apiKey: newApi.apiKey,
-        createdAt: newApi.createdAt,
+        id: docRef.id,
+        name,
+        userName: userName || 'Unknown User',
+        userEmail,
+        url: url || '',
+        link: link || '',
+        status: 'active',
+        apiKey,
+        createdAt,
       }
     }, { status: 201 })
   } catch (error) {
@@ -94,26 +99,19 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: "API ID and User email required" }, { status: 400 })
     }
 
-    const apiIdNum = parseInt(apiId, 10)
-    if (isNaN(apiIdNum)) {
-      return NextResponse.json({ error: "Invalid API ID" }, { status: 400 })
-    }
+    const db = getAdminFirestore()
+    const apiDoc = await db.collection('custom_apis').doc(apiId).get()
 
-    const api = await db
-      .select()
-      .from(customApis)
-      .where(eq(customApis.id, apiIdNum))
-      .limit(1)
-
-    if (api.length === 0) {
+    if (!apiDoc.exists) {
       return NextResponse.json({ error: "API not found" }, { status: 404 })
     }
 
-    if (api[0].userEmail !== userEmail) {
+    const apiData = apiDoc.data()
+    if (apiData?.userEmail !== userEmail) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 })
     }
 
-    await db.delete(customApis).where(eq(customApis.id, apiIdNum))
+    await apiDoc.ref.delete()
 
     return NextResponse.json({ success: true }, { status: 200 })
   } catch (error) {
@@ -132,37 +130,25 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
     }
 
-    const apiIdNum = parseInt(apiId, 10)
-    if (isNaN(apiIdNum)) {
-      return NextResponse.json({ error: "Invalid API ID" }, { status: 400 })
-    }
+    const db = getAdminFirestore()
+    const apiDoc = await db.collection('custom_apis').doc(apiId).get()
 
-    const api = await db
-      .select()
-      .from(customApis)
-      .where(eq(customApis.id, apiIdNum))
-      .limit(1)
-
-    if (api.length === 0) {
+    if (!apiDoc.exists) {
       return NextResponse.json({ error: "API not found" }, { status: 404 })
     }
 
-    if (api[0].userEmail !== userEmail) {
+    if (apiDoc.data()?.userEmail !== userEmail) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 })
     }
 
-    const updateData: any = { status, updatedAt: new Date() }
+    const updateData: any = { status, updatedAt: new Date().toISOString() }
     if (url) updateData.url = url
     if (link) updateData.link = link
     if (name) updateData.name = name
 
-    const result = await db
-      .update(customApis)
-      .set(updateData)
-      .where(eq(customApis.id, apiIdNum))
-      .returning()
+    await apiDoc.ref.update(updateData)
 
-    return NextResponse.json({ success: true, api: result[0] }, { status: 200 })
+    return NextResponse.json({ success: true }, { status: 200 })
   } catch (error) {
     console.error("Error updating custom API:", error)
     return NextResponse.json({ error: "Failed to update API" }, { status: 500 })

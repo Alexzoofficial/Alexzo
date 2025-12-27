@@ -1,9 +1,7 @@
 import { NextResponse } from "next/server"
 import { z } from "zod"
 import { headers } from "next/headers"
-import { db } from "@/lib/db"
-import { apiKeys } from "@/shared/schema"
-import { eq } from "drizzle-orm"
+import { getAdminFirestore } from "@/lib/firebase/admin"
 
 export async function GET(request: Request) {
   const headersList = await headers()
@@ -14,22 +12,25 @@ export async function GET(request: Request) {
   }
 
   try {
-    const keys = await db
-      .select()
-      .from(apiKeys)
-      .where(eq(apiKeys.userId, userEmail))
-      .orderBy(apiKeys.created)
+    const db = getAdminFirestore()
+    const keysSnapshot = await db
+      .collection('api_keys')
+      .where('userId', '==', userEmail)
+      .orderBy('created', 'desc')
+      .get()
 
-    return NextResponse.json(
-      keys.map(k => ({
-        id: k.id,
-        name: k.name,
-        key: k.key,
-        created: k.created,
-        lastUsed: k.lastUsed ? new Date(k.lastUsed).toISOString() : "Never",
-      })),
-      { status: 200 }
-    )
+    const keys = keysSnapshot.docs.map(doc => {
+      const data = doc.data()
+      return {
+        id: doc.id,
+        name: data.name,
+        key: data.key,
+        created: data.created,
+        lastUsed: data.lastUsed || "Never",
+      }
+    })
+
+    return NextResponse.json(keys, { status: 200 })
   } catch (error) {
     console.error("Error fetching API keys:", error)
     return NextResponse.json({ error: "Failed to fetch API keys" }, { status: 500 })
@@ -68,21 +69,24 @@ export async function POST(request: Request) {
 
   const { name } = validation.data
   const apiKey = generateUniqueAPIKey()
+  const created = new Date().toISOString()
 
   try {
-    const result = await db.insert(apiKeys).values({
+    const db = getAdminFirestore()
+    const docRef = await db.collection('api_keys').add({
       userId: userEmail,
       userName,
       name,
       key: apiKey,
-    }).returning()
+      created,
+      lastUsed: null,
+    })
 
-    const newKey = result[0]
     return NextResponse.json({
-      id: newKey.id,
-      name: newKey.name,
-      key: newKey.key,
-      created: newKey.created,
+      id: docRef.id,
+      name,
+      key: apiKey,
+      created,
       lastUsed: "Never",
     }, { status: 201 })
   } catch (error: any) {
@@ -92,7 +96,7 @@ export async function POST(request: Request) {
 }
 
 const deleteKeySchema = z.object({
-  id: z.coerce.number().positive("Valid Key ID is required"),
+  id: z.string().min(1, "Key ID is required"),
 })
 
 export async function DELETE(request: Request) {
@@ -118,21 +122,20 @@ export async function DELETE(request: Request) {
   const { id } = validation.data
 
   try {
-    const key = await db
-      .select()
-      .from(apiKeys)
-      .where(eq(apiKeys.id, id))
-      .limit(1)
+    const db = getAdminFirestore()
+    const docRef = db.collection('api_keys').doc(id)
+    const doc = await docRef.get()
 
-    if (key.length === 0) {
+    if (!doc.exists) {
       return NextResponse.json({ error: "API key not found" }, { status: 404 })
     }
 
-    if (key[0].userId !== userEmail) {
+    const data = doc.data()
+    if (data?.userId !== userEmail) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 })
     }
 
-    await db.delete(apiKeys).where(eq(apiKeys.id, id))
+    await docRef.delete()
     return NextResponse.json({ message: "API key deleted successfully" }, { status: 200 })
   } catch (error) {
     console.error("Error deleting API key:", error)
