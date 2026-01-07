@@ -133,7 +133,9 @@ export default function RootLayout({
         <meta httpEquiv="Pragma" content="no-cache" />
         <meta httpEquiv="Expires" content="0" />
         
-        {/* Google Search Console Verification - Additional codes */}
+        {/* Google Search Console Verification - Primary */}
+        <meta name="google-site-verification" content="google7cb025440a4403af" />
+        {/* Google Search Console Verification - Secondary */}
         <meta name="google-site-verification" content="LciVAzACk6a_cqUyi_rfYQqgsrX5AUuiWbsCLg5mOs0" />
         
         {/* Google Analytics */}
