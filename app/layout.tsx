@@ -133,25 +133,22 @@ export default function RootLayout({
         <meta httpEquiv="Pragma" content="no-cache" />
         <meta httpEquiv="Expires" content="0" />
         
-        {/* Google Search Console Verification - Primary */}
-        <meta name="google-site-verification" content="google7cb025440a4403af" />
-        {/* Google Search Console Verification - Secondary */}
-        <meta name="google-site-verification" content="LciVAzACk6a_cqUyi_rfYQqgsrX5AUuiWbsCLg5mOs0" />
-        
-        {/* Google Analytics */}
-        <Script async src="https://www.googletagmanager.com/gtag/js?id=G-CRDQVE5LF3" strategy="afterInteractive" />
-        <Script id="google-analytics" strategy="afterInteractive">
+        {/* Google Analytics - MUST BE FIRST FOR VERIFICATION */}
+        <Script 
+          src="https://www.googletagmanager.com/gtag/js?id=G-CRDQVE5LF3" 
+          strategy="beforeInteractive" 
+        />
+        <Script id="google-analytics" strategy="beforeInteractive">
           {`
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
-
             gtag('config', 'G-CRDQVE5LF3');
           `}
         </Script>
 
         {/* Google Tag Manager */}
-        <Script id="google-tag-manager" strategy="afterInteractive">
+        <Script id="google-tag-manager" strategy="beforeInteractive">
           {`
             (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
             new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -160,6 +157,12 @@ export default function RootLayout({
             })(window,document,'script','dataLayer','GTM-T9LXBR24');
           `}
         </Script>
+
+        {/* Google Search Console Verification - Primary */}
+        <meta name="google-site-verification" content="google7cb025440a4403af" />
+        {/* Google Search Console Verification - Secondary */}
+        <meta name="google-site-verification" content="LciVAzACk6a_cqUyi_rfYQqgsrX5AUuiWbsCLg5mOs0" />
+
       </head>
       <body className={inter.className}>
         {/* Google Tag Manager (noscript) */}
