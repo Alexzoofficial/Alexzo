@@ -129,13 +129,17 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        {/* Google Tag Manager - MUST BE FIRST FOR VERIFICATION */}
+        {/* Google Verification Tags - MUST BE AT THE VERY TOP OF HEAD */}
+        <meta name="google-site-verification" content="google7cb025440a4403af" />
+        <meta name="google-site-verification" content="LciVAzACk6a_cqUyi_rfYQqgsrX5AUuiWbsCLg5mOs0" />
+        
+        {/* Google Tag Manager - MUST BE AS HIGH AS POSSIBLE */}
         <Script id="google-tag-manager" strategy="beforeInteractive">
           {`
             (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
             new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
             j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-            'https://www.googletagmanager.com/gtag/js?id='+i+dl;f.parentNode.insertBefore(j,f);
+            'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
             })(window,document,'script','dataLayer','GTM-T9LXBR24');
           `}
         </Script>
@@ -157,12 +161,6 @@ export default function RootLayout({
             gtag('config', 'G-CRDQVE5LF3');
           `}
         </Script>
-
-        {/* Google Search Console Verification - Primary */}
-        <meta name="google-site-verification" content="google7cb025440a4403af" />
-        {/* Google Search Console Verification - Secondary */}
-        <meta name="google-site-verification" content="LciVAzACk6a_cqUyi_rfYQqgsrX5AUuiWbsCLg5mOs0" />
-
       </head>
       <body className={inter.className}>
         {/* Google Tag Manager (noscript) */}
