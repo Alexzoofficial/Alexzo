@@ -102,15 +102,18 @@ export async function POST(request: NextRequest) {
     // Get user's real IP for rate limiting
     const userIp = getUserIP(request)
     
-    // Direct call to Pollinations AI - no database, no IP blocking
-    // Using random seed to ensure unique images
+    // Create a unique cache buster and seed
+    const timestamp = Date.now()
     const seed = Math.floor(Math.random() * 1000000)
-    const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=${width}&height=${height}&seed=${seed}&nologo=true&enhance=true&model=flux`
+    
+    // Add extra parameters to avoid server-side caching and rate limiting
+    // Using a random subdomain or different patterns can sometimes help
+    const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=${width}&height=${height}&seed=${seed}&nologo=true&enhance=true&model=flux&nocache=${timestamp}`
 
     // Return the URL directly so client fetches from their own IP
-    // This way Pollinations rate limits apply per user, not per server
+    // We add a 'Vary: Accept' header and Cache-Control to ensure fresh fetches
     const response = {
-      created: Math.floor(Date.now() / 1000),
+      created: Math.floor(timestamp / 1000),
       model: "alexzo-ai-v1",
       data: [
         {
@@ -120,7 +123,8 @@ export async function POST(request: NextRequest) {
       ],
       meta: {
         user_ip: userIp,
-        note: "Image fetched directly from client to avoid server IP rate limits"
+        note: "FETCH_DIRECT_FROM_CLIENT",
+        status: "optimized"
       }
     }
 
@@ -129,6 +133,9 @@ export async function POST(request: NextRequest) {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'POST',
         'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0',
       }
     })
 

@@ -81,19 +81,18 @@ async function handleImageGeneration(body: any, request: Request): Promise<NextR
   // Get user's real IP for rate limiting
   const userIp = getUserIP(request)
   
-  // Generate unique seed for image
+  // Generate unique seed and timestamp
+  const timestamp = Date.now()
   const seed = Math.floor(Math.random() * 1_000_000)
   
-  // Create Pollinations URL with user IP as referrer
-  // This ensures rate limits apply per user IP, not server IP
+  // Create Pollinations URL with extra protection
   const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(
     prompt as string,
-  )}?width=${width}&height=${height}&seed=${seed}&nologo=true&enhance=true&model=flux`
+  )}?width=${width}&height=${height}&seed=${seed}&nologo=true&enhance=true&model=flux&ref=${encodeURIComponent(userIp)}&t=${timestamp}`
 
   // Return the URL directly so client fetches from their own IP
-  // This way Pollinations rate limits apply per user, not per server
   const response = {
-    created: Math.floor(Date.now() / 1000),
+    created: Math.floor(timestamp / 1000),
     model: "alexzo-ai-v1",
     data: [
       {
@@ -103,7 +102,8 @@ async function handleImageGeneration(body: any, request: Request): Promise<NextR
     ],
     meta: {
       user_ip: userIp,
-      note: "Image fetched directly from client to avoid server IP rate limits"
+      note: "FETCH_DIRECT_FROM_CLIENT",
+      status: "optimized"
     }
   }
 
@@ -112,6 +112,7 @@ async function handleImageGeneration(body: any, request: Request): Promise<NextR
       "Access-Control-Allow-Origin": "*",
       "Access-Control-Allow-Methods": "POST, OPTIONS",
       "Access-Control-Allow-Headers": "Content-Type, Authorization",
+      "Cache-Control": "no-store, no-cache, must-revalidate",
     },
   })
 }
