@@ -212,7 +212,7 @@ export async function POST(request: Request) {
     trackUsage(apiKey, pathString)
 
     // Route to appropriate handler
-    if (pathString === "generate" || pathString === "zyfoox/generate") {
+    if (pathString === "generate" || pathString === "zyfoox/generate" || pathString === "zyfoox") {
       return await handleImageGeneration(body, request)
     } else if (pathString === "chat/completions") {
       return await handleChatCompletions(body)
